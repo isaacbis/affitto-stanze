@@ -44,7 +44,40 @@
 html {
   scroll-behavior: smooth;
 }
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  touch-action: manipulation;
+}
 
+body {
+  -webkit-text-size-adjust: 100%;
+}
+
+img,
+table,
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+}
+
+a,
+button,
+input,
+select,
+textarea,
+.slot-btn,
+.btn-link,
+.hero-action,
+.quick-action-btn,
+.modern-nav a,
+.nav a {
+  touch-action: manipulation;
+}
 body {
   margin: 0;
   font-family: Inter, Arial, sans-serif;
@@ -700,47 +733,36 @@ tr:hover td {
 }
 
 @media (max-width: 768px) {
-  .topbar,
-  .hero-card,
-  .room-card-top,
-  .room-card-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .topbar-actions {
-    width: 100%;
-  }
-
-  .slots-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  table {
-    display: block;
-    overflow-x: auto;
-  }
-}
-
-@media (max-width: 768px) {
   .page {
-    padding: 14px 10px 24px;
+    padding: 12px 8px 20px;
   }
 
   .container,
   .container.modern,
   .container.small {
+    width: 100%;
     max-width: 100%;
   }
 
+  .topbar,
+  .hero-card,
+  .room-card-top,
+  .room-card-footer,
+  .section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .topbar {
-    padding: 16px;
+    padding: 14px;
     border-radius: 18px;
     margin-bottom: 16px;
   }
 
   .topbar h1 {
-    font-size: 26px;
+    font-size: 24px;
+    line-height: 1.1;
+    word-break: break-word;
   }
 
   .subtitle {
@@ -748,53 +770,39 @@ tr:hover td {
     line-height: 1.4;
   }
 
-  .card {
-    padding: 16px;
-    border-radius: 18px;
-    margin-bottom: 16px;
-  }
-
-  .section-head {
-    align-items: flex-start;
-    flex-direction: column;
-    margin-bottom: 14px;
-  }
-
-  .topbar,
-  .hero-card,
-  .room-card-top,
-  .room-card-footer {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .topbar-actions,
   .quick-actions,
   .modern-nav,
   .nav {
     width: 100%;
+    gap: 8px;
   }
 
   .modern-nav a,
   .nav a,
   .btn-link,
   .hero-action,
-  .quick-action-btn {
-    width: 100%;
-  }
-
+  .quick-action-btn,
   .user-chip {
     width: 100%;
     justify-content: center;
+  }
+
+  .card,
+  .glass {
+    padding: 14px;
+    border-radius: 18px;
+    margin-bottom: 16px;
   }
 
   .form-grid,
   .admin-layout,
   .stats-grid,
   .grid3,
-  .dashboard-grid {
+  .dashboard-grid,
+  .room-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
   }
 
   input,
@@ -806,77 +814,59 @@ tr:hover td {
   .warning-btn,
   .delete-btn {
     font-size: 16px;
+    padding: 13px 12px;
+    min-height: 48px;
+  }
+
+  .legend {
+    gap: 10px;
+    margin: 16px 0 12px;
+  }
+
+  .slots-dropdown {
+    border-radius: 16px;
+    margin: 14px 0;
+  }
+
+  .slots-dropdown summary {
     padding: 14px;
+    font-size: 15px;
   }
 
   .slots-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    padding: 12px;
+    padding: 10px;
   }
 
   .slot-btn {
-    padding: 14px 8px;
-    font-size: 14px;
+    min-height: 48px;
+    padding: 12px 6px;
+    font-size: 13px;
+    border-radius: 12px;
   }
 
   .selected-box {
-    padding: 12px 14px;
+    padding: 12px;
+    border-radius: 14px;
   }
 
   .table-wrap {
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
   }
 
   table {
-    min-width: 640px;
+    width: 100%;
+    min-width: 560px;
   }
 
   th,
   td {
-    padding: 12px 10px;
-    font-size: 14px;
-  }
-
-  .room-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .room-card {
-    padding: 14px;
-    border-radius: 18px;
-  }
-
-  .hero-card {
-    padding: 18px;
-  }
-
-  .hero-action {
-    min-width: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .page {
-    padding: 10px 8px 20px;
-  }
-
-  .topbar h1 {
-    font-size: 22px;
-  }
-
-  .card {
-    padding: 14px;
-  }
-
-  .slots-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .slot-btn {
+    padding: 10px 8px;
     font-size: 13px;
-    padding: 12px 6px;
   }
 
   .badge,
@@ -885,20 +875,95 @@ tr:hover td {
   .status-pill,
   .mini-badge {
     font-size: 11px;
-    padding: 6px 9px;
+    padding: 6px 8px;
   }
 
   .stat-card {
     min-height: auto;
     padding: 18px;
+    border-radius: 20px;
   }
 
   .stat-card h3 {
     font-size: 30px;
+    margin-top: 10px;
   }
 
-  .login-card,
-  .container.small {
-    max-width: 100%;
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+
+  .hero-card {
+    padding: 16px;
+  }
+
+  .hero-action {
+    min-width: 0;
+  }
+
+  .room-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .room-meta {
+    gap: 6px;
+  }
+}
+@media (max-width: 480px) {
+  .page {
+    padding: 8px 6px 18px;
+  }
+
+  .topbar {
+    padding: 12px;
+  }
+
+  .topbar h1 {
+    font-size: 21px;
+  }
+
+  .card,
+  .glass {
+    padding: 12px;
+  }
+
+  .subtitle,
+  .muted-text,
+  .blocked-text,
+  .muted-small {
+    font-size: 13px;
+  }
+
+  .slots-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .slot-btn {
+    font-size: 12px;
+    padding: 10px 4px;
+    min-height: 44px;
+  }
+
+  table {
+    min-width: 520px;
+  }
+
+  th,
+  td {
+    padding: 9px 7px;
+    font-size: 12px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-card h3 {
+    font-size: 26px;
   }
 }
