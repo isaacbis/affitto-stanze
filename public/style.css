@@ -1197,3 +1197,8 @@ tr:hover td {
     padding: 5px 7px;
   }
 }
+
+.highlight-card,
+.info-card {
+  display: none;
+}
