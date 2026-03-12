@@ -111,6 +111,15 @@ function buildBookingStartDate(bookingDate, startHour) {
   );
 }
 
+function isBookingCancellable(bookingDate, startHour) {
+  const bookingStart = buildBookingStartDate(bookingDate, startHour);
+  const now = new Date();
+  const diffMs = bookingStart.getTime() - now.getTime();
+
+  // cancellabile solo se mancano PIÙ di 60 minuti
+  return diffMs > 60 * 60 * 1000;
+}
+
 function getWeekStartMonday(baseDate = new Date()) {
   const d = new Date(baseDate);
   const day = d.getDay(); // 0 domenica
@@ -121,9 +130,13 @@ function getWeekStartMonday(baseDate = new Date()) {
 }
 
 function dateToYmd(date) {
-  return new Date(date).toISOString().slice(0, 10);
+  const d = new Date(date);
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0')
+  ].join('-');
 }
-
 function monthLastDay(monthStr) {
   const d = new Date(`${monthStr}-01T00:00:00`);
   d.setMonth(d.getMonth() + 1);
@@ -560,12 +573,13 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
         : getWeekStartMonday(new Date());
 
       startDate = dateToYmd(base);
-
+const nowLocal = new Date();
+const currentMonth = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, '0')}`;
       const end = new Date(base);
       end.setDate(end.getDate() + 6);
       endDate = dateToYmd(end);
     } else {
-      const monthStr = month || new Date().toISOString().slice(0, 7);
+      const monthStr = month || currentMonth;
       startDate = `${monthStr}-01`;
       endDate = monthLastDay(monthStr);
     }
@@ -606,7 +620,7 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
 
     const reportRows = [...aggregate.values()].sort((a, b) => b.total_hours - a.total_hours);
 
-    const effectiveMonth = month || new Date().toISOString().slice(0, 7);
+    const effectiveMonth = month || currentMonth;
 
 const nowDate = new Date();
 const monday = new Date(nowDate);
@@ -810,16 +824,10 @@ app.get('/user/my-bookings', requireUser, async (req, res) => {
     const enriched = await enrichBookings(rawBookings);
     const now = new Date();
 
-    const bookings = enriched.map(b => {
-      const bookingStart = buildBookingStartDate(b.booking_date, b.start_hour);
-      const diffMs = bookingStart.getTime() - now.getTime();
-      const cancellable = diffMs >= 60 * 60 * 1000;
-
-      return {
-        ...b,
-        cancellable
-      };
-    });
+    const bookings = enriched.map(b => ({
+  ...b,
+  cancellable: isBookingCancellable(b.booking_date, b.start_hour)
+}));
 
     res.render('user-my-bookings', {
       bookings,
@@ -833,37 +841,26 @@ app.get('/user/my-bookings', requireUser, async (req, res) => {
 
 app.post('/user/bookings/delete/:id', requireUser, async (req, res) => {
   try {
-
     const booking = await getBookingById(req.params.id);
 
     if (!booking || String(booking.user_id) !== String(req.session.user.id)) {
       return res.status(404).send('Prenotazione non trovata');
     }
 
-    const bookingStart = buildBookingStartDate(
-      booking.booking_date,
-      booking.start_hour
-    );
-
-    const now = new Date();
-    const diffMs = bookingStart.getTime() - now.getTime();
-
-    if (diffMs <= 60 * 60 * 1000) {
+    if (!isBookingCancellable(booking.booking_date, booking.start_hour)) {
       return res
         .status(400)
-        .send('Puoi cancellare una prenotazione solo oltre 1 ora prima');
+        .send('Non puoi cancellare prenotazioni già passate o entro 1 ora dall’inizio');
     }
 
     await bookingsCol.doc(req.params.id).delete();
 
     res.redirect('/user/my-bookings');
-
   } catch (err) {
     console.error(err);
     res.status(500).send('Errore cancellazione prenotazione');
   }
 });
-
 /* =========================
    START SERVER
 ========================= */
