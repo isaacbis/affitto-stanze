@@ -562,6 +562,9 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
   try {
     const { type = 'monthly', month, weekStart, userId } = req.query;
 
+const nowLocal = new Date();
+const currentMonth = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, '0')}`;
+
     let startDate;
     let endDate;
 
@@ -571,8 +574,6 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
         : getWeekStartMonday(new Date());
 
       startDate = dateToYmd(base);
-const nowLocal = new Date();
-const currentMonth = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, '0')}`;
       const end = new Date(base);
       end.setDate(end.getDate() + 6);
       endDate = dateToYmd(end);
