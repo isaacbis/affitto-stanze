@@ -222,13 +222,11 @@ async function getActiveRoomsSortedByName() {
 }
 
 async function getActiveUsersSortedByUsername() {
-  const snap = await usersCol
-    .where('role', '==', 'user')
-    .where('active', '==', true)
-    .get();
+  const snap = await usersCol.get();
 
   return snap.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(u => u.role === 'user' && u.active === true)
     .sort((a, b) => String(a.username || '').localeCompare(String(b.username || ''), 'it'));
 }
 
