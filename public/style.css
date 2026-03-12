@@ -195,8 +195,9 @@ a {
 
 .admin-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   gap: 22px;
+  align-items: start;
 }
 
 .dashboard-grid {
@@ -572,11 +573,16 @@ button {
 }
 
 .table-wrap {
+  width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 18px;
 }
 
 table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
@@ -585,7 +591,50 @@ td {
   padding: 14px 12px;
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
+  vertical-align: middle;
+}
+
+/* FIX LAYOUT ADMIN */
+.admin-layout .card,
+.table-wrap,
+table {
+  max-width: 100%;
+}
+
+.role-pill,
+.status-pill,
+.hours-chip,
+.mini-badge,
+.badge {
   white-space: nowrap;
+}
+
+td form {
+  margin: 0;
+}
+
+td .delete-btn,
+td .warning-btn,
+td .success-btn {
+  min-width: 110px;
+}
+
+th {
+  white-space: nowrap;
+}
+
+td {
+  white-space: normal;
+  word-break: break-word;
+}
+
+th {
+  white-space: nowrap;
+}
+
+td {
+  white-space: normal;
+  word-break: break-word;
 }
 
 th {
@@ -965,5 +1014,186 @@ tr:hover td {
 
   .stat-card h3 {
     font-size: 26px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    min-width: 680px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .page {
+    padding: 10px 8px 20px;
+  }
+
+  .container,
+  .container.modern,
+  .container.small {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .topbar,
+  .hero-card,
+  .room-card-top,
+  .room-card-footer,
+  .section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar {
+    padding: 14px;
+    border-radius: 18px;
+    margin-bottom: 16px;
+  }
+
+  .topbar h1 {
+    font-size: 24px;
+    line-height: 1.1;
+    word-break: break-word;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .topbar-actions,
+  .quick-actions,
+  .modern-nav,
+  .nav {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .modern-nav a,
+  .nav a,
+  .btn-link,
+  .hero-action,
+  .quick-action-btn,
+  .user-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .card,
+  .glass {
+    padding: 14px;
+    border-radius: 18px;
+    margin-bottom: 16px;
+  }
+
+  .form-grid,
+  .admin-layout,
+  .stats-grid,
+  .grid3,
+  .dashboard-grid,
+  .room-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  input,
+  select,
+  textarea,
+  button,
+  .primary-btn,
+  .success-btn,
+  .warning-btn,
+  .delete-btn {
+    font-size: 16px;
+    padding: 13px 12px;
+    min-height: 48px;
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 620px;
+  }
+
+  th,
+  td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  td .delete-btn,
+  td .warning-btn,
+  td .success-btn {
+    min-width: 96px;
+    padding: 10px 12px;
+  }
+
+  .badge,
+  .hours-chip,
+  .role-pill,
+  .status-pill,
+  .mini-badge {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .slots-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .slot-btn {
+    min-height: 48px;
+    padding: 12px 6px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 8px 6px 18px;
+  }
+
+  .topbar {
+    padding: 12px;
+  }
+
+  .topbar h1 {
+    font-size: 21px;
+  }
+
+  .card,
+  .glass {
+    padding: 12px;
+  }
+
+  table {
+    min-width: 560px;
+  }
+
+  th,
+  td {
+    padding: 9px 7px;
+    font-size: 12px;
+  }
+
+  .badge,
+  .hours-chip,
+  .role-pill,
+  .status-pill,
+  .mini-badge {
+    font-size: 10px;
+    padding: 5px 7px;
   }
 }
