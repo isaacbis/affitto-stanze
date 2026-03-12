@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Report ore prenotate</h1>
+          <p class="subtitle">Analizza ore prenotate e numero prenotazioni per utente</p>
+        </div>
+        <div class="topbar-actions">
+          <a class="btn-link" href="/admin/dashboard">Dashboard</a>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <div class="card glass">
+        <div class="section-head">
+          <h2>Filtri report</h2>
+          <span class="badge badge-violet">Analisi</span>
+        </div>
+
+        <form method="GET" action="/admin/reports" class="stack-form">
+          <label>Tipo report</label>
+          <select name="type">
+            <option value="monthly" <%= filters.type === 'monthly' ? 'selected' : '' %>>Mensile</option>
+            <option value="weekly" <%= filters.type === 'weekly' ? 'selected' : '' %>>Settimanale</option>
+          </select>
+
+          <label>Mese (per report mensile)</label>
+          <input type="month" name="month" value="<%= filters.month %>">
+
+          <label>Data inizio settimana (per report settimanale)</label>
+          <input type="date" name="weekStart" value="<%= filters.weekStart %>">
+
+          <label>Utente</label>
+          <select name="userId">
+            <option value="">Tutti</option>
+            <% users.forEach(u => { %>
+              <option value="<%= u.id %>" <%= String(filters.userId) === String(u.id) ? 'selected' : '' %>>
+                <%= u.username %>
+              </option>
+            <% }) %>
+          </select>
+
+          <button type="submit" class="primary-btn">Genera report</button>
+        </form>
+      </div>
+
+      <div class="card glass">
+        <div class="section-head">
+          <h2>Periodo selezionato</h2>
+          <span class="badge"><%= startDate %> → <%= endDate %></span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>Utente</th>
+              <th>Totale ore</th>
+              <th>Numero prenotazioni</th>
+            </tr>
+
+            <% reportRows.forEach(r => { %>
+              <tr>
+                <td><strong><%= r.username %></strong></td>
+                <td><span class="hours-chip"><%= r.total_hours || 0 %>h</span></td>
+                <td><%= r.total_bookings || 0 %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

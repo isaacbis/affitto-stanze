@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Le mie prenotazioni</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Le mie prenotazioni</h1>
+          <p class="subtitle">Puoi cancellare solo fino a 1 ora prima</p>
+        </div>
+        <div>
+          <a class="btn-link" href="/user/dashboard">Dashboard</a>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <div class="card glass">
+        <table>
+          <tr>
+            <th>Stanza</th>
+            <th>Data</th>
+            <th>Da</th>
+            <th>A</th>
+            <th>Ore</th>
+            <th>Azione</th>
+          </tr>
+
+          <% bookings.forEach(b => { %>
+            <tr>
+              <td><%= b.room_name %></td>
+              <td><%= b.booking_date %></td>
+              <td><%= String(b.start_hour).padStart(2, '0') %>:00</td>
+              <td><%= String(b.end_hour).padStart(2, '0') %>:00</td>
+              <td><%= b.total_hours %></td>
+              <td>
+                <% if (b.cancellable) { %>
+                  <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
+                    <button type="submit" class="delete-btn">Cancella</button>
+                  </form>
+                <% } else { %>
+                  <span class="blocked-text">Non cancellabile</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

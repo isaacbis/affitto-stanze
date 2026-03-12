@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prenotazioni</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Tutte le prenotazioni</h1>
+          <p class="subtitle">Gestisci e controlla tutte le prenotazioni inserite nel sistema</p>
+        </div>
+        <div class="topbar-actions">
+          <a class="btn-link" href="/admin/dashboard">Dashboard</a>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <div class="card glass">
+        <div class="section-head">
+          <h2>Elenco prenotazioni</h2>
+          <span class="badge badge-blue"><%= bookings.length %> totali</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>Utente</th>
+              <th>Stanza</th>
+              <th>Data</th>
+              <th>Da</th>
+              <th>A</th>
+              <th>Ore</th>
+              <th>Azione</th>
+            </tr>
+
+            <% bookings.forEach(b => { %>
+              <tr>
+                <td><strong><%= b.username %></strong></td>
+                <td><%= b.room_name %></td>
+                <td><%= b.booking_date %></td>
+                <td><%= String(b.start_hour).padStart(2, '0') %>:00</td>
+                <td><%= String(b.end_hour).padStart(2, '0') %>:00</td>
+                <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
+                <td>
+                  <form method="POST" action="/admin/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero eliminare questa prenotazione?')">
+                    <button type="submit" class="delete-btn">Elimina</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

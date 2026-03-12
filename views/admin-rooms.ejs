@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione Stanze</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Gestione Stanze</h1>
+          <p class="subtitle">Crea e organizza le stanze prenotabili</p>
+        </div>
+        <div class="topbar-actions">
+          <a class="btn-link" href="/admin/dashboard">Dashboard</a>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <div class="admin-layout">
+        <div class="card glass">
+          <div class="section-head">
+            <h2>Crea stanza</h2>
+            <span class="badge badge-blue">Nuova stanza</span>
+          </div>
+
+          <form method="POST" action="/admin/rooms/create" class="stack-form">
+            <label>Nome stanza</label>
+            <input type="text" name="name" placeholder="Es. Sala Blu" required>
+
+            <label>Descrizione</label>
+            <textarea name="description" rows="5" placeholder="Inserisci una breve descrizione della stanza"></textarea>
+
+            <button type="submit" class="primary-btn">Crea stanza</button>
+          </form>
+        </div>
+
+        <div class="card glass">
+          <div class="section-head">
+            <h2>Lista stanze</h2>
+            <span class="badge"><%= rooms.length %> totali</span>
+          </div>
+
+          <div class="room-grid">
+            <% rooms.forEach(r => { %>
+              <div class="room-card">
+                <div class="room-card-top">
+                  <div>
+                    <h3><%= r.name %></h3>
+                    <p><%= r.description || 'Nessuna descrizione disponibile' %></p>
+                  </div>
+                  <span class="status-pill <%= r.active ? 'status-on' : 'status-off' %>">
+                    <%= r.active ? 'Attiva' : 'Disattiva' %>
+                  </span>
+                </div>
+
+                <div class="room-meta">
+                  <span class="mini-badge">ID #<%= r.id %></span>
+                  <span class="mini-badge"><%= r.created_at ? 'Creata' : 'Stanza' %></span>
+                </div>
+
+                <div class="room-card-footer">
+                  <div class="muted-small">Gestione rapida stato</div>
+                  <form method="POST" action="/admin/rooms/toggle/<%= r.id %>">
+                    <button type="submit" class="<%= r.active ? 'warning-btn' : 'success-btn' %>">
+                      <%= r.active ? 'Disattiva' : 'Attiva' %>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

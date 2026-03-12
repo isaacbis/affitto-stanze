@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Dashboard Admin</h1>
+          <p class="subtitle">Panoramica generale di utenti, stanze e prenotazioni</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="user-chip">👤 <strong><%= user.username %></strong></span>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <div class="nav modern-nav">
+        <a href="/admin/dashboard" class="active">Dashboard</a>
+        <a href="/admin/users">Utenti</a>
+        <a href="/admin/rooms">Stanze</a>
+        <a href="/admin/bookings">Prenotazioni</a>
+        <a href="/admin/reports">Report</a>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card gradient-blue">
+          <div class="stat-icon">👥</div>
+          <div>
+            <span>Utenti attivi</span>
+            <h3><%= totalUsers %></h3>
+          </div>
+        </div>
+
+        <div class="stat-card gradient-violet">
+          <div class="stat-icon">🏠</div>
+          <div>
+            <span>Stanze attive</span>
+            <h3><%= totalRooms %></h3>
+          </div>
+        </div>
+
+        <div class="stat-card gradient-pink">
+          <div class="stat-icon">🕒</div>
+          <div>
+            <span>Prenotazioni oggi</span>
+            <h3><%= todayBookings %></h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card glass highlight-card">
+          <div class="section-head">
+            <h2>Centro di controllo</h2>
+            <span class="badge badge-blue">Admin</span>
+          </div>
+          <p class="muted-text">
+            Da qui puoi gestire utenti, stanze, prenotazioni e report. La dashboard ti mostra lo stato generale del sistema in un colpo d’occhio.
+          </p>
+          <div class="quick-actions">
+            <a href="/admin/users" class="quick-action-btn">Gestisci utenti</a>
+            <a href="/admin/rooms" class="quick-action-btn">Gestisci stanze</a>
+            <a href="/admin/bookings" class="quick-action-btn">Vedi prenotazioni</a>
+            <a href="/admin/reports" class="quick-action-btn">Apri report</a>
+          </div>
+        </div>
+
+        <div class="card glass info-card">
+          <div class="section-head">
+            <h2>Riepilogo rapido</h2>
+            <span class="badge badge-violet">Live</span>
+          </div>
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <span class="mini-stat-label">Utenti</span>
+              <strong><%= totalUsers %></strong>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Stanze</span>
+              <strong><%= totalRooms %></strong>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Oggi</span>
+              <strong><%= todayBookings %></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass">
+        <div class="section-head">
+          <h2>Ultime prenotazioni</h2>
+          <span class="badge badge-blue">Le ultime 10</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>Utente</th>
+              <th>Stanza</th>
+              <th>Data</th>
+              <th>Da</th>
+              <th>A</th>
+              <th>Ore</th>
+            </tr>
+            <% latestBookings.forEach(b => { %>
+              <tr>
+                <td><strong><%= b.username %></strong></td>
+                <td><%= b.room_name %></td>
+                <td><%= b.booking_date %></td>
+                <td><%= String(b.start_hour).padStart(2, '0') %>:00</td>
+                <td><%= String(b.end_hour).padStart(2, '0') %>:00</td>
+                <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

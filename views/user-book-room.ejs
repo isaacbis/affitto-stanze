@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Prenota stanza</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Prenota stanza</h1>
+          <p class="subtitle">Scegli stanza, data e fascia oraria disponibile</p>
+        </div>
+        <div>
+          <a class="btn-link" href="/user/dashboard">Dashboard</a>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert success"><%= success %></div>
+      <% } %>
+
+      <div class="card glass">
+        <form method="POST" action="/user/book-room" id="bookingForm">
+          <div class="form-grid">
+            <div>
+              <label>Stanza</label>
+              <select name="room_id" id="roomSelect" required>
+                <option value="">Seleziona stanza</option>
+                <% rooms.forEach(r => { %>
+                  <option value="<%= r.id %>"><%= r.name %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div>
+              <label>Data</label>
+              <input type="date" name="booking_date" id="bookingDate" required>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span class="legend-item"><span class="dot free"></span> Libero</span>
+            <span class="legend-item"><span class="dot busy"></span> Occupato</span>
+            <span class="legend-item"><span class="dot selected"></span> Selezionato</span>
+          </div>
+
+          <details class="slots-dropdown" open>
+            <summary>Apri / chiudi fasce orarie</summary>
+            <div id="slotsContainer" class="slots-grid"></div>
+          </details>
+
+          <div class="selected-box">
+            <p><strong>Inizio selezionato:</strong> <span id="selectedStartText">-</span></p>
+            <p><strong>Fine selezionata:</strong> <span id="selectedEndText">-</span></p>
+          </div>
+
+          <input type="hidden" name="start_hour" id="startHourInput" required>
+          <input type="hidden" name="end_hour" id="endHourInput" required>
+
+          <button type="submit" class="primary-btn">Conferma prenotazione</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const roomSelect = document.getElementById('roomSelect');
+    const bookingDate = document.getElementById('bookingDate');
+    const slotsContainer = document.getElementById('slotsContainer');
+    const startHourInput = document.getElementById('startHourInput');
+    const endHourInput = document.getElementById('endHourInput');
+    const selectedStartText = document.getElementById('selectedStartText');
+    const selectedEndText = document.getElementById('selectedEndText');
+
+    let occupiedHours = [];
+    let selectedStart = null;
+    let selectedEnd = null;
+
+    function formatHour(hour) {
+      return String(hour).padStart(2, '0') + ':00';
+    }
+
+    function resetSelection() {
+      selectedStart = null;
+      selectedEnd = null;
+      startHourInput.value = '';
+      endHourInput.value = '';
+      selectedStartText.textContent = '-';
+      selectedEndText.textContent = '-';
+    }
+
+    function buildSlots() {
+      slotsContainer.innerHTML = '';
+
+      for (let h = 0; h < 24; h++) {
+        const slot = document.createElement('button');
+        slot.type = 'button';
+        slot.className = 'slot-btn';
+        slot.dataset.hour = h;
+        slot.textContent = formatHour(h);
+
+        if (occupiedHours.includes(h)) {
+          slot.classList.add('busy');
+          slot.disabled = true;
+        } else {
+          slot.classList.add('free');
+          slot.addEventListener('click', () => handleSlotClick(h));
+        }
+
+        slotsContainer.appendChild(slot);
+      }
+
+      refreshSelectedUI();
+    }
+
+    function refreshSelectedUI() {
+      document.querySelectorAll('.slot-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        const hour = Number(btn.dataset.hour);
+
+        if (
+          selectedStart !== null &&
+          selectedEnd !== null &&
+          hour >= selectedStart &&
+          hour < selectedEnd
+        ) {
+          btn.classList.add('selected');
+        }
+      });
+
+      selectedStartText.textContent = selectedStart !== null ? formatHour(selectedStart) : '-';
+      selectedEndText.textContent = selectedEnd !== null ? formatHour(selectedEnd) : '-';
+    }
+
+    function handleSlotClick(hour) {
+      if (selectedStart === null) {
+        selectedStart = hour;
+        selectedEnd = hour + 1;
+      } else if (selectedStart !== null && selectedEnd !== null) {
+        if (hour < selectedStart) {
+          selectedStart = hour;
+        } else {
+          selectedEnd = hour + 1;
+        }
+
+        for (let h = selectedStart; h < selectedEnd; h++) {
+          if (occupiedHours.includes(h)) {
+            alert('Hai incluso una fascia occupata. Seleziona solo orari liberi consecutivi.');
+            resetSelection();
+            refreshSelectedUI();
+            return;
+          }
+        }
+      }
+
+      startHourInput.value = selectedStart;
+      endHourInput.value = selectedEnd;
+      refreshSelectedUI();
+    }
+
+    async function loadAvailability() {
+      const roomId = roomSelect.value;
+      const date = bookingDate.value;
+
+      resetSelection();
+      slotsContainer.innerHTML = '';
+
+      if (!roomId || !date) return;
+
+      try {
+        const response = await fetch(`/user/availability?room_id=${roomId}&booking_date=${date}`);
+        const data = await response.json();
+
+        occupiedHours = data.occupiedHours || [];
+        buildSlots();
+      } catch (err) {
+        console.error(err);
+        slotsContainer.innerHTML = '<p>Errore nel caricamento disponibilità</p>';
+      }
+    }
+
+    roomSelect.addEventListener('change', loadAvailability);
+    bookingDate.addEventListener('change', loadAvailability);
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    bookingDate.min = `${yyyy}-${mm}-${dd}`;
+  </script>
+</body>
+</html>

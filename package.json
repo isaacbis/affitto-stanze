@@ -1,0 +1,20 @@
+{
+  "name": "affitto-stanze",
+  "version": "1.0.0",
+  "description": "Sistema prenotazione stanze con Express, EJS e Firebase",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "firebase-admin": "^13.7.0"
+  }
+}

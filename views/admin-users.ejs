@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione Utenti</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="container modern">
+      <div class="topbar glass">
+        <div>
+          <h1>Gestione Utenti</h1>
+          <p class="subtitle">Crea, attiva e disattiva gli account del sistema</p>
+        </div>
+        <div class="topbar-actions">
+          <a class="btn-link" href="/admin/dashboard">Dashboard</a>
+          <a class="btn-link danger-link" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert success"><%= success %></div>
+      <% } %>
+
+      <div class="admin-layout">
+        <div class="card glass">
+          <div class="section-head">
+            <h2>Crea utente</h2>
+            <span class="badge badge-violet">Nuovo account</span>
+          </div>
+
+          <form method="POST" action="/admin/users/create" class="stack-form">
+            <label>Username</label>
+            <input type="text" name="username" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            <label>Ruolo</label>
+            <select name="role" required>
+              <option value="user">Utente</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            <button type="submit" class="primary-btn">Crea utente</button>
+          </form>
+        </div>
+
+        <div class="card glass">
+          <div class="section-head">
+            <h2>Lista utenti</h2>
+            <span class="badge"><%= users.length %> totali</span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Ruolo</th>
+                <th>Stato</th>
+                <th>Azione</th>
+              </tr>
+              <% users.forEach(u => { %>
+                <tr>
+                  <td>#<%= u.id %></td>
+                  <td><strong><%= u.username %></strong></td>
+                  <td>
+                    <span class="role-pill <%= u.role === 'admin' ? 'role-admin' : 'role-user' %>">
+                      <%= u.role %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-pill <%= u.active ? 'status-on' : 'status-off' %>">
+                      <%= u.active ? 'Attivo' : 'Disattivo' %>
+                    </span>
+                  </td>
+                  <td>
+                    <form method="POST" action="/admin/users/toggle/<%= u.id %>">
+                      <button type="submit" class="<%= u.active ? 'warning-btn' : 'success-btn' %>">
+                        <%= u.active ? 'Disattiva' : 'Attiva' %>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
