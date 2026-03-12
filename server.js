@@ -98,7 +98,17 @@ function padHour(hour) {
 }
 
 function buildBookingStartDate(bookingDate, startHour) {
-  return new Date(`${bookingDate}T${padHour(startHour)}:00:00`);
+  const [y, m, d] = bookingDate.split('-').map(Number);
+
+  return new Date(
+    y,
+    m - 1,
+    d,
+    Number(startHour),
+    0,
+    0,
+    0
+  );
 }
 
 function getWeekStartMonday(baseDate = new Date()) {
@@ -596,18 +606,29 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
 
     const reportRows = [...aggregate.values()].sort((a, b) => b.total_hours - a.total_hours);
 
-    res.render('admin-reports', {
-      reportRows,
-      users,
-      filters: {
-        type,
-        month: month || '',
-        weekStart: weekStart || '',
-        userId: userId || ''
-      },
-      startDate,
-      endDate
-    });
+    const effectiveMonth = month || new Date().toISOString().slice(0, 7);
+
+const nowDate = new Date();
+const monday = new Date(nowDate);
+monday.setDate(nowDate.getDate() - ((nowDate.getDay() + 6) % 7));
+const effectiveWeekStart = weekStart || [
+  monday.getFullYear(),
+  String(monday.getMonth() + 1).padStart(2, '0'),
+  String(monday.getDate()).padStart(2, '0')
+].join('-');
+
+res.render('admin-reports', {
+  reportRows,
+  users,
+  filters: {
+    type,
+    month: effectiveMonth,
+    weekStart: effectiveWeekStart,
+    userId: userId || ''
+  },
+  startDate,
+  endDate
+});
   } catch (err) {
     console.error('Errore report:', err);
     res.status(500).send('Errore report');
@@ -812,28 +833,33 @@ app.get('/user/my-bookings', requireUser, async (req, res) => {
 
 app.post('/user/bookings/delete/:id', requireUser, async (req, res) => {
   try {
-    const id = String(req.params.id);
-    const booking = await getBookingById(id);
+
+    const booking = await getBookingById(req.params.id);
 
     if (!booking || String(booking.user_id) !== String(req.session.user.id)) {
       return res.status(404).send('Prenotazione non trovata');
     }
 
-    const bookingStart = buildBookingStartDate(booking.booking_date, booking.start_hour);
+    const bookingStart = buildBookingStartDate(
+      booking.booking_date,
+      booking.start_hour
+    );
+
     const now = new Date();
     const diffMs = bookingStart.getTime() - now.getTime();
 
-    if (diffMs < 60 * 60 * 1000) {
+    if (diffMs <= 60 * 60 * 1000) {
       return res
         .status(400)
-        .send('Puoi cancellare una prenotazione solo fino a 1 ora prima');
+        .send('Puoi cancellare una prenotazione solo oltre 1 ora prima');
     }
 
-    await bookingsCol.doc(id).delete();
+    await bookingsCol.doc(req.params.id).delete();
 
     res.redirect('/user/my-bookings');
+
   } catch (err) {
-    console.error('Errore cancellazione prenotazione:', err);
+    console.error(err);
     res.status(500).send('Errore cancellazione prenotazione');
   }
 });
