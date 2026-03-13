@@ -41,7 +41,7 @@
               <td>
                 <% if (b.cancellable) { %>
                   <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
-                    <button type="submit" class="delete-btn">Cancella</button>
+                    <button type="submit" class="delete-btn">X</button>
                   </form>
                 <% } else { %>
                   <span class="blocked-text">Non cancellabile</span>
