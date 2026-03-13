@@ -1549,22 +1549,50 @@ body:has(.login-page) {
     font-size: 13px;
   }
 
-  table {
-    min-width: 500px;
-  }
+table,
+.compact-table,
+.users-table,
+.bookings-table,
+.reports-table,
+.admin-latest-table {
+  min-width: 0 !important;
+  width: 100%;
+  table-layout: fixed;
+}
 
-  th,
-  td {
-    padding: 8px 6px;
-    font-size: 11px;
-  }
+.admin-latest-table th,
+.admin-latest-table td,
+.users-table th,
+.users-table td,
+.bookings-table th,
+.bookings-table td,
+.reports-table th,
+.reports-table td {
+  padding: 5px 3px;
+  font-size: 9px;
+}
 
-  .users-table,
-  .bookings-table,
-  .reports-table {
-    min-width: 500px;
-  }
+.admin-latest-table .hours-chip,
+.users-table .role-pill,
+.users-table .status-pill,
+.bookings-table .hours-chip,
+.reports-table .hours-chip {
+  padding: 2px 4px;
+  font-size: 7px;
+}
 
+.users-table .compact-action-btn {
+  min-width: 28px !important;
+  height: 26px;
+  font-size: 8px;
+}
+
+.bookings-table .icon-action-btn {
+  min-width: 24px !important;
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
   .badge,
   .hours-chip,
   .role-pill,
