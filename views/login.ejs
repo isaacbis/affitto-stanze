@@ -7,46 +7,50 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-
-<div class="login-page">
-
-  <div class="login-card glass">
-
-    <div class="login-card-top">
-      <span class="login-mini-badge">Accesso</span>
-      <h2>Accedi</h2>
-      <p>Inserisci le credenziali per entrare nel gestionale.</p>
-    </div>
-
-    <% if (error) { %>
-      <div class="alert error"><%= error %></div>
-    <% } %>
-
-    <form method="POST" action="/login" class="login-form-modern">
-
-      <div class="login-input-group">
-        <label for="username">Username</label>
-        <input id="username" type="text" name="username" required autocomplete="username">
+  <div class="login-page">
+    <div class="login-card glass">
+      <div class="login-card-top">
+        <span class="login-mini-badge">Accesso</span>
+        <h2>Accedi</h2>
+        <p>Inserisci le credenziali per entrare nel gestionale.</p>
       </div>
 
-      <div class="login-input-group">
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" required autocomplete="current-password">
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/login" class="login-form-modern">
+        <div class="login-input-group">
+          <label for="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="Inserisci username"
+            required
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="login-input-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Inserisci password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="login-submit-btn">Accedi</button>
+      </form>
+
+      <div class="login-card-footer">
+        Area riservata utenti e amministratori
       </div>
-
-      <button type="submit" class="login-submit-btn">
-        Accedi
-      </button>
-
-    </form>
-
-    <div class="login-card-footer">
-      Area riservata utenti e amministratori
     </div>
-
   </div>
-
-</div>
-
 </body>
 </html>
