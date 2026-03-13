@@ -814,6 +814,135 @@ table {
 }
 
 @media (max-width: 768px) {
+
+.users-table th,
+.users-table td {
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+  width: 34%;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2),
+.users-table th:nth-child(3),
+.users-table td:nth-child(3),
+.users-table th:nth-child(4),
+.users-table td:nth-child(4) {
+  width: 22%;
+}
+
+.users-table .role-pill,
+.users-table .status-pill {
+  padding: 5px 7px;
+  font-size: 10px;
+}
+
+.users-table .compact-action-btn {
+  min-width: 44px !important;
+  padding: 8px 8px !important;
+  font-size: 11px;
+}
+
+.bookings-table th,
+.bookings-table td {
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
+.bookings-table th:nth-child(1),
+.bookings-table td:nth-child(1) {
+  width: 18%;
+}
+
+.bookings-table th:nth-child(2),
+.bookings-table td:nth-child(2) {
+  width: 16%;
+}
+
+.bookings-table th:nth-child(3),
+.bookings-table td:nth-child(3) {
+  width: 14%;
+}
+
+.bookings-table th:nth-child(4),
+.bookings-table td:nth-child(4),
+.bookings-table th:nth-child(5),
+.bookings-table td:nth-child(5) {
+  width: 9%;
+}
+
+.bookings-table th:nth-child(6),
+.bookings-table td:nth-child(6) {
+  width: 8%;
+}
+
+.bookings-table th:nth-child(7),
+.bookings-table td:nth-child(7) {
+  width: 6%;
+}
+
+.bookings-table .hours-chip {
+  padding: 5px 7px;
+  font-size: 10px;
+}
+
+.bookings-table .icon-action-btn {
+  min-width: 34px !important;
+  width: 34px;
+  height: 34px;
+  font-size: 13px;
+}
+
+.report-filters-grid {
+  grid-template-columns: 1fr !important;
+  gap: 10px;
+}
+
+.report-filters-grid > div,
+.report-filter-action {
+  width: 100%;
+  min-width: 0;
+}
+
+.report-filters-grid label {
+  margin-bottom: 6px;
+}
+
+.report-filters-grid input,
+.report-filters-grid select,
+.report-filter-action .primary-btn {
+  width: 100%;
+  min-width: 0;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) {
+  width: 42%;
+}
+
+.reports-table th:nth-child(2),
+.reports-table td:nth-child(2),
+.reports-table th:nth-child(3),
+.reports-table td:nth-child(3) {
+  width: 18%;
+}
+
+.reports-table .hours-chip {
+  padding: 5px 7px;
+  font-size: 10px;
+}
+
+
   .page {
     padding: 12px 8px 20px;
   }
