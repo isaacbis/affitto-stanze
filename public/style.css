@@ -148,11 +148,6 @@ a {
   color: var(--muted);
   font-size: 14px;
 }
-.topbar h1 {
-  margin: 0 0 6px;
-  font-size: clamp(28px, 4vw, 38px);
-  line-height: 1.05;
-}
 
 .topbar-actions {
   display: flex;
@@ -161,11 +156,6 @@ a {
   flex-wrap: wrap;
 }
 
-.subtitle {
-  margin: 0;
-  color: var(--muted);
-  font-size: 15px;
-}
 
 .user-chip {
   display: inline-flex;
@@ -597,11 +587,6 @@ button {
   border-radius: 18px;
 }
 
-table {
-  width: 100%;
-  min-width: 720px;
-  border-collapse: collapse;
-}
 
 th,
 td {
@@ -637,14 +622,6 @@ td .success-btn {
 }
 
 
-th {
-  white-space: nowrap;
-}
-
-td {
-  white-space: normal;
-  word-break: break-word;
-}
 
 th {
   background: rgba(241, 245, 249, 0.9);
@@ -1212,15 +1189,6 @@ table {
   }
 }
 
-@media (max-width: 1100px) {
-  .admin-layout {
-    grid-template-columns: 1fr;
-  }
-
-  table {
-    min-width: 680px;
-  }
-}
 
 
 @media (max-width: 768px) {
