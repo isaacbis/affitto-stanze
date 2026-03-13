@@ -619,14 +619,6 @@ td .success-btn {
   min-width: 110px;
 }
 
-th {
-  white-space: nowrap;
-}
-
-td {
-  white-space: normal;
-  word-break: break-word;
-}
 
 th {
   white-space: nowrap;

@@ -48,7 +48,7 @@
                 <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
                 <td>
                   <form method="POST" action="/admin/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero eliminare questa prenotazione?')">
-                    <button type="submit" class="delete-btn">X</button>
+                    <button type="submit" class="delete-btn icon-action-btn">X</button>
                   </form>
                 </td>
               </tr>

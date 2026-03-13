@@ -68,7 +68,6 @@
               </tr>
               <% users.forEach(u => { %>
                 <tr>
-                  <td>#<%= u.id %></td>
                   <td><strong><%= u.username %></strong></td>
                   <td>
                     <span class="role-pill <%= u.role === 'admin' ? 'role-admin' : 'role-user' %>">
@@ -83,7 +82,7 @@
                   <td>
                     <form method="POST" action="/admin/users/toggle/<%= u.id %>">
                       <button type="submit" class="<%= u.active ? 'warning-btn' : 'success-btn' %>">
-                        <%= u.active ? 'Disattiva' : 'Attiva' %>
+                        <%= u.active ? 'DIS' : 'ATT' %>
                       </button>
                     </form>
                   </td>
