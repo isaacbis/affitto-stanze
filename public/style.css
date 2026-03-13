@@ -1526,6 +1526,12 @@ table {
   justify-content: center;
   padding: 28px 16px;
   position: relative;
+
+  background:
+    linear-gradient(135deg,
+      rgba(37, 99, 235, 0.95),
+      rgba(124, 58, 237, 0.92)
+    );
 }
 
 .login-page::before,
@@ -1636,8 +1642,17 @@ table {
 
 .login-card {
   border-radius: 28px;
-  padding: 28px;
-  min-height: 560px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 420px;
+
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.25);
+
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -3,65 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Login</title>
+  <title>Accesso</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="login-page">
-    <div class="login-shell">
-      <div class="login-side">
-        <div class="login-brand-badge">Room Booking</div>
-        <h1>Accedi al gestionale</h1>
-        <p class="login-lead">
-          Gestisci utenti, stanze e prenotazioni da un’unica dashboard, con un accesso rapido e pulito anche da cellulare.
-        </p>
 
-        <div class="login-feature-list">
-          <div class="login-feature-item">
-            <span class="login-feature-dot"></span>
-            <span>Prenotazioni rapide e intuitive</span>
-          </div>
-          <div class="login-feature-item">
-            <span class="login-feature-dot"></span>
-            <span>Dashboard admin moderna</span>
-          </div>
-          <div class="login-feature-item">
-            <span class="login-feature-dot"></span>
-            <span>Accesso ottimizzato da mobile</span>
-          </div>
-        </div>
-      </div>
+<div class="login-page">
 
-      <div class="login-card glass">
-        <div class="login-card-top">
-          <span class="login-mini-badge">Accesso</span>
-          <h2>Bentornato</h2>
-          <p>Inserisci username e password per entrare.</p>
-        </div>
+  <div class="login-card glass">
 
-        <% if (error) { %>
-          <div class="alert error"><%= error %></div>
-        <% } %>
-
-        <form method="POST" action="/login" class="login-form-modern">
-          <div class="login-input-group">
-            <label for="username">Username</label>
-            <input id="username" type="text" name="username" placeholder="Inserisci il tuo username" required autocomplete="username">
-          </div>
-
-          <div class="login-input-group">
-            <label for="password">Password</label>
-            <input id="password" type="password" name="password" placeholder="Inserisci la tua password" required autocomplete="current-password">
-          </div>
-
-          <button type="submit" class="login-submit-btn">Accedi</button>
-        </form>
-
-        <div class="login-card-footer">
-          <span>Area riservata utenti e amministratori</span>
-        </div>
-      </div>
+    <div class="login-card-top">
+      <span class="login-mini-badge">Accesso</span>
+      <h2>Accedi</h2>
+      <p>Inserisci le credenziali per entrare nel gestionale.</p>
     </div>
+
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/login" class="login-form-modern">
+
+      <div class="login-input-group">
+        <label for="username">Username</label>
+        <input id="username" type="text" name="username" required autocomplete="username">
+      </div>
+
+      <div class="login-input-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="login-submit-btn">
+        Accedi
+      </button>
+
+    </form>
+
+    <div class="login-card-footer">
+      Area riservata utenti e amministratori
+    </div>
+
   </div>
+
+</div>
+
 </body>
 </html>
