@@ -1370,3 +1370,70 @@ td .success-btn {
     font-size: 22px;
   }
 }
+
+/* LOGIN MOBILE BLOCCATO */
+@media (max-width: 768px) {
+  html,
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body:has(.login-page) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .login-page {
+    min-height: 100dvh;
+    height: 100dvh;
+    padding: 10px;
+    overflow: hidden;
+    align-items: center;
+  }
+
+  .login-card {
+    max-height: calc(100dvh - 20px);
+    overflow: hidden;
+    padding: 18px 14px;
+    justify-content: center;
+  }
+
+  .login-card-top {
+    margin-bottom: 12px;
+  }
+
+  .login-card-top h2 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .login-card-top p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .login-input-group {
+    gap: 6px;
+  }
+
+  .login-input-group label {
+    font-size: 13px;
+  }
+
+  .login-input-group input {
+    height: 46px;
+    font-size: 15px;
+  }
+
+  .login-submit-btn {
+    min-height: 46px;
+    margin-top: 4px;
+  }
+
+  .login-card-footer {
+    margin-top: 12px;
+    padding-top: 12px;
+    font-size: 12px;
+  }
+}
