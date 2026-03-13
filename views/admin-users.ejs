@@ -59,7 +59,7 @@
           </div>
 
           <div class="table-wrap">
-            <table>
+  <table class="compact-table users-table">
               <tr>
                 <th>Username</th>
                 <th>Ruolo</th>
@@ -81,9 +81,10 @@
                   </td>
                   <td>
                     <form method="POST" action="/admin/users/toggle/<%= u.id %>">
-                      <button type="submit" class="<%= u.active ? 'warning-btn' : 'success-btn' %>">
-                        <%= u.active ? 'DIS' : 'ATT' %>
-                      </button>
+                      <button type="submit" class="<%= u.active ? 'warning-btn compact-action-btn' : 'success-btn compact-action-btn' %>">
+  <%= u.active ? 'DIS' : 'ATT' %>
+</button>
+
                     </form>
                   </td>
                 </tr>

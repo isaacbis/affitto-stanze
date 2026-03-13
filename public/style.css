@@ -1117,31 +1117,20 @@ td .success-btn {
   }
 
   .table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
+  width: 100%;
+  overflow: hidden;
+}
 
-  table {
-    min-width: 560px;
-  }
-
-  th,
-  td {
-    padding: 10px 8px;
-    font-size: 13px;
-  }
-
-  .compact-table {
-    min-width: 560px;
-  }
-
-  .users-table,
-  .bookings-table,
-  .reports-table {
-    min-width: 500px;
-  }
+table,
+.compact-table,
+.users-table,
+.bookings-table,
+.reports-table,
+.admin-latest-table {
+  width: 100%;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
 
   .users-table th,
   .users-table td,
@@ -1285,6 +1274,188 @@ td .success-btn {
     min-height: 50px;
     border-radius: 16px;
   }
+/* ULTIME PRENOTAZIONI ADMIN */
+.admin-latest-table th,
+.admin-latest-table td {
+  padding: 6px 4px;
+  font-size: 10px;
+}
+
+.admin-latest-table th:nth-child(1),
+.admin-latest-table td:nth-child(1) {
+  width: 20%;
+}
+
+.admin-latest-table th:nth-child(2),
+.admin-latest-table td:nth-child(2) {
+  width: 18%;
+}
+
+.admin-latest-table th:nth-child(3),
+.admin-latest-table td:nth-child(3) {
+  width: 18%;
+}
+
+.admin-latest-table th:nth-child(4),
+.admin-latest-table td:nth-child(4),
+.admin-latest-table th:nth-child(5),
+.admin-latest-table td:nth-child(5) {
+  width: 11%;
+}
+
+.admin-latest-table th:nth-child(6),
+.admin-latest-table td:nth-child(6) {
+  width: 10%;
+}
+
+.admin-latest-table .hours-chip {
+  padding: 3px 5px;
+  font-size: 8px;
+}
+
+/* LISTA UTENTI ADMIN */
+.users-table th,
+.users-table td {
+  padding: 6px 4px;
+  font-size: 10px;
+}
+
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+  width: 34%;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+  width: 18%;
+}
+
+.users-table th:nth-child(3),
+.users-table td:nth-child(3) {
+  width: 24%;
+}
+
+.users-table th:nth-child(4),
+.users-table td:nth-child(4) {
+  width: 14%;
+  text-align: center;
+}
+
+.users-table .role-pill,
+.users-table .status-pill {
+  padding: 3px 5px;
+  font-size: 8px;
+}
+
+.users-table .compact-action-btn {
+  min-width: 34px !important;
+  height: 30px;
+  padding: 0 !important;
+  font-size: 9px;
+}
+
+/* ELENCO PRENOTAZIONI ADMIN */
+.bookings-table th,
+.bookings-table td {
+  padding: 6px 4px;
+  font-size: 10px;
+}
+
+.bookings-table th:nth-child(1),
+.bookings-table td:nth-child(1) {
+  width: 17%;
+}
+
+.bookings-table th:nth-child(2),
+.bookings-table td:nth-child(2) {
+  width: 17%;
+}
+
+.bookings-table th:nth-child(3),
+.bookings-table td:nth-child(3) {
+  width: 18%;
+}
+
+.bookings-table th:nth-child(4),
+.bookings-table td:nth-child(4),
+.bookings-table th:nth-child(5),
+.bookings-table td:nth-child(5) {
+  width: 10%;
+}
+
+.bookings-table th:nth-child(6),
+.bookings-table td:nth-child(6) {
+  width: 10%;
+}
+
+.bookings-table th:nth-child(7),
+.bookings-table td:nth-child(7) {
+  width: 8%;
+  text-align: center;
+}
+
+.bookings-table .hours-chip {
+  padding: 3px 5px;
+  font-size: 8px;
+}
+
+.bookings-table .icon-action-btn {
+  min-width: 28px !important;
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+
+/* REPORT ADMIN */
+.reports-table th,
+.reports-table td {
+  padding: 6px 4px;
+  font-size: 10px;
+}
+
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) {
+  width: 42%;
+}
+
+.reports-table th:nth-child(2),
+.reports-table td:nth-child(2),
+.reports-table th:nth-child(3),
+.reports-table td:nth-child(3) {
+  width: 18%;
+}
+
+.reports-table .hours-chip {
+  padding: 3px 5px;
+  font-size: 8px;
+}
+
+/* FILTRI REPORT */
+.report-filters-grid {
+  grid-template-columns: 1fr !important;
+  gap: 8px;
+}
+
+.report-filters-grid > div,
+.report-filter-action {
+  width: 100%;
+  min-width: 0;
+}
+
+.report-filters-grid label {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.report-filters-grid input,
+.report-filters-grid select,
+.report-filter-action .primary-btn {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  font-size: 14px;
+}
+
 }
 
 @media (max-width: 480px) {
@@ -1376,7 +1547,6 @@ td .success-btn {
   html,
   body {
     height: 100dvh;
-    overflow: hidden;
   }
 
   body:has(.login-page) {
@@ -1390,9 +1560,12 @@ td .success-btn {
     padding: 10px;
     overflow: hidden;
     align-items: center;
+    justify-content: center;
   }
 
   .login-card {
+    width: 100%;
+    max-width: 400px;
     max-height: calc(100dvh - 20px);
     overflow: hidden;
     padding: 18px 14px;
