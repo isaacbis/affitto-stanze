@@ -500,8 +500,8 @@ button {
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -1467,9 +1467,9 @@ td .success-btn {
   }
 
   .slots-dropdown {
-    border-radius: 16px;
-    margin: 14px 0;
-  }
+  border-radius: 16px;
+  margin: 10px 0 14px;
+}
 
   .slots-dropdown summary {
     padding: 16px;
@@ -1822,9 +1822,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .legend {
-  gap: 10px;
-  margin: 12px 0 10px;
-  font-size: 13px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 12px;
+  font-size: 12px;
+}
+
+.legend-item {
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .slots-dropdown summary {
@@ -1914,15 +1923,24 @@ button,
 }
 
 input[type="date"] {
+  width: 100%;
+  max-width: 100%;
+  min-height: 46px;
+  margin: 0 auto 6px;
   font-size: 13px;
   text-align: center;
   text-align-last: center;
-  padding-left: 8px;
-  padding-right: 8px;
+  line-height: 1.2;
+  padding: 9px 36px 9px 10px;
+  box-sizing: border-box;
 }
 
 input[type="date"]::-webkit-date-and-time-value {
   text-align: center;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  right: 12px;
 }
 
 .slot-btn {
