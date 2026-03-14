@@ -2074,3 +2074,403 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 }
+
+
+/* =========================
+   PREMIUM UI UPGRADE
+   da incollare in fondo al file
+========================= */
+
+:root {
+  --premium-ring: 0 0 0 4px rgba(37, 99, 235, 0.10);
+  --premium-border-soft: rgba(255, 255, 255, 0.72);
+  --premium-border-strong: rgba(37, 99, 235, 0.12);
+  --premium-shadow-card: 0 14px 34px rgba(15, 23, 42, 0.10);
+  --premium-shadow-card-hover: 0 20px 44px rgba(15, 23, 42, 0.14);
+  --premium-shadow-btn: 0 10px 24px rgba(37, 99, 235, 0.18);
+  --premium-shadow-btn-hover: 0 16px 30px rgba(37, 99, 235, 0.24);
+}
+
+/* transizioni più pulite */
+body,
+.card,
+.topbar,
+.room-card,
+.stat-card,
+button,
+.primary-btn,
+.success-btn,
+.warning-btn,
+.delete-btn,
+.btn-link,
+.hero-action,
+.quick-action-btn,
+.modern-nav a,
+.nav a,
+.slot-btn,
+input,
+select,
+textarea,
+table tr td {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    opacity 0.22s ease;
+}
+
+/* tipografia più ordinata */
+body {
+  letter-spacing: -0.01em;
+}
+
+.topbar h1,
+.card h2,
+.section-head h2,
+.hero-card h2 {
+  letter-spacing: -0.03em;
+}
+
+.subtitle,
+.muted-text,
+.blocked-text,
+.muted-small,
+.booking-mobile-label {
+  color: var(--muted);
+}
+
+/* topbar più premium */
+.topbar {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.82) 100%
+  );
+  border: 1px solid var(--premium-border-soft);
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.topbar h1 {
+  font-weight: 800;
+}
+
+.subtitle {
+  font-weight: 500;
+}
+
+/* card più pulite */
+.card,
+.glass {
+  border: 1px solid var(--premium-border-soft);
+  box-shadow: var(--premium-shadow-card);
+}
+
+.card:hover,
+.room-card:hover,
+.booking-mobile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--premium-shadow-card-hover);
+}
+
+/* pulsanti */
+button,
+.primary-btn,
+.success-btn,
+.warning-btn,
+.delete-btn {
+  box-shadow: var(--premium-shadow-btn);
+}
+
+button:hover,
+.primary-btn:hover,
+.success-btn:hover,
+.warning-btn:hover,
+.delete-btn:hover {
+  box-shadow: var(--premium-shadow-btn-hover);
+  transform: translateY(-2px);
+}
+
+button:active,
+.primary-btn:active,
+.success-btn:active,
+.warning-btn:active,
+.delete-btn:active,
+.btn-link:active,
+.hero-action:active,
+.quick-action-btn:active,
+.modern-nav a:active,
+.nav a:active,
+.slot-btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.btn-link,
+.hero-action,
+.quick-action-btn,
+.modern-nav a,
+.nav a {
+  border: 1px solid rgba(37, 99, 235, 0.10);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+}
+
+.btn-link:hover,
+.hero-action:hover,
+.quick-action-btn:hover,
+.modern-nav a:hover,
+.nav a:hover {
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.modern-nav,
+.nav {
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* chip e badge migliori */
+.badge,
+.hours-chip,
+.role-pill,
+.status-pill,
+.mini-badge,
+.user-chip {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.hours-chip {
+  font-weight: 800;
+}
+
+.user-chip {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.84) 100%
+  );
+}
+
+/* form controls più solidi */
+input,
+select,
+textarea {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: rgba(37, 99, 235, 0.22);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: var(--premium-ring);
+}
+
+/* tabelle più eleganti */
+table {
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+th {
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.98) 0%,
+    rgba(241, 245, 249, 0.92) 100%
+  );
+  color: #475569;
+  font-weight: 800;
+}
+
+td {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+tr:nth-child(even) td {
+  background: rgba(248, 250, 252, 0.74);
+}
+
+tr:hover td {
+  background: rgba(239, 246, 255, 0.86);
+}
+
+/* hero card più viva */
+.hero-card {
+  box-shadow:
+    0 20px 42px rgba(37, 99, 235, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.hero-action {
+  font-weight: 800;
+}
+
+/* room card */
+.room-card {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* stats card */
+.stat-card {
+  box-shadow:
+    0 22px 40px rgba(37, 99, 235, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.stat-card h3 {
+  letter-spacing: -0.04em;
+}
+
+/* legend più ordinata */
+.legend-item {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+/* slot prenotazioni migliorati */
+.slots-dropdown {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.slots-dropdown summary {
+  border-bottom: 1px solid rgba(37, 99, 235, 0.08);
+}
+
+.slot-btn {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 8px 18px rgba(15, 23, 42, 0.10);
+}
+
+.slot-btn.free {
+  background: linear-gradient(180deg, #2dd66f 0%, #16a34a 100%);
+}
+
+.slot-btn.busy {
+  background: linear-gradient(180deg, #fb7185 0%, #dc2626 100%);
+}
+
+.slot-btn.selected {
+  background: linear-gradient(180deg, #3b82f6 0%, #6d28d9 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 22px rgba(79, 70, 229, 0.24);
+}
+
+.slot-btn.free:hover:not(:disabled),
+.slot-btn.selected:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: saturate(1.04);
+}
+
+.selected-box {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(248, 250, 252, 0.88) 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+/* login ancora più pulito */
+.login-card {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.login-submit-btn {
+  box-shadow: 0 18px 34px rgba(37, 99, 235, 0.24);
+}
+
+/* card mobile prenotazioni utente */
+.booking-mobile-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.84) 0%,
+    rgba(255, 255, 255, 0.74) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.booking-mobile-top h3 {
+  font-weight: 800;
+}
+
+.mobile-delete-btn {
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.20);
+}
+
+/* alert più raffinati */
+.alert {
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.alert.error {
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.08);
+}
+
+.alert.success {
+  box-shadow: 0 10px 20px rgba(34, 197, 94, 0.08);
+}
+
+/* piccoli miglioramenti mobile */
+@media (max-width: 768px) {
+  .topbar {
+    box-shadow:
+      0 10px 22px rgba(15, 23, 42, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  .card,
+  .glass,
+  .booking-mobile-card {
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+  }
+
+  .legend {
+    align-items: center;
+  }
+
+  .legend-item {
+    padding: 5px 8px;
+  }
+
+  .slot-btn {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 8px 16px rgba(15, 23, 42, 0.08);
+  }
+}
+
+@media (max-width: 480px) {
+  .badge,
+  .hours-chip,
+  .role-pill,
+  .status-pill,
+  .mini-badge {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 3px 8px rgba(15, 23, 42, 0.04);
+  }
+
+  .legend-item {
+    background: rgba(255, 255, 255, 0.62);
+  }
+}
