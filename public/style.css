@@ -500,8 +500,8 @@ button {
 }
 
 .dot {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -1917,8 +1917,8 @@ input[type="date"] {
   font-size: 13px;
   text-align: center;
   text-align-last: center;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 input[type="date"]::-webkit-date-and-time-value {
