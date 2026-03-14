@@ -28,38 +28,72 @@
       </div>
 
       <div class="card glass">
-  <div class="table-wrap">
-        <table>
-          <tr>
-            <th>Stanza</th>
-            <th>Data</th>
-            <th>Da</th>
-            <th>A</th>
-            <th>Ore</th>
-            <th>Azione</th>
-          </tr>
+  <div class="table-wrap bookings-desktop">
+    <table class="compact-table">
+      <tr>
+        <th>Stanza</th>
+        <th>Data</th>
+        <th>Da</th>
+        <th>A</th>
+        <th>Ore</th>
+        <th>Azione</th>
+      </tr>
 
-          <% bookings.forEach(b => { %>
-            <tr>
-              <td><%= b.room_name %></td>
-              <td><%= b.booking_date %></td>
-              <td><%= formatTime(b.start_hour) %></td>
-<td><%= formatTime(b.end_hour) %></td>
-              <td><%= b.total_hours %></td>
-              <td>
-                <% if (b.cancellable) { %>
-                  <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
-                    <button type="submit" class="delete-btn">X</button>
-                  </form>
-                <% } else { %>
-                  <span class="blocked-text">Non cancellabile</span>
-                <% } %>
-              </td>
-            </tr>
-          <% }) %>
-        </table>
+      <% bookings.forEach(b => { %>
+        <tr>
+          <td><strong><%= b.room_name %></strong></td>
+          <td><%= b.booking_date %></td>
+          <td><%= formatTime(b.start_hour) %></td>
+          <td><%= formatTime(b.end_hour) %></td>
+          <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
+          <td>
+            <% if (b.cancellable) { %>
+              <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
+                <button type="submit" class="delete-btn icon-action-btn">X</button>
+              </form>
+            <% } else { %>
+              <span class="blocked-text">Non cancellabile</span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+
+  <div class="bookings-mobile-list">
+    <% bookings.forEach(b => { %>
+      <div class="booking-mobile-card">
+        <div class="booking-mobile-top">
+          <h3><%= b.room_name %></h3>
+          <span class="hours-chip"><%= b.total_hours %>h</span>
+        </div>
+
+        <div class="booking-mobile-info">
+          <div class="booking-mobile-row">
+            <span class="booking-mobile-label">Data</span>
+            <strong><%= b.booking_date %></strong>
+          </div>
+
+          <div class="booking-mobile-row">
+            <span class="booking-mobile-label">Orario</span>
+            <strong><%= formatTime(b.start_hour) %> - <%= formatTime(b.end_hour) %></strong>
+          </div>
+        </div>
+
+        <div class="booking-mobile-actions">
+          <% if (b.cancellable) { %>
+            <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
+              <button type="submit" class="mobile-delete-btn">Elimina prenotazione</button>
+            </form>
+          <% } else { %>
+            <span class="blocked-text mobile-blocked-text">Non cancellabile</span>
+          <% } %>
+        </div>
       </div>
-    </div>
+    <% }) %>
+  </div>
+</div>
+
   </div>
 </body>
 </html>

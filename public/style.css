@@ -1677,3 +1677,108 @@ table,
   }
 }
 
+/* =========================
+   USER MY BOOKINGS MOBILE CARDS
+========================= */
+
+.bookings-mobile-list {
+  display: none;
+}
+
+.booking-mobile-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.booking-mobile-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.booking-mobile-top h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.booking-mobile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.booking-mobile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.booking-mobile-label {
+  opacity: 0.72;
+  font-size: 0.85rem;
+}
+
+.booking-mobile-actions {
+  margin-top: 16px;
+}
+
+.mobile-delete-btn {
+  width: 100%;
+  min-height: 46px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #ff5f6d, #ff3d54);
+  color: #fff;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.mobile-delete-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.96;
+}
+
+.mobile-blocked-text {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .bookings-desktop {
+    display: block;
+  }
+
+  .bookings-mobile-list {
+    display: none;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .bookings-desktop {
+    display: none;
+  }
+
+  .bookings-mobile-list {
+    display: block;
+  }
+}
