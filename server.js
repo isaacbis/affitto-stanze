@@ -93,6 +93,12 @@ function sortByDateDescHourAsc(a, b) {
   return Number(a.start_hour) - Number(b.start_hour);
 }
 
+function sortByBookingDateTimeDesc(a, b) {
+  const dateA = buildBookingStartDate(a.booking_date, a.start_hour).getTime();
+  const dateB = buildBookingStartDate(b.booking_date, b.start_hour).getTime();
+  return dateB - dateA;
+}
+
 function pad2(value) {
   return String(value).padStart(2, '0');
 }
@@ -829,17 +835,16 @@ app.get('/user/my-bookings', requireUser, async (req, res) => {
   try {
     const allBookings = await getAllBookings();
 
-    const rawBookings = allBookings.filter(
-      b => String(b.user_id) === String(req.session.user.id)
-    );
+    const rawBookings = allBookings
+      .filter(b => String(b.user_id) === String(req.session.user.id))
+      .sort(sortByBookingDateTimeDesc);
 
     const enriched = await enrichBookings(rawBookings);
-    const now = new Date();
 
     const bookings = enriched.map(b => ({
-  ...b,
-  cancellable: isBookingCancellable(b.booking_date, b.start_hour)
-}));
+      ...b,
+      cancellable: isBookingCancellable(b.booking_date, b.start_hour)
+    }));
 
     res.render('user-my-bookings', {
       bookings,
