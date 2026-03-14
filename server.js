@@ -93,19 +93,33 @@ function sortByDateDescHourAsc(a, b) {
   return Number(a.start_hour) - Number(b.start_hour);
 }
 
-function padHour(hour) {
-  return String(hour).padStart(2, '0');
+function pad2(value) {
+  return String(value).padStart(2, '0');
+}
+
+function isValidHalfHour(value) {
+  return Number.isFinite(value) && (value * 2) % 1 === 0;
+}
+
+function formatTimeLabel(value) {
+  const numeric = Number(value);
+  const hours = Math.floor(numeric);
+  const minutes = numeric % 1 === 0.5 ? 30 : 0;
+  return `${pad2(hours)}:${pad2(minutes)}`;
 }
 
 function buildBookingStartDate(bookingDate, startHour) {
   const [y, m, d] = bookingDate.split('-').map(Number);
+  const numeric = Number(startHour);
+  const hours = Math.floor(numeric);
+  const minutes = numeric % 1 === 0.5 ? 30 : 0;
 
   return new Date(
     y,
     m - 1,
     d,
-    Number(startHour),
-    0,
+    hours,
+    minutes,
     0,
     0
   );
@@ -679,7 +693,7 @@ app.get('/user/availability', requireUser, async (req, res) => {
     const { room_id, booking_date } = req.query;
 
     if (!room_id || !booking_date) {
-      return res.json({ occupiedHours: [], bookings: [] });
+      return res.json({ occupiedSlots: [], bookings: [] });
     }
 
     const bookings = await getBookingsForDateAndRoom(room_id, booking_date);
@@ -689,16 +703,16 @@ app.get('/user/availability', requireUser, async (req, res) => {
       end_hour: Number(b.end_hour)
     }));
 
-    const occupiedHours = [];
+    const occupiedSlots = [];
 
     for (const booking of simplified) {
-      for (let h = booking.start_hour; h < booking.end_hour; h++) {
-        occupiedHours.push(h);
+      for (let h = booking.start_hour; h < booking.end_hour; h += 0.5) {
+        occupiedSlots.push(Number(h.toFixed(1)));
       }
     }
 
     res.json({
-      occupiedHours,
+      occupiedSlots,
       bookings: simplified
     });
   } catch (err) {
@@ -731,32 +745,31 @@ app.post('/user/book-room', requireUser, async (req, res) => {
     const rooms = await getActiveRoomsSortedByName();
 
     const start = Number(start_hour);
-    const end = Number(end_hour);
+const end = Number(end_hour);
 
-    if (!room_id || !booking_date || Number.isNaN(start) || Number.isNaN(end)) {
-      return res.render('user-book-room', {
-        rooms,
-        error: 'Compila tutti i campi',
-        success: null
-      });
-    }
+if (!room_id || !booking_date || Number.isNaN(start) || Number.isNaN(end)) {
+  return res.render('user-book-room', {
+    rooms,
+    error: 'Compila tutti i campi',
+    success: null
+  });
+}
 
-    if (start < 0 || start > 23 || end < 1 || end > 24 || start >= end) {
-      return res.render('user-book-room', {
-        rooms,
-        error: 'Orari non validi',
-        success: null
-      });
-    }
-
-    const room = await getRoomById(room_id);
-    if (!room || !roomIsActive(room)) {
-      return res.render('user-book-room', {
-        rooms,
-        error: 'Stanza non valida o non disponibile',
-        success: null
-      });
-    }
+if (
+  !isValidHalfHour(start) ||
+  !isValidHalfHour(end) ||
+  start < 8 ||
+  start >= 20 ||
+  end <= 8 ||
+  end > 20 ||
+  start >= end
+) {
+  return res.render('user-book-room', {
+    rooms,
+    error: 'Orari non validi. Puoi prenotare solo dalle 08:00 alle 20:00 ogni 30 minuti',
+    success: null
+  });
+}
 
     const bookingStartDate = buildBookingStartDate(booking_date, start);
     const now = new Date();

@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+<%
+  function formatTime(value) {
+    const num = Number(value);
+    const hours = Math.floor(num);
+    const minutes = num % 1 === 0.5 ? 30 : 0;
+    return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+  }
+%>
   <div class="page">
     <div class="container modern">
       <div class="topbar glass">
@@ -43,8 +51,8 @@
                 <td><strong><%= b.username %></strong></td>
                 <td><%= b.room_name %></td>
                 <td><%= b.booking_date %></td>
-                <td><%= String(b.start_hour).padStart(2, '0') %>:00</td>
-                <td><%= String(b.end_hour).padStart(2, '0') %>:00</td>
+                <td><%= formatTime(b.start_hour) %></td>
+<td><%= formatTime(b.end_hour) %></td>
                 <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
                 <td>
                   <form method="POST" action="/admin/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero eliminare questa prenotazione?')">

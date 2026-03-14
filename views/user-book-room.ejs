@@ -71,134 +71,146 @@
     </div>
   </div>
 
-  <script>
-    const roomSelect = document.getElementById('roomSelect');
-    const bookingDate = document.getElementById('bookingDate');
-    const slotsContainer = document.getElementById('slotsContainer');
-    const startHourInput = document.getElementById('startHourInput');
-    const endHourInput = document.getElementById('endHourInput');
-    const selectedStartText = document.getElementById('selectedStartText');
-    const selectedEndText = document.getElementById('selectedEndText');
+<script>
+  const roomSelect = document.getElementById('roomSelect');
+  const bookingDate = document.getElementById('bookingDate');
+  const slotsContainer = document.getElementById('slotsContainer');
+  const startHourInput = document.getElementById('startHourInput');
+  const endHourInput = document.getElementById('endHourInput');
+  const selectedStartText = document.getElementById('selectedStartText');
+  const selectedEndText = document.getElementById('selectedEndText');
 
-    let occupiedHours = [];
-    let selectedStart = null;
-    let selectedEnd = null;
+  let occupiedSlots = [];
+  let selectedStart = null;
+  let selectedEnd = null;
 
-    function formatHour(hour) {
-      return String(hour).padStart(2, '0') + ':00';
-    }
+  function formatHour(value) {
+    const numeric = Number(value);
+    const hours = Math.floor(numeric);
+    const minutes = numeric % 1 === 0.5 ? 30 : 0;
+    return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+  }
 
-    function resetSelection() {
-      selectedStart = null;
-      selectedEnd = null;
-      startHourInput.value = '';
-      endHourInput.value = '';
-      selectedStartText.textContent = '-';
-      selectedEndText.textContent = '-';
-    }
+  function normalizeSlot(value) {
+    return Number(Number(value).toFixed(1));
+  }
 
-    function buildSlots() {
-      slotsContainer.innerHTML = '';
+  function resetSelection() {
+    selectedStart = null;
+    selectedEnd = null;
+    startHourInput.value = '';
+    endHourInput.value = '';
+    selectedStartText.textContent = '-';
+    selectedEndText.textContent = '-';
+  }
 
-      for (let h = 0; h < 24; h++) {
-        const slot = document.createElement('button');
-        slot.type = 'button';
-        slot.className = 'slot-btn';
-        slot.dataset.hour = h;
-        slot.textContent = formatHour(h);
+  function buildSlots() {
+    slotsContainer.innerHTML = '';
 
-        if (occupiedHours.includes(h)) {
-          slot.classList.add('busy');
-          slot.disabled = true;
-        } else {
-          slot.classList.add('free');
-          slot.addEventListener('click', () => handleSlotClick(h));
-        }
+    for (let h = 8; h < 20; h += 0.5) {
+      const slotValue = normalizeSlot(h);
 
-        slotsContainer.appendChild(slot);
+      const slot = document.createElement('button');
+      slot.type = 'button';
+      slot.className = 'slot-btn';
+      slot.dataset.hour = slotValue;
+      slot.textContent = formatHour(slotValue);
+
+      if (occupiedSlots.includes(slotValue)) {
+        slot.classList.add('busy');
+        slot.disabled = true;
+      } else {
+        slot.classList.add('free');
+        slot.addEventListener('click', () => handleSlotClick(slotValue));
       }
 
-      refreshSelectedUI();
+      slotsContainer.appendChild(slot);
     }
 
-    function refreshSelectedUI() {
-      document.querySelectorAll('.slot-btn').forEach(btn => {
-        btn.classList.remove('selected');
-        const hour = Number(btn.dataset.hour);
+    refreshSelectedUI();
+  }
 
-        if (
-          selectedStart !== null &&
-          selectedEnd !== null &&
-          hour >= selectedStart &&
-          hour < selectedEnd
-        ) {
-          btn.classList.add('selected');
-        }
-      });
+  function refreshSelectedUI() {
+    document.querySelectorAll('.slot-btn').forEach(btn => {
+      btn.classList.remove('selected');
+      const hour = Number(btn.dataset.hour);
 
-      selectedStartText.textContent = selectedStart !== null ? formatHour(selectedStart) : '-';
-      selectedEndText.textContent = selectedEnd !== null ? formatHour(selectedEnd) : '-';
-    }
+      if (
+        selectedStart !== null &&
+        selectedEnd !== null &&
+        hour >= selectedStart &&
+        hour < selectedEnd
+      ) {
+        btn.classList.add('selected');
+      }
+    });
 
-    function handleSlotClick(hour) {
-      if (selectedStart === null) {
+    selectedStartText.textContent = selectedStart !== null ? formatHour(selectedStart) : '-';
+    selectedEndText.textContent = selectedEnd !== null ? formatHour(selectedEnd) : '-';
+  }
+
+  function handleSlotClick(hour) {
+    hour = normalizeSlot(hour);
+
+    if (selectedStart === null) {
+      selectedStart = hour;
+      selectedEnd = normalizeSlot(hour + 0.5);
+    } else if (selectedStart !== null && selectedEnd !== null) {
+      if (hour < selectedStart) {
         selectedStart = hour;
-        selectedEnd = hour + 1;
-      } else if (selectedStart !== null && selectedEnd !== null) {
-        if (hour < selectedStart) {
-          selectedStart = hour;
-        } else {
-          selectedEnd = hour + 1;
-        }
-
-        for (let h = selectedStart; h < selectedEnd; h++) {
-          if (occupiedHours.includes(h)) {
-            alert('Hai incluso una fascia occupata. Seleziona solo orari liberi consecutivi.');
-            resetSelection();
-            refreshSelectedUI();
-            return;
-          }
-        }
+      } else {
+        selectedEnd = normalizeSlot(hour + 0.5);
       }
 
-      startHourInput.value = selectedStart;
-      endHourInput.value = selectedEnd;
-      refreshSelectedUI();
-    }
-
-    async function loadAvailability() {
-      const roomId = roomSelect.value;
-      const date = bookingDate.value;
-
-      resetSelection();
-      slotsContainer.innerHTML = '';
-
-      if (!roomId || !date) return;
-
-      try {
-        const response = await fetch(`/user/availability?room_id=${roomId}&booking_date=${date}`);
-        const data = await response.json();
-
-        occupiedHours = data.occupiedHours || [];
-        buildSlots();
-      } catch (err) {
-        console.error(err);
-        slotsContainer.innerHTML = '<p>Errore nel caricamento disponibilità</p>';
+      for (let h = selectedStart; h < selectedEnd; h += 0.5) {
+        const current = normalizeSlot(h);
+        if (occupiedSlots.includes(current)) {
+          alert('Hai incluso una fascia occupata. Seleziona solo orari liberi consecutivi.');
+          resetSelection();
+          refreshSelectedUI();
+          return;
+        }
       }
     }
 
-    roomSelect.addEventListener('change', loadAvailability);
-    bookingDate.addEventListener('change', loadAvailability);
+    startHourInput.value = selectedStart;
+    endHourInput.value = selectedEnd;
+    refreshSelectedUI();
+  }
 
-    const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth() + 1).padStart(2, '0');
-const dd = String(today.getDate()).padStart(2, '0');
-const todayStr = `${yyyy}-${mm}-${dd}`;
+  async function loadAvailability() {
+    const roomId = roomSelect.value;
+    const date = bookingDate.value;
 
-bookingDate.min = todayStr;
-bookingDate.value = todayStr;
-loadAvailability();
-  </script>
+    resetSelection();
+    slotsContainer.innerHTML = '';
+
+    if (!roomId || !date) return;
+
+    try {
+      const response = await fetch(`/user/availability?room_id=${roomId}&booking_date=${date}`);
+      const data = await response.json();
+
+      occupiedSlots = (data.occupiedSlots || []).map(v => normalizeSlot(v));
+      buildSlots();
+    } catch (err) {
+      console.error(err);
+      slotsContainer.innerHTML = '<p>Errore nel caricamento disponibilità</p>';
+    }
+  }
+
+  roomSelect.addEventListener('change', loadAvailability);
+  bookingDate.addEventListener('change', loadAvailability);
+
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+
+  bookingDate.min = todayStr;
+  bookingDate.value = todayStr;
+  loadAvailability();
+</script>
 </body>
 </html>

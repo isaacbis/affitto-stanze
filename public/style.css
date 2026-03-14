@@ -1137,6 +1137,11 @@ td .success-btn {
   width: 15%;
 }
 
+.user-latest-table .hours-chip {
+  padding: 2px 4px;
+  font-size: 7px;
+}
+
   input,
   select,
   textarea,
