@@ -1244,17 +1244,18 @@ table,
 }
 
   .slots-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    padding: 10px;
-  }
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
 
-  .slot-btn {
-    min-height: 48px;
-    padding: 12px 6px;
-    font-size: 13px;
-    border-radius: 12px;
-  }
+.slot-btn {
+  min-height: 64px;
+  padding: 14px 8px;
+  font-size: 16px;
+  border-radius: 14px;
+}
 
   .selected-box {
   padding: 16px;
