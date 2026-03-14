@@ -1782,3 +1782,74 @@ table,
     display: block;
   }
 }
+
+/* =========================
+   BOOK ROOM MOBILE IMPROVEMENTS
+========================= */
+
+@media (max-width: 768px) {
+
+  /* container più stretto */
+  .container.modern {
+    padding: 14px;
+  }
+
+  /* titolo più leggibile */
+  .topbar h1 {
+    font-size: 1.3rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  /* form più compatto */
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  label {
+    font-size: 0.95rem;
+  }
+
+  select,
+  input[type="date"] {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  /* griglia slot più grande e leggibile */
+  .slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  /* bottoni orario */
+  .slot-btn {
+    font-size: 0.95rem;
+    padding: 12px 6px;
+    min-height: 42px;
+    border-radius: 10px;
+  }
+
+  /* box selezione */
+  .selected-box {
+    font-size: 0.95rem;
+  }
+
+  /* bottone prenotazione */
+  .primary-btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 12px;
+    margin-top: 10px;
+  }
+
+  /* legenda */
+  .legend {
+    font-size: 0.85rem;
+  }
+
+}
