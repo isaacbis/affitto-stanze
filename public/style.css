@@ -2474,3 +2474,425 @@ tr:hover td {
     background: rgba(255, 255, 255, 0.62);
   }
 }
+
+
+/* =========================
+   BUSINESS / PROFESSIONAL UPGRADE
+   incolla sotto tutto il CSS
+========================= */
+
+:root {
+  --biz-bg: #f6f8fc;
+  --biz-surface: rgba(255, 255, 255, 0.94);
+  --biz-surface-2: rgba(255, 255, 255, 0.88);
+  --biz-border: rgba(15, 23, 42, 0.08);
+  --biz-border-strong: rgba(37, 99, 235, 0.12);
+
+  --biz-title: #0f172a;
+  --biz-text: #1e293b;
+  --biz-muted: #64748b;
+
+  --biz-primary: #1d4ed8;
+  --biz-primary-2: #1e40af;
+  --biz-accent: #0f766e;
+  --biz-danger: #dc2626;
+  --biz-success: #15803d;
+  --biz-warning: #b45309;
+
+  --biz-shadow-sm: 0 8px 18px rgba(15, 23, 42, 0.05);
+  --biz-shadow-md: 0 14px 34px rgba(15, 23, 42, 0.08);
+  --biz-shadow-lg: 0 18px 44px rgba(15, 23, 42, 0.12);
+
+  --biz-radius-card: 20px;
+  --biz-radius-btn: 14px;
+}
+
+/* atmosfera più professionale */
+body {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 22%),
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.05), transparent 18%),
+    linear-gradient(180deg, #f8fbff 0%, #f3f6fb 45%, #eef3f9 100%) !important;
+  color: var(--biz-text);
+}
+
+/* tipografia */
+.topbar h1,
+.section-head h2,
+.card h2,
+.card h3,
+.room-card h3,
+.booking-mobile-top h3 {
+  color: var(--biz-title) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em;
+}
+
+.subtitle,
+.muted-text,
+.blocked-text,
+.muted-small,
+.booking-mobile-label {
+  color: var(--biz-muted) !important;
+}
+
+/* contenitori */
+.card,
+.glass,
+.topbar,
+.room-card,
+.booking-mobile-card,
+.login-card {
+  background: var(--biz-surface) !important;
+  border: 1px solid var(--biz-border) !important;
+  border-radius: var(--biz-radius-card) !important;
+  box-shadow: var(--biz-shadow-md) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.card:hover,
+.room-card:hover,
+.booking-mobile-card:hover {
+  box-shadow: var(--biz-shadow-lg) !important;
+}
+
+/* topbar più istituzionale */
+.topbar {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.91) 100%) !important;
+  box-shadow:
+    0 10px 28px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 rgba(255,255,255,0.85) !important;
+}
+
+.user-chip {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  border: 1px solid rgba(37, 99, 235, 0.10) !important;
+  color: var(--biz-title) !important;
+}
+
+/* navigazione più business */
+.modern-nav,
+.nav {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: var(--biz-shadow-sm) !important;
+}
+
+.modern-nav a,
+.nav a,
+.quick-action-btn {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  border: 1px solid rgba(37, 99, 235, 0.09) !important;
+  color: var(--biz-primary) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.modern-nav a.active,
+.nav a.active {
+  background: linear-gradient(180deg, var(--biz-primary) 0%, var(--biz-primary-2) 100%) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 24px rgba(29, 78, 216, 0.22) !important;
+}
+
+/* bottoni */
+button,
+.primary-btn,
+.success-btn,
+.warning-btn,
+.delete-btn,
+.mobile-delete-btn {
+  border-radius: var(--biz-radius-btn) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.10) !important;
+}
+
+.primary-btn,
+button {
+  background: linear-gradient(180deg, var(--biz-primary) 0%, var(--biz-primary-2) 100%) !important;
+}
+
+.success-btn {
+  background: linear-gradient(180deg, #16a34a 0%, var(--biz-success) 100%) !important;
+}
+
+.warning-btn {
+  background: linear-gradient(180deg, #d97706 0%, var(--biz-warning) 100%) !important;
+}
+
+.delete-btn,
+.mobile-delete-btn {
+  background: linear-gradient(180deg, #ef4444 0%, var(--biz-danger) 100%) !important;
+}
+
+.btn-link,
+.hero-action,
+.quick-action-btn {
+  border-radius: var(--biz-radius-btn) !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(37, 99, 235, 0.10) !important;
+}
+
+.btn-link {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  color: var(--biz-primary) !important;
+}
+
+.danger-link {
+  background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%) !important;
+  color: #b91c1c !important;
+  border: 1px solid rgba(220, 38, 38, 0.10) !important;
+}
+
+/* form più seri */
+input,
+select,
+textarea {
+  background: rgba(255,255,255,0.98) !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  color: var(--biz-text) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.75),
+    0 2px 8px rgba(15, 23, 42, 0.03) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(29, 78, 216, 0.35) !important;
+  box-shadow:
+    0 0 0 4px rgba(29, 78, 216, 0.10),
+    0 8px 18px rgba(29, 78, 216, 0.08) !important;
+}
+
+/* hero card meno "promo", più premium */
+.hero-card {
+  background:
+    linear-gradient(135deg, rgba(17, 24, 39, 0.96), rgba(30, 41, 59, 0.94)) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18) !important;
+}
+
+.hero-card h2,
+.hero-card p {
+  color: #fff !important;
+}
+
+.hero-action {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f7ff 100%) !important;
+  color: var(--biz-primary) !important;
+}
+
+/* stat card più executive */
+.stat-card {
+  border-radius: 22px !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.14) !important;
+}
+
+.gradient-blue {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+}
+
+.gradient-violet {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%) !important;
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%) !important;
+}
+
+/* badge più sobri */
+.badge,
+.hours-chip,
+.role-pill,
+.status-pill,
+.mini-badge {
+  border-radius: 999px !important;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  font-weight: 800 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    0 4px 10px rgba(15, 23, 42, 0.04) !important;
+}
+
+.badge {
+  background: #eef2f7 !important;
+  color: #334155 !important;
+}
+
+.badge-blue,
+.hours-chip,
+.role-user {
+  background: rgba(29, 78, 216, 0.10) !important;
+  color: var(--biz-primary) !important;
+}
+
+.badge-violet,
+.role-admin {
+  background: rgba(51, 65, 85, 0.10) !important;
+  color: #334155 !important;
+}
+
+.status-on {
+  background: rgba(21, 128, 61, 0.10) !important;
+  color: var(--biz-success) !important;
+}
+
+.status-off {
+  background: rgba(220, 38, 38, 0.10) !important;
+  color: var(--biz-danger) !important;
+}
+
+/* tabelle più professionali */
+table {
+  border-radius: 18px !important;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+th {
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%) !important;
+  color: #475569 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+td {
+  background: rgba(255,255,255,0.82) !important;
+  color: var(--biz-text) !important;
+}
+
+tr:nth-child(even) td {
+  background: rgba(248, 250, 252, 0.82) !important;
+}
+
+tr:hover td {
+  background: rgba(239, 246, 255, 0.90) !important;
+}
+
+/* room card */
+.room-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  border: 1px solid rgba(37, 99, 235, 0.08) !important;
+}
+
+.room-card p {
+  color: var(--biz-muted) !important;
+}
+
+/* legenda */
+.legend-item {
+  background: rgba(255,255,255,0.76) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* slot prenotazioni: molto più belli */
+.slots-dropdown {
+  background: rgba(255,255,255,0.84) !important;
+  border: 1px solid rgba(37, 99, 235, 0.08) !important;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.5) !important;
+}
+
+.slots-dropdown summary {
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
+  color: var(--biz-title) !important;
+  border-bottom: 1px solid rgba(37, 99, 235, 0.08);
+}
+
+.slot-btn {
+  font-weight: 800 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    0 8px 18px rgba(15, 23, 42, 0.08) !important;
+}
+
+.slot-btn.free {
+  background: linear-gradient(180deg, #22c55e 0%, #15803d 100%) !important;
+}
+
+.slot-btn.busy {
+  background: linear-gradient(180deg, #fb7185 0%, #dc2626 100%) !important;
+}
+
+.slot-btn.selected {
+  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 10px 22px rgba(37, 99, 235, 0.20) !important;
+}
+
+.selected-box {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7) !important;
+}
+
+/* booking cards utente */
+.booking-mobile-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+  border: 1px solid rgba(37, 99, 235, 0.08) !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.07) !important;
+}
+
+.booking-mobile-top {
+  align-items: center;
+}
+
+.booking-mobile-top h3 {
+  font-weight: 800 !important;
+}
+
+.mobile-delete-btn,
+.mobile-blocked-text {
+  border-radius: 13px !important;
+}
+
+/* alert */
+.alert {
+  border: 1px solid rgba(255,255,255,0.55) !important;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* login più elegante */
+.login-page {
+  background:
+    radial-gradient(circle at top left, rgba(29, 78, 216, 0.22), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.18), transparent 20%),
+    linear-gradient(135deg, #0f172a 0%, #1e293b 48%, #1d4ed8 100%) !important;
+}
+
+.login-card {
+  background: rgba(255,255,255,0.94) !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
+  box-shadow: 0 26px 56px rgba(0,0,0,0.22) !important;
+}
+
+.login-submit-btn {
+  background: linear-gradient(180deg, var(--biz-primary) 0%, var(--biz-primary-2) 100%) !important;
+}
+
+/* micro-dettagli mobile */
+@media (max-width: 768px) {
+  .topbar,
+  .card,
+  .glass,
+  .booking-mobile-card,
+  .room-card {
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .legend-item {
+    padding: 5px 8px !important;
+  }
+
+  .slot-btn {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.18),
+      0 8px 16px rgba(15, 23, 42, 0.07) !important;
+  }
+}
