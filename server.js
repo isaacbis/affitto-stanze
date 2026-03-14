@@ -384,8 +384,8 @@ app.get('/admin/dashboard', requireAdmin, async (req, res) => {
     const todayBookings = activeBookings.filter(b => b.booking_date === today).length;
 
     const latestBookingsRaw = [...activeBookings]
-      .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))
-      .slice(0, 10);
+  .sort(sortByBookingDateTimeDesc)
+  .slice(0, 10);
 
     const latestBookings = await enrichBookings(latestBookingsRaw);
 
@@ -554,7 +554,7 @@ app.post('/admin/rooms/toggle/:id', requireAdmin, async (req, res) => {
 ========================= */
 app.get('/admin/bookings', requireAdmin, async (req, res) => {
   try {
-    const rawBookings = await getAllBookings();
+    const rawBookings = (await getAllBookings()).sort(sortByBookingDateTimeDesc);
     const bookings = await enrichBookings(rawBookings);
 
     res.render('admin-bookings', { bookings });
@@ -677,6 +677,7 @@ app.get('/user/dashboard', requireUser, async (req, res) => {
 
     const myBookingsRaw = allBookings
       .filter(b => String(b.user_id) === String(req.session.user.id))
+      .sort(sortByBookingDateTimeDesc)
       .slice(0, 10);
 
     const bookings = await enrichBookings(myBookingsRaw);
