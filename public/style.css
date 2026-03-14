@@ -1435,29 +1435,58 @@ td .success-btn {
 
   /* REPORT FILTERS */
   .report-filters-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px;
-  }
+  grid-template-columns: 1fr !important;
+  gap: 8px;
+  width: 100%;
+}
 
-  .report-filters-grid > div,
-  .report-filter-action {
-    width: 100%;
-    min-width: 0;
-  }
+.report-filters-grid > div,
+.report-filter-action {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
 
-  .report-filters-grid label {
-    margin-bottom: 4px;
-    font-size: 12px;
-  }
+.report-filters-grid label {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
 
-  .report-filters-grid input,
-  .report-filters-grid select,
-  .report-filter-action .primary-btn {
-    width: 100%;
-    min-width: 0;
-    height: 42px;
-    font-size: 14px;
-  }
+.report-filters-grid input,
+.report-filters-grid select,
+.report-filter-action .primary-btn {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 42px;
+  font-size: 13px;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+.report-filters-grid input[type="month"],
+.report-filters-grid input[type="date"] {
+  text-align: center;
+  text-align-last: center;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-left: 8px;
+  padding-right: 30px;
+  font-size: 12px;
+}
+
+.report-filters-grid input[type="month"]::-webkit-date-and-time-value,
+.report-filters-grid input[type="date"]::-webkit-date-and-time-value {
+  text-align: center;
+}
+
+.report-filters-grid input[type="month"]::-webkit-calendar-picker-indicator,
+.report-filters-grid input[type="date"]::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
+}
+
 
   /* BOOK ROOM MOBILE */
   .legend {
@@ -1806,11 +1835,19 @@ button,
 input[type="date"] {
   display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
   text-align: center;
   text-align-last: center;
-  padding-left: 12px;
-  padding-right: 12px;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.2;
+  padding: 10px 34px 10px 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 input[type="date"]::-webkit-date-and-time-value {
@@ -1818,8 +1855,58 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  margin-left: 8px;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  right: 10px;
 }
+
+.report-filters-grid {
+  width: 100%;
+}
+
+.report-filters-grid > div,
+.report-filter-action {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.report-filters-grid input,
+.report-filters-grid select,
+.report-filter-action .primary-btn {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.report-filters-grid input[type="month"],
+.report-filters-grid input[type="date"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  text-align: center;
+  text-align-last: center;
+  font-size: 12px;
+  padding: 10px 30px 10px 8px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.report-filters-grid input[type="month"]::-webkit-date-and-time-value,
+.report-filters-grid input[type="date"]::-webkit-date-and-time-value {
+  text-align: center;
+}
+
+.report-filters-grid input[type="month"]::-webkit-calendar-picker-indicator,
+.report-filters-grid input[type="date"]::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
+}
+
+
 
 .legend {
   display: grid;
@@ -1925,14 +2012,17 @@ button,
 input[type="date"] {
   width: 100%;
   max-width: 100%;
-  min-height: 46px;
-  margin: 0 auto 6px;
-  font-size: 13px;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  font-size: 12px;
   text-align: center;
   text-align-last: center;
-  line-height: 1.2;
-  padding: 9px 36px 9px 10px;
+  line-height: 1.1;
+  padding: 8px 30px 8px 8px;
   box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 input[type="date"]::-webkit-date-and-time-value {
@@ -1940,8 +2030,39 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  right: 12px;
+  right: 8px;
 }
+
+.report-filters-grid input,
+.report-filters-grid select,
+.report-filter-action .primary-btn {
+  font-size: 12px;
+  height: 40px;
+}
+
+.report-filters-grid input[type="month"],
+.report-filters-grid input[type="date"] {
+  font-size: 11px;
+  padding-left: 6px;
+  padding-right: 26px;
+  text-align: center;
+  text-align-last: center;
+}
+
+.report-filters-grid > div,
+.report-filter-action {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.report-filters-grid input[type="month"],
+.report-filters-grid input[type="date"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 
 .slot-btn {
   min-height: 58px;
