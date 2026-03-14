@@ -535,15 +535,17 @@ button {
 
 .slots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
   padding: 16px;
 }
 
 .slot-btn {
   border: none;
   border-radius: 14px;
-  padding: 12px;
+  min-height: 56px;
+  padding: 14px 10px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--white);
   cursor: pointer;
@@ -1236,9 +1238,10 @@ table,
   }
 
   .slots-dropdown summary {
-    padding: 14px;
-    font-size: 15px;
-  }
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 800;
+}
 
   .slots-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1254,9 +1257,10 @@ table,
   }
 
   .selected-box {
-    padding: 12px;
-    border-radius: 14px;
-  }
+  padding: 16px;
+  border-radius: 16px;
+  font-size: 16px;
+}
 
   .stat-card {
     min-height: auto;
@@ -1644,16 +1648,18 @@ table,
   }
 
   .slots-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    padding: 8px;
-  }
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
 
-  .slot-btn {
-    font-size: 12px;
-    padding: 10px 4px;
-    min-height: 44px;
-  }
+.slot-btn {
+  min-height: 60px;
+  padding: 12px 8px;
+  font-size: 15px;
+  border-radius: 14px;
+}
 
   .stat-card {
     padding: 14px;
@@ -1783,73 +1789,3 @@ table,
   }
 }
 
-/* =========================
-   BOOK ROOM MOBILE IMPROVEMENTS
-========================= */
-
-@media (max-width: 768px) {
-
-  /* container più stretto */
-  .container.modern {
-    padding: 14px;
-  }
-
-  /* titolo più leggibile */
-  .topbar h1 {
-    font-size: 1.3rem;
-  }
-
-  .subtitle {
-    font-size: 0.9rem;
-  }
-
-  /* form più compatto */
-  .form-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  label {
-    font-size: 0.95rem;
-  }
-
-  select,
-  input[type="date"] {
-    font-size: 1rem;
-    padding: 10px;
-  }
-
-  /* griglia slot più grande e leggibile */
-  .slots-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  /* bottoni orario */
-  .slot-btn {
-    font-size: 0.95rem;
-    padding: 12px 6px;
-    min-height: 42px;
-    border-radius: 10px;
-  }
-
-  /* box selezione */
-  .selected-box {
-    font-size: 0.95rem;
-  }
-
-  /* bottone prenotazione */
-  .primary-btn {
-    width: 100%;
-    font-size: 1rem;
-    padding: 12px;
-    margin-top: 10px;
-  }
-
-  /* legenda */
-  .legend {
-    font-size: 0.85rem;
-  }
-
-}
