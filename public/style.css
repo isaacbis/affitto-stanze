@@ -1719,3 +1719,179 @@ td .success-btn {
     font-size: 22px;
   }
 }
+
+/* =========================
+   MOBILE STRONG IMPROVEMENTS
+========================= */
+
+@media (max-width: 768px) {
+  .page {
+    padding: 14px 10px 24px;
+  }
+
+  .topbar {
+    padding: 18px 16px;
+    border-radius: 20px;
+    gap: 12px;
+  }
+
+  .topbar h1 {
+    font-size: 30px;
+    line-height: 1.08;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .btn-link,
+  .hero-action,
+  .quick-action-btn,
+  .modern-nav a,
+  .nav a {
+    min-height: 46px;
+    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .card,
+  .glass {
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+
+  label {
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+
+  input,
+  select,
+  textarea,
+  button,
+  .primary-btn {
+    min-height: 56px;
+    font-size: 17px;
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .legend {
+    gap: 14px;
+    margin: 18px 0 14px;
+    font-size: 16px;
+  }
+
+  .dot {
+    width: 16px;
+    height: 16px;
+  }
+
+  .slots-dropdown {
+    border-radius: 18px;
+    margin: 16px 0;
+  }
+
+  .slots-dropdown summary {
+    padding: 18px 16px;
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .slots-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .slot-btn {
+    min-height: 74px;
+    padding: 16px 10px;
+    font-size: 18px;
+    border-radius: 16px;
+  }
+
+  .selected-box {
+    padding: 18px 16px;
+    border-radius: 18px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .selected-box p {
+    margin: 0 0 8px;
+  }
+
+  .selected-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .primary-btn {
+    margin-top: 14px;
+    min-height: 58px;
+    font-size: 17px;
+  }
+
+  .booking-mobile-card {
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .booking-mobile-top h3 {
+    font-size: 1.15rem;
+  }
+
+  .booking-mobile-row {
+    font-size: 1rem;
+  }
+
+  .booking-mobile-label {
+    font-size: 0.95rem;
+  }
+
+  .mobile-delete-btn,
+  .mobile-blocked-text {
+    min-height: 52px;
+    font-size: 16px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar h1 {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  label {
+    font-size: 16px;
+  }
+
+  input,
+  select,
+  textarea,
+  button,
+  .primary-btn {
+    font-size: 16px;
+  }
+
+  .slots-grid {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .slot-btn {
+    min-height: 70px;
+    font-size: 17px;
+  }
+
+  .selected-box {
+    font-size: 16px;
+  }
+}
