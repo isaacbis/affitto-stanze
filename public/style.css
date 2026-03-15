@@ -3024,3 +3024,542 @@ tr:hover td {
       0 8px 16px rgba(15, 23, 42, 0.08) !important;
   }
 }
+
+/* =========================
+   APPLE SOFT LIGHT UPGRADE
+   incolla in fondo al file
+========================= */
+
+:root {
+  --apple-bg-1: #f7fbff;
+  --apple-bg-2: #eef5ff;
+  --apple-bg-3: #f6f2ff;
+  --apple-bg-4: #fff7fb;
+
+  --apple-surface: rgba(255, 255, 255, 0.72);
+  --apple-surface-strong: rgba(255, 255, 255, 0.84);
+  --apple-border: rgba(255, 255, 255, 0.58);
+  --apple-border-soft: rgba(148, 163, 184, 0.14);
+
+  --apple-text: #1f2937;
+  --apple-muted: #6b7280;
+
+  --apple-blue: #5b9dff;
+  --apple-blue-2: #7cb8ff;
+  --apple-cyan: #8fdcff;
+  --apple-violet: #b79cff;
+  --apple-pink: #ffb8d9;
+  --apple-green: #89d8a7;
+  --apple-red: #ff9a9a;
+  --apple-orange: #ffd08a;
+
+  --apple-shadow-sm: 0 8px 20px rgba(31, 41, 55, 0.06);
+  --apple-shadow-md: 0 16px 36px rgba(31, 41, 55, 0.08);
+  --apple-shadow-lg: 0 24px 48px rgba(31, 41, 55, 0.10);
+
+  --apple-radius-card: 24px;
+  --apple-radius-btn: 16px;
+}
+
+/* sfondo dinamico chiaro */
+body {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(124, 184, 255, 0.22), transparent 22%),
+    radial-gradient(circle at 88% 14%, rgba(183, 156, 255, 0.18), transparent 20%),
+    radial-gradient(circle at 82% 84%, rgba(255, 184, 217, 0.16), transparent 22%),
+    radial-gradient(circle at 18% 88%, rgba(143, 220, 255, 0.16), transparent 20%),
+    linear-gradient(135deg, var(--apple-bg-1), var(--apple-bg-2), var(--apple-bg-3), var(--apple-bg-4)) !important;
+  background-size: 200% 200% !important;
+  animation: appleSoftBackgroundMove 24s ease infinite;
+  color: var(--apple-text) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.45;
+}
+
+body::before {
+  width: 260px;
+  height: 260px;
+  top: 70px;
+  left: -40px;
+  background: radial-gradient(circle, rgba(143, 220, 255, 0.75) 0%, rgba(143, 220, 255, 0) 70%);
+  animation: appleBlobOne 18s ease-in-out infinite;
+}
+
+body::after {
+  width: 300px;
+  height: 300px;
+  right: -60px;
+  bottom: 60px;
+  background: radial-gradient(circle, rgba(255, 184, 217, 0.62) 0%, rgba(255, 184, 217, 0) 72%);
+  animation: appleBlobTwo 20s ease-in-out infinite;
+}
+
+.page,
+.container,
+.login-page {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes appleSoftBackgroundMove {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes appleBlobOne {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(36px, 26px) scale(1.12); }
+}
+
+@keyframes appleBlobTwo {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-28px, -22px) scale(1.08); }
+}
+
+/* tipografia */
+body,
+input,
+select,
+textarea,
+button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.topbar h1,
+.section-head h2,
+.card h2,
+.card h3,
+.room-card h3,
+.booking-mobile-top h3,
+.hero-card h2 {
+  color: #111827 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.subtitle,
+.muted-text,
+.blocked-text,
+.muted-small,
+.booking-mobile-label,
+.room-card p,
+.login-card-top p {
+  color: var(--apple-muted) !important;
+}
+
+/* superfici glass */
+.card,
+.glass,
+.topbar,
+.room-card,
+.booking-mobile-card,
+.login-card,
+.slots-dropdown,
+.selected-box {
+  background: var(--apple-surface) !important;
+  border: 1px solid var(--apple-border) !important;
+  border-radius: var(--apple-radius-card) !important;
+  box-shadow:
+    0 10px 30px rgba(31, 41, 55, 0.06),
+    0 2px 8px rgba(31, 41, 55, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.card:hover,
+.room-card:hover,
+.booking-mobile-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 38px rgba(31, 41, 55, 0.08),
+    0 4px 12px rgba(31, 41, 55, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+/* topbar */
+.topbar {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.68) 100%) !important;
+}
+
+.user-chip {
+  background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.74)) !important;
+  border: 1px solid rgba(255,255,255,0.75) !important;
+  color: #1f2937 !important;
+  box-shadow:
+    0 8px 18px rgba(31, 41, 55, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+
+/* nav */
+.modern-nav,
+.nav {
+  background: rgba(255, 255, 255, 0.52) !important;
+  border: 1px solid rgba(255,255,255,0.62) !important;
+  box-shadow:
+    0 8px 20px rgba(31, 41, 55, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.7) !important;
+}
+
+.modern-nav a,
+.nav a,
+.quick-action-btn,
+.btn-link,
+.hero-action {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(246,249,255,0.76)) !important;
+  border: 1px solid rgba(255,255,255,0.78) !important;
+  color: #356fda !important;
+  border-radius: var(--apple-radius-btn) !important;
+  box-shadow:
+    0 6px 14px rgba(31, 41, 55, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.82) !important;
+}
+
+.modern-nav a.active,
+.nav a.active {
+  background: linear-gradient(135deg, #8ec5ff, #b8b2ff, #a7e8ff) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow:
+    0 12px 24px rgba(124, 184, 255, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+.btn-link:hover,
+.hero-action:hover,
+.quick-action-btn:hover,
+.modern-nav a:hover,
+.nav a:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+/* bottoni Apple soft */
+button,
+.primary-btn,
+.success-btn,
+.warning-btn,
+.delete-btn,
+.mobile-delete-btn,
+.login-submit-btn {
+  border-radius: var(--apple-radius-btn) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  box-shadow:
+    0 10px 22px rgba(31, 41, 55, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+button,
+.primary-btn,
+.login-submit-btn {
+  background: linear-gradient(135deg, #7cb8ff, #a9b9ff, #9de7ff) !important;
+}
+
+.success-btn {
+  background: linear-gradient(135deg, #a8e6bc, #89d8a7, #7fdac8) !important;
+}
+
+.warning-btn {
+  background: linear-gradient(135deg, #ffe0a8, #ffd08a, #ffc09f) !important;
+  color: #7c4a00 !important;
+}
+
+.delete-btn,
+.mobile-delete-btn {
+  background: linear-gradient(135deg, #ffc0c0, #ffabab, #ff9a9a) !important;
+}
+
+button:hover,
+.primary-btn:hover,
+.success-btn:hover,
+.warning-btn:hover,
+.delete-btn:hover,
+.mobile-delete-btn:hover,
+.login-submit-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02) saturate(1.02);
+}
+
+button:active,
+.primary-btn:active,
+.success-btn:active,
+.warning-btn:active,
+.delete-btn:active,
+.mobile-delete-btn:active,
+.login-submit-btn:active {
+  transform: scale(0.985);
+}
+
+/* form inputs */
+input,
+select,
+textarea {
+  background: rgba(255,255,255,0.88) !important;
+  border: 1px solid rgba(255,255,255,0.78) !important;
+  color: var(--apple-text) !important;
+  box-shadow:
+    0 4px 12px rgba(31, 41, 55, 0.03),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(124, 184, 255, 0.55) !important;
+  box-shadow:
+    0 0 0 4px rgba(124, 184, 255, 0.14),
+    0 8px 18px rgba(124, 184, 255, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+/* hero */
+.hero-card {
+  background: linear-gradient(135deg, rgba(124,184,255,0.95), rgba(183,156,255,0.90), rgba(143,220,255,0.86)) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  box-shadow:
+    0 22px 40px rgba(124, 184, 255, 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+}
+
+.hero-card h2,
+.hero-card p {
+  color: #ffffff !important;
+}
+
+/* stats */
+.stat-card {
+  border-radius: 24px !important;
+  box-shadow:
+    0 18px 36px rgba(31, 41, 55, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.16) !important;
+}
+
+.gradient-blue {
+  background: linear-gradient(135deg, #8ec5ff, #72b4ff) !important;
+}
+
+.gradient-violet {
+  background: linear-gradient(135deg, #c2b5ff, #a996ff) !important;
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #ffc1df, #ffb1d5) !important;
+}
+
+/* badge */
+.badge,
+.hours-chip,
+.role-pill,
+.status-pill,
+.mini-badge {
+  border: 1px solid rgba(255,255,255,0.7) !important;
+  box-shadow:
+    0 4px 10px rgba(31, 41, 55, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.68) !important;
+}
+
+.badge {
+  background: rgba(239, 244, 255, 0.88) !important;
+  color: #52607a !important;
+}
+
+.badge-blue,
+.hours-chip,
+.role-user {
+  background: rgba(124, 184, 255, 0.18) !important;
+  color: #2d6fe5 !important;
+}
+
+.badge-violet,
+.role-admin {
+  background: rgba(183, 156, 255, 0.18) !important;
+  color: #6f55d9 !important;
+}
+
+.status-on {
+  background: rgba(137, 216, 167, 0.20) !important;
+  color: #2f8d4e !important;
+}
+
+.status-off {
+  background: rgba(255, 154, 154, 0.18) !important;
+  color: #cc5f5f !important;
+}
+
+/* tabelle più chiare */
+table {
+  border-radius: 18px !important;
+  overflow: hidden;
+  box-shadow:
+    0 10px 24px rgba(31, 41, 55, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.6) !important;
+}
+
+th {
+  background: linear-gradient(180deg, rgba(251,253,255,0.96), rgba(239,245,255,0.88)) !important;
+  color: #64748b !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.10) !important;
+}
+
+td {
+  background: rgba(255,255,255,0.80) !important;
+}
+
+tr:nth-child(even) td {
+  background: rgba(248,251,255,0.82) !important;
+}
+
+tr:hover td {
+  background: rgba(240,247,255,0.92) !important;
+}
+
+/* room cards */
+.room-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(248,251,255,0.78)) !important;
+}
+
+/* legenda */
+.legend-item {
+  background: rgba(255,255,255,0.58) !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
+  box-shadow:
+    0 4px 10px rgba(31, 41, 55, 0.03),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+.dot.free {
+  background: #8ad8a8 !important;
+}
+
+.dot.busy {
+  background: #ff9d9d !important;
+}
+
+.dot.selected {
+  background: #8ec5ff !important;
+}
+
+/* slot */
+.slots-dropdown {
+  background: rgba(255,255,255,0.66) !important;
+}
+
+.slots-dropdown summary {
+  background: linear-gradient(135deg, rgba(124,184,255,0.10), rgba(183,156,255,0.10), rgba(143,220,255,0.10)) !important;
+  color: #1f2937 !important;
+}
+
+.slot-btn {
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  box-shadow:
+    0 8px 18px rgba(31, 41, 55, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+}
+
+.slot-btn.free {
+  background: linear-gradient(135deg, #a8e6bc, #8fd8ad, #8fe8d8) !important;
+  color: #ffffff !important;
+}
+
+.slot-btn.busy {
+  background: linear-gradient(135deg, #ffc3c3, #ffafaf, #ffbfcf) !important;
+  color: #ffffff !important;
+}
+
+.slot-btn.selected {
+  background: linear-gradient(135deg, #8ec5ff, #b8b2ff, #a7e8ff) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 12px 24px rgba(124, 184, 255, 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+.selected-box {
+  background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(248,251,255,0.76)) !important;
+}
+
+/* booking cards */
+.booking-mobile-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(248,251,255,0.76)) !important;
+}
+
+.booking-mobile-top {
+  align-items: center;
+}
+
+/* login */
+.login-page {
+  background:
+    radial-gradient(circle at top left, rgba(124,184,255,0.26), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(255,184,217,0.18), transparent 20%),
+    linear-gradient(135deg, #b8d9ff 0%, #d9d0ff 52%, #d1f3ff 100%) !important;
+}
+
+.login-card {
+  background: rgba(255,255,255,0.82) !important;
+  box-shadow:
+    0 24px 50px rgba(31, 41, 55, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.68) !important;
+}
+
+/* movimento leggerissimo */
+.topbar,
+.hero-card,
+.stat-card {
+  animation: appleSoftFloat 6s ease-in-out infinite;
+}
+
+@keyframes appleSoftFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  body::before {
+    width: 180px;
+    height: 180px;
+    left: -50px;
+    top: 110px;
+  }
+
+  body::after {
+    width: 200px;
+    height: 200px;
+    right: -60px;
+    bottom: 120px;
+  }
+
+  .card,
+  .glass,
+  .topbar,
+  .booking-mobile-card,
+  .room-card {
+    box-shadow:
+      0 10px 22px rgba(31, 41, 55, 0.06),
+      inset 0 1px 0 rgba(255,255,255,0.62) !important;
+  }
+
+  .legend-item {
+    padding: 5px 8px !important;
+  }
+}
+
