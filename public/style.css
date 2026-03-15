@@ -3563,3 +3563,162 @@ tr:hover td {
   }
 }
 
+/* =========================
+   APPLE SOFT LIGHT - COLORS BOOST
+   incolla sotto tutto
+========================= */
+
+:root {
+  --apple-blue: #4f95ff;
+  --apple-blue-2: #74b2ff;
+  --apple-cyan: #73dcff;
+  --apple-violet: #a98cff;
+  --apple-pink: #ff9fcd;
+  --apple-green: #6fd39a;
+  --apple-red: #ff8c8c;
+  --apple-orange: #ffc46b;
+}
+
+/* sfondo un po' più vivo */
+body {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(79, 149, 255, 0.28), transparent 22%),
+    radial-gradient(circle at 88% 14%, rgba(169, 140, 255, 0.24), transparent 20%),
+    radial-gradient(circle at 82% 84%, rgba(255, 159, 205, 0.20), transparent 22%),
+    radial-gradient(circle at 18% 88%, rgba(115, 220, 255, 0.22), transparent 20%),
+    linear-gradient(135deg, #f6fbff, #edf5ff, #f5efff, #fff5fb) !important;
+}
+
+/* topbar e card un filo più luminose */
+.card,
+.glass,
+.topbar,
+.room-card,
+.booking-mobile-card,
+.login-card,
+.slots-dropdown,
+.selected-box {
+  background: rgba(255, 255, 255, 0.78) !important;
+}
+
+/* nav attiva più evidente */
+.modern-nav a.active,
+.nav a.active {
+  background: linear-gradient(135deg, #74b2ff, #a98cff, #73dcff) !important;
+  box-shadow:
+    0 14px 28px rgba(79, 149, 255, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+/* bottoni più accesi */
+button,
+.primary-btn,
+.login-submit-btn {
+  background: linear-gradient(135deg, #5aa0ff, #9c8dff, #73dcff) !important;
+}
+
+.success-btn {
+  background: linear-gradient(135deg, #7fe0a8, #63cf93, #6fe7d3) !important;
+}
+
+.warning-btn {
+  background: linear-gradient(135deg, #ffd37d, #ffc46b, #ffb38f) !important;
+}
+
+.delete-btn,
+.mobile-delete-btn {
+  background: linear-gradient(135deg, #ffaaaa, #ff8c8c, #ff9fbd) !important;
+}
+
+/* hero più vivo */
+.hero-card {
+  background: linear-gradient(135deg, #5aa0ff, #a98cff, #73dcff) !important;
+  box-shadow:
+    0 24px 42px rgba(79, 149, 255, 0.20),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+}
+
+/* stats più forti */
+.gradient-blue {
+  background: linear-gradient(135deg, #6cabff, #4f95ff) !important;
+}
+
+.gradient-violet {
+  background: linear-gradient(135deg, #c2a8ff, #a98cff) !important;
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #ffb0d3, #ff96c6) !important;
+}
+
+/* badge più vivi */
+.badge-blue,
+.hours-chip,
+.role-user {
+  background: rgba(79, 149, 255, 0.18) !important;
+  color: #236fe0 !important;
+}
+
+.badge-violet,
+.role-admin {
+  background: rgba(169, 140, 255, 0.18) !important;
+  color: #6a4fe0 !important;
+}
+
+.status-on {
+  background: rgba(111, 211, 154, 0.22) !important;
+  color: #218a53 !important;
+}
+
+.status-off {
+  background: rgba(255, 140, 140, 0.20) !important;
+  color: #d25555 !important;
+}
+
+/* pallini legenda */
+.dot.free {
+  background: #6fd39a !important;
+}
+
+.dot.busy {
+  background: #ff8c8c !important;
+}
+
+.dot.selected {
+  background: #74b2ff !important;
+}
+
+/* slot più accesi */
+.slot-btn.free {
+  background: linear-gradient(135deg, #7fe0a8, #63cf93, #6fe7d3) !important;
+}
+
+.slot-btn.busy {
+  background: linear-gradient(135deg, #ffb1b1, #ff8c8c, #ffabc3) !important;
+}
+
+.slot-btn.selected {
+  background: linear-gradient(135deg, #74b2ff, #a98cff, #73dcff) !important;
+  box-shadow:
+    0 14px 28px rgba(79, 149, 255, 0.20),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+/* focus input più visibile */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(79, 149, 255, 0.62) !important;
+  box-shadow:
+    0 0 0 4px rgba(79, 149, 255, 0.16),
+    0 8px 18px rgba(79, 149, 255, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+/* login sfondo più acceso ma ancora chiaro */
+.login-page {
+  background:
+    radial-gradient(circle at top left, rgba(79, 149, 255, 0.30), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(255, 159, 205, 0.22), transparent 20%),
+    linear-gradient(135deg, #b8dcff 0%, #d7cfff 52%, #c9f3ff 100%) !important;
+}
