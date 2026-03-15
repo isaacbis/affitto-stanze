@@ -3722,3 +3722,35 @@ textarea:focus {
     radial-gradient(circle at bottom right, rgba(255, 159, 205, 0.22), transparent 20%),
     linear-gradient(135deg, #b8dcff 0%, #d7cfff 52%, #c9f3ff 100%) !important;
 }
+
+/* =========================
+   BOOST COLORI PRENOTAZIONI UTENTE
+========================= */
+
+/* verde molto più acceso */
+.booking-mobile-card .status-on,
+.booking-mobile-card .dot.free,
+.booking-mobile-card .badge-blue,
+.booking-mobile-card .hours-chip {
+  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 8px 16px rgba(34, 197, 94, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+/* rosso molto più acceso */
+.booking-mobile-card .status-off,
+.booking-mobile-card .dot.busy {
+  background: linear-gradient(135deg, #ff4d4d, #dc2626) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 8px 16px rgba(239, 68, 68, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+/* hover leggermente luminoso */
+.booking-mobile-card .status-on:hover,
+.booking-mobile-card .status-off:hover {
+  filter: brightness(1.08);
+}
