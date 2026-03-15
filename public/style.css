@@ -2102,3 +2102,364 @@ td .success-btn {
     font-size: 13px;
   }
 }
+
+/* =========================
+   ARTISTIC PREMIUM BOOST
+   aggiungi tutto in fondo
+========================= */
+
+/* atmosfera più artistica */
+body {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(0, 163, 255, 0.24), transparent 18%),
+    radial-gradient(circle at 88% 10%, rgba(157, 92, 255, 0.22), transparent 18%),
+    radial-gradient(circle at 82% 82%, rgba(255, 80, 160, 0.18), transparent 20%),
+    radial-gradient(circle at 16% 84%, rgba(0, 224, 255, 0.18), transparent 18%),
+    linear-gradient(135deg, #f7fbff, #eef6ff, #f4efff, #fff4fb) !important;
+  background-size: 220% 220% !important;
+  animation: artisticBackgroundFlow 18s ease infinite !important;
+}
+
+body::before {
+  background: radial-gradient(circle, rgba(0, 183, 255, 0.80) 0%, rgba(0, 183, 255, 0) 70%) !important;
+  filter: blur(95px) !important;
+  opacity: 0.42 !important;
+}
+
+body::after {
+  background: radial-gradient(circle, rgba(255, 92, 170, 0.72) 0%, rgba(255, 92, 170, 0) 72%) !important;
+  filter: blur(95px) !important;
+  opacity: 0.36 !important;
+}
+
+@keyframes artisticBackgroundFlow {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* superfici più belle */
+.card,
+.glass,
+.topbar,
+.room-card,
+.booking-mobile-card,
+.login-card,
+.slots-dropdown,
+.selected-box {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.70)) !important;
+  box-shadow:
+    0 18px 40px rgba(31, 41, 55, 0.09),
+    0 4px 14px rgba(124, 58, 237, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.75) !important;
+}
+
+.card:hover,
+.room-card:hover,
+.booking-mobile-card:hover {
+  transform: translateY(-3px) scale(1.003) !important;
+  box-shadow:
+    0 24px 52px rgba(31, 41, 55, 0.12),
+    0 8px 18px rgba(59, 130, 246, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.78) !important;
+}
+
+/* topbar più scenica */
+.topbar {
+  background:
+    linear-gradient(135deg,
+      rgba(255,255,255,0.90),
+      rgba(255,255,255,0.72),
+      rgba(245,250,255,0.82)
+    ) !important;
+}
+
+.topbar h1 {
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+/* nav più luminosa */
+.modern-nav,
+.nav {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.48)) !important;
+  box-shadow:
+    0 10px 22px rgba(31, 41, 55, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.75) !important;
+}
+
+.modern-nav a,
+.nav a,
+.quick-action-btn,
+.btn-link,
+.hero-action {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,248,255,0.86)) !important;
+}
+
+.modern-nav a.active,
+.nav a.active {
+  background:
+    linear-gradient(135deg, #4ca8ff, #8d6dff, #42d4ff) !important;
+  box-shadow:
+    0 14px 30px rgba(76, 168, 255, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+}
+
+/* hero più artistico */
+.hero-card {
+  background:
+    linear-gradient(135deg, #4ca8ff 0%, #8d6dff 48%, #42d4ff 100%) !important;
+  box-shadow:
+    0 28px 50px rgba(76, 168, 255, 0.24),
+    0 10px 18px rgba(141, 109, 255, 0.14),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+}
+
+/* stat card più vive */
+.gradient-blue {
+  background: linear-gradient(135deg, #38b6ff, #2f7cff) !important;
+}
+
+.gradient-violet {
+  background: linear-gradient(135deg, #b067ff, #7d5cff) !important;
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #ff7ab8, #ff5f95) !important;
+}
+
+/* badge più brillanti */
+.badge,
+.hours-chip,
+.role-pill,
+.status-pill,
+.mini-badge {
+  box-shadow:
+    0 6px 14px rgba(31, 41, 55, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+.badge-blue,
+.hours-chip,
+.role-user {
+  background: linear-gradient(135deg, rgba(76, 168, 255, 0.24), rgba(141, 109, 255, 0.16)) !important;
+  color: #226de2 !important;
+}
+
+.badge-violet,
+.role-admin {
+  background: linear-gradient(135deg, rgba(176, 103, 255, 0.22), rgba(141, 109, 255, 0.14)) !important;
+  color: #6a46e8 !important;
+}
+
+/* input più eleganti */
+input,
+select,
+textarea {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.94), rgba(248,251,255,0.84)) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow:
+    0 0 0 4px rgba(76, 168, 255, 0.18),
+    0 10px 22px rgba(76, 168, 255, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+/* tabelle più morbide */
+table {
+  box-shadow:
+    0 12px 28px rgba(31, 41, 55, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.65) !important;
+}
+
+th {
+  background:
+    linear-gradient(180deg, rgba(252,254,255,0.98), rgba(237,244,255,0.92)) !important;
+}
+
+tr:hover td {
+  background: rgba(232, 244, 255, 0.96) !important;
+}
+
+/* =========================
+   FASCE ORARIE UTENTE - PIÙ ACCESE
+========================= */
+
+/* contenitore */
+.slots-dropdown {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.64)) !important;
+  border: 1px solid rgba(76, 168, 255, 0.16) !important;
+  box-shadow:
+    0 16px 34px rgba(31, 41, 55, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.62) !important;
+}
+
+.slots-dropdown summary {
+  background:
+    linear-gradient(135deg,
+      rgba(76, 168, 255, 0.14),
+      rgba(141, 109, 255, 0.12),
+      rgba(66, 212, 255, 0.12)
+    ) !important;
+  color: #182338 !important;
+  letter-spacing: -0.01em;
+}
+
+/* griglia */
+.slots-grid {
+  gap: 14px !important;
+}
+
+/* stile base slot */
+.slot-btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 14px 24px rgba(31, 41, 55, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+.slot-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.28) 0%,
+      rgba(255,255,255,0.08) 35%,
+      rgba(255,255,255,0.00) 100%);
+  pointer-events: none;
+}
+
+/* libero: verde molto acceso */
+.slot-btn.free {
+  background:
+    linear-gradient(135deg, #34d399 0%, #22c55e 42%, #10b981 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 16px 26px rgba(16, 185, 129, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.24) !important;
+}
+
+/* occupato: rosso molto acceso */
+.slot-btn.busy {
+  background:
+    linear-gradient(135deg, #ff6b6b 0%, #ff3b3b 46%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 16px 26px rgba(239, 68, 68, 0.26),
+    inset 0 1px 0 rgba(255,255,255,0.24) !important;
+  opacity: 1 !important;
+}
+
+/* selezionato: blu/viola brillante */
+.slot-btn.selected {
+  background:
+    linear-gradient(135deg, #4ca8ff 0%, #8d6dff 52%, #42d4ff 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 18px 30px rgba(76, 168, 255, 0.28),
+    0 8px 18px rgba(141, 109, 255, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+/* hover */
+.slot-btn.free:hover:not(:disabled),
+.slot-btn.selected:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02) !important;
+  filter: brightness(1.05) saturate(1.08);
+}
+
+/* box riepilogo */
+.selected-box {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,251,255,0.82)) !important;
+  box-shadow:
+    0 10px 22px rgba(31, 41, 55, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.75) !important;
+}
+
+/* card utente più artistiche */
+.booking-mobile-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.88), rgba(247,251,255,0.78)) !important;
+  box-shadow:
+    0 14px 28px rgba(31, 41, 55, 0.08),
+    0 4px 10px rgba(76, 168, 255, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+/* bottoni elimina ancora più vivi */
+.delete-btn,
+.mobile-delete-btn {
+  background:
+    linear-gradient(135deg, #ff5f5f 0%, #ff3b3b 46%, #c81e1e 100%) !important;
+  box-shadow:
+    0 14px 24px rgba(239, 68, 68, 0.32),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+.delete-btn:hover,
+.mobile-delete-btn:hover {
+  filter: brightness(1.06) saturate(1.05);
+  transform: translateY(-2px);
+}
+
+/* login più scenografico */
+.login-page {
+  background:
+    radial-gradient(circle at top left, rgba(76, 168, 255, 0.34), transparent 22%),
+    radial-gradient(circle at top right, rgba(141, 109, 255, 0.24), transparent 18%),
+    radial-gradient(circle at bottom right, rgba(255, 92, 170, 0.20), transparent 18%),
+    linear-gradient(135deg, #c8e6ff 0%, #ddd3ff 52%, #d4f6ff 100%) !important;
+}
+
+.login-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.74)) !important;
+}
+
+/* mobile: ancora più belli */
+@media (max-width: 768px) {
+  .slots-grid {
+    gap: 12px !important;
+  }
+
+  .slot-btn {
+    box-shadow:
+      0 12px 22px rgba(31, 41, 55, 0.10),
+      inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  }
+
+  .slot-btn.free {
+    box-shadow:
+      0 14px 22px rgba(16, 185, 129, 0.24),
+      inset 0 1px 0 rgba(255,255,255,0.24) !important;
+  }
+
+  .slot-btn.busy {
+    box-shadow:
+      0 14px 22px rgba(239, 68, 68, 0.24),
+      inset 0 1px 0 rgba(255,255,255,0.24) !important;
+  }
+
+  .slot-btn.selected {
+    box-shadow:
+      0 16px 26px rgba(76, 168, 255, 0.24),
+      inset 0 1px 0 rgba(255,255,255,0.24) !important;
+  }
+}
+
