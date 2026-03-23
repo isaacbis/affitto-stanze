@@ -2877,9 +2877,8 @@ tr:hover td {
   }
 
   .bookings-table td .admin-note-toggle summary {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  display: grid !important;
+  place-items: center !important;
   width: 28px !important;
   min-width: 28px !important;
   max-width: 28px !important;
@@ -2888,9 +2887,13 @@ tr:hover td {
   padding: 0 !important;
   margin: 0 auto !important;
   border-radius: 999px !important;
-  line-height: 1 !important;
   text-align: center !important;
-  font-size: 14px !important;
+  font-size: 13px !important;
+  line-height: 0 !important;
+  box-sizing: border-box !important;
+}
+.bookings-table td .admin-note-toggle summary {
+  transform: translateY(-0.5px) !important;
 }
 
 .bookings-table td .admin-note-toggle[open] summary {
