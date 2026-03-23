@@ -433,6 +433,61 @@ app.get('/admin/dashboard', requireAdmin, async (req, res) => {
 /* =========================
    ROUTES - ADMIN USERS
 ========================= */
+
+
+app.get('/admin/users', requireAdmin, async (req, res) => {
+  try {
+    return await renderAdminUsersPage(res);
+  } catch (err) {
+    console.error('Errore lista utenti:', err);
+    res.status(500).send('Errore lista utenti');
+  }
+});
+
+app.post('/admin/users/create', requireAdmin, async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+
+    if (!username || !password || !role) {
+      return await renderAdminUsersPage(res, {
+        error: 'Compila tutti i campi'
+      });
+    }
+
+    if (!isValidRole(role)) {
+      return await renderAdminUsersPage(res, {
+        error: 'Ruolo non valido'
+      });
+    }
+
+    const existing = await getUserByUsername(username);
+    if (existing) {
+      return await renderAdminUsersPage(res, {
+        error: 'Username già esistente'
+      });
+    }
+
+    const hash = await bcrypt.hash(String(password), 10);
+
+    await usersCol.add({
+      username: String(username).trim(),
+      password_hash: hash,
+      role: String(role),
+      active: true,
+      created_at: nowIso()
+    });
+
+    return await renderAdminUsersPage(res, {
+      success: 'Utente creato con successo'
+    });
+  } catch (err) {
+    console.error('Errore creazione utente:', err);
+    return await renderAdminUsersPage(res, {
+      error: 'Errore inserimento utente'
+    });
+  }
+});
+
 app.post('/admin/users/toggle/:id', requireAdmin, async (req, res) => {
   try {
     const id = String(req.params.id);
