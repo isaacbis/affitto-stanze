@@ -2877,42 +2877,35 @@ tr:hover td {
   }
 
   .bookings-table td .admin-note-toggle summary {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-    border-radius: 999px !important;
-    line-height: 1 !important;
-    text-align: center !important;
-    font-size: 18px !important;
-  }
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  max-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  border-radius: 999px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  font-size: 14px !important;
+}
 
-  .bookings-table td .admin-note-toggle summary::after {
-    display: none !important;
-  }
-
-  .bookings-table td .admin-note-toggle[open] summary {
-    position: fixed !important;
-    top: 14px !important;
-    right: 14px !important;
-    left: auto !important;
-    bottom: auto !important;
-    width: 42px !important;
-    min-width: 42px !important;
-    max-width: 42px !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    margin: 0 !important;
-    font-size: 20px !important;
-    z-index: 1002 !important;
-    box-shadow:
-      0 12px 24px rgba(15, 23, 42, 0.18),
-      inset 0 1px 0 rgba(255,255,255,0.95) !important;
-  }
+.bookings-table td .admin-note-toggle[open] summary {
+  position: fixed !important;
+  top: 14px !important;
+  right: 14px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  z-index: 1002 !important;
+}
 }
