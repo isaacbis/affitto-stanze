@@ -2914,33 +2914,52 @@ tr:hover td {
 }
 
 /* =========================
-   PRENOTAZIONI ADMIN - username lunghi senza uscire dallo schermo
+   PRENOTAZIONI ADMIN - username a capo senza allargare la tabella
 ========================= */
 
-.bookings-table .booking-user-cell,
-.bookings-table .booking-room-cell {
-  max-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap !important;
+.bookings-table .booking-user-cell {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
   vertical-align: middle;
 }
 
 .bookings-table .booking-user-cell strong {
   display: block;
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.bookings-table .booking-room-cell {
+  white-space: nowrap !important;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+/* data e orari sempre leggibili */
+.bookings-table th:nth-child(3),
+.bookings-table td:nth-child(3),
+.bookings-table th:nth-child(4),
+.bookings-table td:nth-child(4),
+.bookings-table th:nth-child(5),
+.bookings-table td:nth-child(5),
+.bookings-table th:nth-child(6),
+.bookings-table td:nth-child(6) {
   white-space: nowrap !important;
 }
 
+/* larghezze equilibrate */
 .bookings-table th:nth-child(1),
 .bookings-table td:nth-child(1) {
-  width: 19%;
+  width: 18%;
 }
 
 .bookings-table th:nth-child(2),
 .bookings-table td:nth-child(2) {
-  width: 18%;
+  width: 16%;
 }
 
 .bookings-table th:nth-child(3),
@@ -2968,26 +2987,18 @@ tr:hover td {
 
 .bookings-table th:nth-child(8),
 .bookings-table td:nth-child(8) {
-  width: 7%;
+  width: 8%;
   text-align: center;
-}
-
-/* data e orari non si rompono */
-.bookings-table td:nth-child(3),
-.bookings-table td:nth-child(4),
-.bookings-table td:nth-child(5),
-.bookings-table td:nth-child(6),
-.bookings-table th:nth-child(3),
-.bookings-table th:nth-child(4),
-.bookings-table th:nth-child(5),
-.bookings-table th:nth-child(6) {
-  white-space: nowrap !important;
 }
 
 @media (max-width: 768px) {
   .bookings-table .booking-user-cell,
-  .bookings-table .booking-room-cell,
-  .bookings-table .booking-user-cell strong {
+  .bookings-table .booking-user-cell strong,
+  .bookings-table .booking-room-cell {
     font-size: 9px;
+  }
+
+  .bookings-table .booking-user-cell {
+    line-height: 1.1;
   }
 }
