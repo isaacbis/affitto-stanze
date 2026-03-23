@@ -2484,3 +2484,23 @@ tr:hover td {
     flex-direction: column;
   }
 }
+
+.admin-sidebar-stack {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+.password-card {
+  align-self: start;
+}
+
+.inline-note {
+  margin: 14px 0 0;
+}
+
+@media (max-width: 980px) {
+  .admin-sidebar-stack {
+    gap: 12px;
+  }
+}

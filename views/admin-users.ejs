@@ -12,7 +12,7 @@
       <div class="topbar glass">
         <div>
           <h1>Gestione Utenti</h1>
-          <p class="subtitle">Crea, attiva e disattiva gli account del sistema</p>
+          <p class="subtitle">Crea account, reimposta password e gestisci attivazione utenti</p>
         </div>
         <div class="topbar-actions">
           <a class="btn-link" href="/admin/dashboard">Dashboard</a>
@@ -29,27 +29,57 @@
       <% } %>
 
       <div class="admin-layout">
-        <div class="card glass">
-          <div class="section-head">
-            <h2>Crea utente</h2>
-            <span class="badge badge-violet">Nuovo account</span>
+        <div class="admin-sidebar-stack">
+          <div class="card glass">
+            <div class="section-head">
+              <h2>Crea utente</h2>
+              <span class="badge badge-violet">Nuovo account</span>
+            </div>
+
+            <form method="POST" action="/admin/users/create" class="stack-form">
+              <label>Username</label>
+              <input type="text" name="username" required>
+
+              <label>Password</label>
+              <input type="password" name="password" required>
+
+              <label>Ruolo</label>
+              <select name="role" required>
+                <option value="user">Utente</option>
+                <option value="admin">Admin</option>
+              </select>
+
+              <button type="submit" class="primary-btn">Crea utente</button>
+            </form>
           </div>
 
-          <form method="POST" action="/admin/users/create" class="stack-form">
-            <label>Username</label>
-            <input type="text" name="username" required>
+          <div class="card glass">
+            <div class="section-head">
+              <h2>Reimposta password</h2>
+              <span class="badge badge-blue">Admin</span>
+            </div>
 
-            <label>Password</label>
-            <input type="password" name="password" required>
+            <form method="POST" action="/admin/users/change-password" class="stack-form">
+              <label>Utente</label>
+              <select name="user_id" required>
+                <option value="">Seleziona utente</option>
+                <% users.filter(u => u.role === 'user').forEach(u => { %>
+                  <option value="<%= u.id %>">
+                    <%= u.username %><%= u.active ? '' : ' (disattivo)' %>
+                  </option>
+                <% }) %>
+              </select>
 
-            <label>Ruolo</label>
-            <select name="role" required>
-              <option value="user">Utente</option>
-              <option value="admin">Admin</option>
-            </select>
+              <label>Nuova password</label>
+              <input type="password" name="new_password" required>
 
-            <button type="submit" class="primary-btn">Crea utente</button>
-          </form>
+              <button type="submit" class="primary-btn">Aggiorna password</button>
+            </form>
+
+            <p class="muted-text inline-note">
+              La nuova password varrà subito, ma un utente già loggato resterà dentro fino a logout o scadenza sessione.
+            </p>
+          </div>
         </div>
 
         <div class="card glass">
@@ -59,7 +89,7 @@
           </div>
 
           <div class="table-wrap">
-  <table class="compact-table users-table">
+            <table class="compact-table users-table">
               <tr>
                 <th>Username</th>
                 <th>Ruolo</th>
@@ -82,9 +112,8 @@
                   <td>
                     <form method="POST" action="/admin/users/toggle/<%= u.id %>">
                       <button type="submit" class="<%= u.active ? 'warning-btn compact-action-btn' : 'success-btn compact-action-btn' %>">
-  <%= u.active ? 'DIS' : 'ATT' %>
-</button>
-
+                        <%= u.active ? 'DIS' : 'ATT' %>
+                      </button>
                     </form>
                   </td>
                 </tr>

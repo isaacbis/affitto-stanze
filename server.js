@@ -312,9 +312,37 @@ function requireUser(req, res, next) {
   next();
 }
 
+async function renderAdminUsersPage(res, { error = null, success = null } = {}) {
+  const users = await getAllUsers();
+  return res.render('admin-users', {
+    users,
+    error,
+    success
+  });
+}
+
+async function renderUserDashboardPage(req, res, { error = null, success = null } = {}) {
+  const allBookings = await getAllBookings();
+
+  const myBookingsRaw = allBookings
+    .filter(b => String(b.user_id) === String(req.session.user.id))
+    .sort(sortByBookingDateTimeDesc)
+    .slice(0, 10);
+
+  const bookings = await enrichBookings(myBookingsRaw);
+
+  return res.render('user-dashboard', {
+    user: req.session.user,
+    bookings,
+    error,
+    success
+  });
+}
+
 /* =========================
    ROUTES - GENERIC
 ========================= */
+
 app.get('/', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   if (req.session.user.role === 'admin') return res.redirect('/admin/dashboard');
@@ -405,75 +433,6 @@ app.get('/admin/dashboard', requireAdmin, async (req, res) => {
 /* =========================
    ROUTES - ADMIN USERS
 ========================= */
-app.get('/admin/users', requireAdmin, async (req, res) => {
-  try {
-    const users = await getAllUsers();
-
-    res.render('admin-users', {
-      users,
-      error: null,
-      success: null
-    });
-  } catch (err) {
-    console.error('Errore lista utenti:', err);
-    res.status(500).send('Errore lista utenti');
-  }
-});
-
-app.post('/admin/users/create', requireAdmin, async (req, res) => {
-  try {
-    const { username, password, role } = req.body;
-
-    if (!username || !password || !role) {
-      const users = await getAllUsers();
-      return res.render('admin-users', {
-        users,
-        error: 'Compila tutti i campi',
-        success: null
-      });
-    }
-
-    if (!isValidRole(role)) {
-      const users = await getAllUsers();
-      return res.render('admin-users', {
-        users,
-        error: 'Ruolo non valido',
-        success: null
-      });
-    }
-
-    const existing = await getUserByUsername(username);
-    if (existing) {
-      const users = await getAllUsers();
-      return res.render('admin-users', {
-        users,
-        error: 'Username già esistente',
-        success: null
-      });
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-
-    await usersCol.add({
-      username: String(username).trim(),
-      password_hash: hash,
-      role,
-      active: true,
-      created_at: nowIso()
-    });
-
-    res.redirect('/admin/users');
-  } catch (err) {
-    console.error('Errore creazione utente:', err);
-    const users = await getAllUsers().catch(() => []);
-    res.render('admin-users', {
-      users,
-      error: 'Errore inserimento utente',
-      success: null
-    });
-  }
-});
-
 app.post('/admin/users/toggle/:id', requireAdmin, async (req, res) => {
   try {
     const id = String(req.params.id);
@@ -492,9 +451,56 @@ app.post('/admin/users/toggle/:id', requireAdmin, async (req, res) => {
   }
 });
 
+app.post('/admin/users/change-password', requireAdmin, async (req, res) => {
+  try {
+    const { user_id, new_password } = req.body;
+
+    if (!user_id || !new_password) {
+      return await renderAdminUsersPage(res, {
+        error: 'Seleziona un utente e inserisci la nuova password'
+      });
+    }
+
+    const user = await getUserById(String(user_id));
+
+    if (!user || user.role !== 'user') {
+      return await renderAdminUsersPage(res, {
+        error: 'Utente non trovato'
+      });
+    }
+
+    const sameAsCurrent = await bcrypt.compare(String(new_password), user.password_hash || '');
+    if (sameAsCurrent) {
+      return await renderAdminUsersPage(res, {
+        error: 'La nuova password coincide con quella attuale'
+      });
+    }
+
+    const hash = await bcrypt.hash(String(new_password), 10);
+
+    await usersCol.doc(String(user_id)).update({
+      password_hash: hash
+    });
+
+    return await renderAdminUsersPage(res, {
+      success: `Password aggiornata per ${user.username}`
+    });
+  } catch (err) {
+    console.error('Errore cambio password admin:', err);
+
+    const users = await getAllUsers().catch(() => []);
+    res.render('admin-users', {
+      users,
+      error: 'Errore aggiornamento password utente',
+      success: null
+    });
+  }
+});
+
 /* =========================
    ROUTES - ADMIN ROOMS
 ========================= */
+
 app.get('/admin/rooms', requireAdmin, async (req, res) => {
   try {
     const rooms = await getAllRooms();
@@ -707,28 +713,69 @@ res.render('admin-reports', {
 ========================= */
 app.get('/user/dashboard', requireUser, async (req, res) => {
   try {
-    const allBookings = await getAllBookings();
-
-    const myBookingsRaw = allBookings
-      .filter(b => String(b.user_id) === String(req.session.user.id))
-      .sort(sortByBookingDateTimeDesc)
-      .slice(0, 10);
-
-    const bookings = await enrichBookings(myBookingsRaw);
-
-    res.render('user-dashboard', {
-      user: req.session.user,
-      bookings
-    });
+    return await renderUserDashboardPage(req, res);
   } catch (err) {
     console.error('Errore dashboard utente:', err);
     res.status(500).send('Errore dashboard utente');
   }
 });
 
+app.post('/user/change-password', requireUser, async (req, res) => {
+  try {
+    const { current_password, new_password, confirm_password } = req.body;
+
+    if (!current_password || !new_password || !confirm_password) {
+      return await renderUserDashboardPage(req, res, {
+        error: 'Compila tutti i campi per cambiare password'
+      });
+    }
+
+    if (String(new_password) !== String(confirm_password)) {
+      return await renderUserDashboardPage(req, res, {
+        error: 'Le nuove password non coincidono'
+      });
+    }
+
+    const user = await getUserById(String(req.session.user.id));
+
+    if (!user || !userIsActive(user)) {
+      return res.redirect('/logout');
+    }
+
+    const currentOk = await bcrypt.compare(String(current_password), user.password_hash || '');
+    if (!currentOk) {
+      return await renderUserDashboardPage(req, res, {
+        error: 'La password attuale non è corretta'
+      });
+    }
+
+    const sameAsCurrent = await bcrypt.compare(String(new_password), user.password_hash || '');
+    if (sameAsCurrent) {
+      return await renderUserDashboardPage(req, res, {
+        error: 'La nuova password deve essere diversa da quella attuale'
+      });
+    }
+
+    const hash = await bcrypt.hash(String(new_password), 10);
+
+    await usersCol.doc(String(req.session.user.id)).update({
+      password_hash: hash
+    });
+
+    return await renderUserDashboardPage(req, res, {
+      success: 'Password aggiornata con successo'
+    });
+  } catch (err) {
+    console.error('Errore cambio password utente:', err);
+    res.status(500).send('Errore cambio password utente');
+  }
+});
+
 /* =========================
    ROUTES - USER AVAILABILITY
 ========================= */
+
+
 app.get('/user/availability', requireUser, async (req, res) => {
   try {
     const { room_id, booking_date } = req.query;

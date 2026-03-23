@@ -20,7 +20,7 @@
       <div class="topbar glass">
         <div>
           <h1>Dashboard Utente</h1>
-          <p class="subtitle">Consulta le tue prenotazioni e prenota rapidamente una stanza</p>
+          <p class="subtitle">Consulta le tue prenotazioni, prenota rapidamente una stanza e gestisci la tua password</p>
         </div>
         <div class="topbar-actions">
           <span class="user-chip">👤 <strong><%= user.username %></strong></span>
@@ -34,12 +34,42 @@
         <a href="/user/my-bookings">Le mie prenotazioni</a>
       </div>
 
-      <div class="card hero-card">
-        <div>
-          <h2>Prenotazione rapida</h2>
-          <p>Seleziona una stanza e guarda subito gli slot verdi e rossi in tempo reale.</p>
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert success"><%= success %></div>
+      <% } %>
+
+      <div class="dashboard-grid">
+        <div class="card hero-card">
+          <div>
+            <h2>Prenotazione rapida</h2>
+            <p>Seleziona una stanza e guarda subito gli slot verdi e rossi in tempo reale.</p>
+          </div>
+          <a href="/user/book-room" class="hero-action">Apri prenotazione</a>
         </div>
-        <a href="/user/book-room" class="hero-action">Apri prenotazione</a>
+
+        <div class="card glass password-card">
+          <div class="section-head">
+            <h2>Cambia password</h2>
+            <span class="badge badge-blue">Profilo</span>
+          </div>
+
+          <form method="POST" action="/user/change-password" class="stack-form">
+            <label>Password attuale</label>
+            <input type="password" name="current_password" required>
+
+            <label>Nuova password</label>
+            <input type="password" name="new_password" required>
+
+            <label>Conferma nuova password</label>
+            <input type="password" name="confirm_password" required>
+
+            <button type="submit" class="primary-btn">Aggiorna password</button>
+          </form>
+        </div>
       </div>
 
       <div class="card glass">
@@ -62,7 +92,7 @@
                 <td><strong><%= b.room_name %></strong></td>
                 <td><%= b.booking_date %></td>
                 <td><%= formatTime(b.start_hour) %></td>
-<td><%= formatTime(b.end_hour) %></td>
+                <td><%= formatTime(b.end_hour) %></td>
                 <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
               </tr>
             <% }) %>
