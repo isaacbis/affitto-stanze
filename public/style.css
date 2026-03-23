@@ -2914,7 +2914,7 @@ tr:hover td {
 }
 
 /* =========================
-   PRENOTAZIONI ADMIN - username lunghi
+   PRENOTAZIONI ADMIN - username lunghi + no sovrapposizioni data/orario
 ========================= */
 
 .bookings-table .booking-user-cell,
@@ -2932,12 +2932,12 @@ tr:hover td {
 
 .bookings-table th:nth-child(1),
 .bookings-table td:nth-child(1) {
-  width: 24%;
+  width: 22%;
 }
 
 .bookings-table th:nth-child(2),
 .bookings-table td:nth-child(2) {
-  width: 22%;
+  width: 20%;
 }
 
 .bookings-table th:nth-child(3),
@@ -2949,7 +2949,7 @@ tr:hover td {
 .bookings-table td:nth-child(4),
 .bookings-table th:nth-child(5),
 .bookings-table td:nth-child(5) {
-  width: 8%;
+  width: 10%;
 }
 
 .bookings-table th:nth-child(6),
@@ -2969,20 +2969,45 @@ tr:hover td {
   text-align: center;
 }
 
+/* data e orari sempre leggibili */
+.bookings-table th:nth-child(3),
+.bookings-table td:nth-child(3),
+.bookings-table th:nth-child(4),
+.bookings-table td:nth-child(4),
+.bookings-table th:nth-child(5),
+.bookings-table td:nth-child(5),
+.bookings-table th:nth-child(6),
+.bookings-table td:nth-child(6) {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 768px) {
+  .bookings-table {
+    width: 760px !important;
+    min-width: 760px !important;
+    table-layout: fixed;
+  }
+
   .bookings-table .booking-user-cell,
   .bookings-table .booking-room-cell {
     font-size: 9px;
     line-height: 1.2;
   }
 
-  .bookings-table th:nth-child(1),
-  .bookings-table td:nth-child(1) {
-    width: 24%;
+  .bookings-table th:nth-child(3),
+  .bookings-table td:nth-child(3),
+  .bookings-table th:nth-child(4),
+  .bookings-table td:nth-child(4),
+  .bookings-table th:nth-child(5),
+  .bookings-table td:nth-child(5) {
+    font-size: 9px;
   }
+}
 
-  .bookings-table th:nth-child(2),
-  .bookings-table td:nth-child(2) {
-    width: 22%;
+@media (max-width: 480px) {
+  .bookings-table {
+    width: 820px !important;
+    min-width: 820px !important;
   }
 }
