@@ -2504,3 +2504,80 @@ tr:hover td {
     gap: 12px;
   }
 }
+
+.password-dropdown {
+  width: 100%;
+}
+
+.password-dropdown summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.password-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.password-dropdown-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.password-dropdown-head h2 {
+  margin: 0 0 6px;
+}
+
+.password-dropdown-head .muted-text {
+  margin: 0;
+  font-size: 14px;
+}
+
+.password-dropdown-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.password-dropdown-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.8);
+  font-size: 18px;
+  font-weight: 800;
+  color: #356fda;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.password-dropdown[open] .password-dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.password-dropdown-body {
+  padding-top: 18px;
+  margin-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.password-dropdown-card {
+  padding-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .password-dropdown-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .password-dropdown-side {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

@@ -51,25 +51,37 @@
           <a href="/user/book-room" class="hero-action">Apri prenotazione</a>
         </div>
 
-        <div class="card glass password-card">
-          <div class="section-head">
-            <h2>Cambia password</h2>
-            <span class="badge badge-blue">Profilo</span>
-          </div>
-
-          <form method="POST" action="/user/change-password" class="stack-form">
-            <label>Password attuale</label>
-            <input type="password" name="current_password" required>
-
-            <label>Nuova password</label>
-            <input type="password" name="new_password" required>
-
-            <label>Conferma nuova password</label>
-            <input type="password" name="confirm_password" required>
-
-            <button type="submit" class="primary-btn">Aggiorna password</button>
-          </form>
+        <div class="card glass password-card password-dropdown-card">
+  <details class="password-dropdown">
+    <summary>
+      <div class="password-dropdown-head">
+        <div>
+          <h2>Cambia password</h2>
+          <p class="muted-text">Apri il pannello per aggiornare la tua password</p>
         </div>
+        <div class="password-dropdown-side">
+          <span class="badge badge-blue">Profilo</span>
+          <span class="password-dropdown-icon">⌄</span>
+        </div>
+      </div>
+    </summary>
+
+    <div class="password-dropdown-body">
+      <form method="POST" action="/user/change-password" class="stack-form">
+        <label>Password attuale</label>
+        <input type="password" name="current_password" required>
+
+        <label>Nuova password</label>
+        <input type="password" name="new_password" required>
+
+        <label>Conferma nuova password</label>
+        <input type="password" name="confirm_password" required>
+
+        <button type="submit" class="primary-btn">Aggiorna password</button>
+      </form>
+    </div>
+  </details>
+</div>
       </div>
 
       <div class="card glass">
