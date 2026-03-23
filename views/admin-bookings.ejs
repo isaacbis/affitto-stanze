@@ -132,8 +132,8 @@
 
               <% bookings.forEach(b => { %>
                 <tr>
-                  <td><strong><%= b.username %></strong></td>
-                  <td><%= b.room_name %></td>
+                  <td class="booking-user-cell"><strong><%= b.username %></strong></td>
+<td class="booking-room-cell"><%= b.room_name %></td>
                   <td><%= b.booking_date %></td>
                   <td><%= formatTime(b.start_hour) %></td>
                   <td><%= formatTime(b.end_hour) %></td>
