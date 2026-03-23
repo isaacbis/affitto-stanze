@@ -800,14 +800,14 @@ if (
   !isValidHalfHour(start) ||
   !isValidHalfHour(end) ||
   start < 8 ||
-  start >= 20 ||
+  start >= 20.5 ||
   end <= 8 ||
-  end > 20 ||
+  end > 20.5 ||
   start >= end
 ) {
   return res.render('user-book-room', {
     rooms,
-    error: 'Orari non validi. Puoi prenotare solo dalle 08:00 alle 20:00 ogni 30 minuti',
+    error: 'Orari non validi. Puoi prenotare solo dalle 08:00 alle 20:30 ogni 30 minuti',
     success: null
   });
 }
