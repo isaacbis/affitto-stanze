@@ -549,6 +549,40 @@ app.post('/admin/rooms/toggle/:id', requireAdmin, async (req, res) => {
   }
 });
 
+app.post('/admin/rooms/delete/:id', requireAdmin, async (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const room = await getRoomById(id);
+
+    if (!room) return res.redirect('/admin/rooms');
+
+    const linkedBookingsSnap = await bookingsCol
+      .where('room_id', '==', id)
+      .limit(1)
+      .get();
+
+    if (!linkedBookingsSnap.empty) {
+      const rooms = await getAllRooms();
+      return res.render('admin-rooms', {
+        rooms,
+        error: 'Non puoi eliminare questa stanza perché ha prenotazioni collegate. Elimina prima le prenotazioni oppure disattivala.'
+      });
+    }
+
+    await roomsCol.doc(id).delete();
+
+    res.redirect('/admin/rooms');
+  } catch (err) {
+    console.error('Errore eliminazione stanza:', err);
+
+    const rooms = await getAllRooms().catch(() => []);
+    res.render('admin-rooms', {
+      rooms,
+      error: 'Errore eliminazione stanza'
+    });
+  }
+});
+
 /* =========================
    ROUTES - ADMIN BOOKINGS
 ========================= */

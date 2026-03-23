@@ -67,13 +67,26 @@
                 </div>
 
                 <div class="room-card-footer">
-                  <div class="muted-small">Gestione rapida stato</div>
-                  <form method="POST" action="/admin/rooms/toggle/<%= r.id %>">
-                    <button type="submit" class="<%= r.active ? 'warning-btn' : 'success-btn' %>">
-                      <%= r.active ? 'Disattiva' : 'Attiva' %>
-                    </button>
-                  </form>
-                </div>
+  <div class="muted-small">Gestione rapida stanza</div>
+
+  <div class="room-actions">
+    <form method="POST" action="/admin/rooms/toggle/<%= r.id %>">
+      <button type="submit" class="<%= r.active ? 'warning-btn' : 'success-btn' %>">
+        <%= r.active ? 'Disattiva' : 'Attiva' %>
+      </button>
+    </form>
+
+    <form
+      method="POST"
+      action="/admin/rooms/delete/<%= r.id %>"
+      onsubmit="return confirm('Vuoi davvero eliminare questa stanza?')"
+    >
+      <button type="submit" class="delete-btn">
+        Elimina
+      </button>
+    </form>
+  </div>
+</div>
               </div>
             <% }) %>
           </div>

@@ -2463,3 +2463,24 @@ tr:hover td {
   }
 }
 
+.room-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.room-actions form {
+  flex: 1;
+  margin: 0;
+}
+
+.room-actions button {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .room-actions {
+    flex-direction: column;
+  }
+}
