@@ -339,6 +339,24 @@ async function renderUserDashboardPage(req, res, { error = null, success = null 
   });
 }
 
+async function renderAdminBookingsPage(res, { error = null, success = null } = {}) {
+  const [rawBookings, rooms, users] = await Promise.all([
+    getAllBookings(),
+    getActiveRoomsSortedByName(),
+    getActiveUsersSortedByUsername()
+  ]);
+
+  const bookings = await enrichBookings(rawBookings.sort(sortByBookingDateTimeDesc));
+
+  return res.render('admin-bookings', {
+    bookings,
+    rooms,
+    users,
+    error,
+    success
+  });
+}
+
 /* =========================
    ROUTES - GENERIC
 ========================= */
@@ -649,13 +667,147 @@ app.post('/admin/rooms/delete/:id', requireAdmin, async (req, res) => {
 ========================= */
 app.get('/admin/bookings', requireAdmin, async (req, res) => {
   try {
-    const rawBookings = (await getAllBookings()).sort(sortByBookingDateTimeDesc);
-    const bookings = await enrichBookings(rawBookings);
-
-    res.render('admin-bookings', { bookings });
+    return await renderAdminBookingsPage(res);
   } catch (err) {
     console.error('Errore lista prenotazioni:', err);
     res.status(500).send('Errore lista prenotazioni');
+  }
+});
+
+app.get('/admin/availability', requireAdmin, async (req, res) => {
+  try {
+    const { room_id, booking_date } = req.query;
+
+    if (!room_id || !booking_date) {
+      return res.json({ occupiedSlots: [], bookings: [] });
+    }
+
+    const bookings = await getBookingsForDateAndRoom(room_id, booking_date);
+
+    const simplified = bookings.map(b => ({
+      start_hour: Number(b.start_hour),
+      end_hour: Number(b.end_hour)
+    }));
+
+    const occupiedSlots = [];
+
+    for (const booking of simplified) {
+      for (let h = booking.start_hour; h < booking.end_hour; h += 0.5) {
+        occupiedSlots.push(Number(h.toFixed(1)));
+      }
+    }
+
+    res.json({
+      occupiedSlots,
+      bookings: simplified
+    });
+  } catch (err) {
+    console.error('Errore caricamento disponibilità admin:', err);
+    res.status(500).json({ error: 'Errore caricamento disponibilità admin' });
+  }
+});
+
+app.post('/admin/bookings/create', requireAdmin, async (req, res) => {
+  try {
+    const { user_id, room_id, booking_date, start_hour, end_hour, admin_note } = req.body;
+
+    const start = Number(start_hour);
+    const end = Number(end_hour);
+
+    if (!user_id || !room_id || !booking_date || Number.isNaN(start) || Number.isNaN(end)) {
+      return await renderAdminBookingsPage(res, {
+        error: 'Compila tutti i campi obbligatori'
+      });
+    }
+
+    if (
+      !isValidHalfHour(start) ||
+      !isValidHalfHour(end) ||
+      start < 8 ||
+      start >= 20.5 ||
+      end <= 8 ||
+      end > 20.5 ||
+      start >= end
+    ) {
+      return await renderAdminBookingsPage(res, {
+        error: 'Orari non validi. Puoi prenotare solo dalle 08:00 alle 20:30 ogni 30 minuti'
+      });
+    }
+
+    const [user, room] = await Promise.all([
+      getUserById(String(user_id)),
+      getRoomById(String(room_id))
+    ]);
+
+    if (!user || user.role !== 'user' || !userIsActive(user)) {
+      return await renderAdminBookingsPage(res, {
+        error: 'Utente non valido o disattivato'
+      });
+    }
+
+    if (!room || !roomIsActive(room)) {
+      return await renderAdminBookingsPage(res, {
+        error: 'Stanza non disponibile'
+      });
+    }
+
+    const bookingStartDate = buildBookingStartDate(booking_date, start);
+    const now = new Date();
+
+    if (bookingStartDate.getTime() <= now.getTime()) {
+      return await renderAdminBookingsPage(res, {
+        error: 'Non puoi prenotare in un orario già passato'
+      });
+    }
+
+    const existingBookings = await getBookingsForDateAndRoom(room_id, booking_date);
+
+    const conflict = existingBookings.find(b => {
+      const existingStart = Number(b.start_hour);
+      const existingEnd = Number(b.end_hour);
+      return !(start >= existingEnd || end <= existingStart);
+    });
+
+    if (conflict) {
+      return await renderAdminBookingsPage(res, {
+        error: 'Quella fascia oraria è già prenotata per questa stanza'
+      });
+    }
+
+    const totalHours = end - start;
+    const privateNote = String(admin_note || '').trim().slice(0, 1000);
+
+    await bookingsCol.add({
+      user_id: String(user_id),
+      room_id: String(room_id),
+      booking_date: String(booking_date),
+      start_hour: start,
+      end_hour: end,
+      total_hours: totalHours,
+      status: 'active',
+      admin_note: privateNote,
+      created_by_admin_id: String(req.session.user.id),
+      created_by_admin_username: String(req.session.user.username || ''),
+      created_at: nowIso()
+    });
+
+    return await renderAdminBookingsPage(res, {
+      success: 'Prenotazione inserita con successo'
+    });
+  } catch (err) {
+    console.error('Errore creazione prenotazione admin:', err);
+    res.status(500).send('Errore creazione prenotazione admin');
+  }
+});
+
+app.post('/admin/bookings/delete/:id', requireAdmin, async (req, res) => {
+  try {
+    const id = String(req.params.id);
+    await bookingsCol.doc(id).delete();
+    res.redirect('/admin/bookings');
+  } catch (err) {
+    console.error('Errore eliminazione prenotazione:', err);
+    res.status(500).send('Errore eliminazione prenotazione');
   }
 });
 

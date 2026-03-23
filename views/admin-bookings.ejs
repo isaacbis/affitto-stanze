@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prenotazioni</title>
+  <title>Prenotazioni Admin</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -19,8 +19,8 @@
     <div class="container modern">
       <div class="topbar glass">
         <div>
-          <h1>Tutte le prenotazioni</h1>
-          <p class="subtitle">Gestisci e controlla tutte le prenotazioni inserite nel sistema</p>
+          <h1>Prenotazioni Admin</h1>
+          <p class="subtitle">Inserisci prenotazioni per gli utenti e gestisci tutte quelle presenti</p>
         </div>
         <div class="topbar-actions">
           <a class="btn-link" href="/admin/dashboard">Dashboard</a>
@@ -28,43 +28,280 @@
         </div>
       </div>
 
-      <div class="card glass">
-        <div class="section-head">
-          <h2>Elenco prenotazioni</h2>
-          <span class="badge badge-blue"><%= bookings.length %> totali</span>
+      <div class="nav modern-nav">
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/users">Utenti</a>
+        <a href="/admin/rooms">Stanze</a>
+        <a href="/admin/bookings" class="active">Prenotazioni</a>
+        <a href="/admin/reports">Report</a>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert success"><%= success %></div>
+      <% } %>
+
+      <div class="admin-bookings-layout">
+        <div class="card glass">
+          <div class="section-head">
+            <h2>Nuova prenotazione admin</h2>
+            <span class="badge badge-blue">Privata</span>
+          </div>
+
+          <form method="POST" action="/admin/bookings/create" id="adminBookingForm">
+            <div class="form-grid">
+              <div>
+                <label>Utente</label>
+                <select name="user_id" id="adminUserSelect" required>
+                  <option value="">Seleziona utente</option>
+                  <% users.forEach(u => { %>
+                    <option value="<%= u.id %>"><%= u.username %></option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div>
+                <label>Stanza</label>
+                <select name="room_id" id="adminRoomSelect" required>
+                  <option value="">Seleziona stanza</option>
+                  <% rooms.forEach(r => { %>
+                    <option value="<%= r.id %>"><%= r.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div>
+                <label>Data</label>
+                <input type="date" name="booking_date" id="adminBookingDate" required>
+              </div>
+            </div>
+
+            <div class="admin-note-field">
+              <label>Nota privata admin</label>
+              <textarea
+                name="admin_note"
+                rows="3"
+                placeholder="Scrivi una nota visibile solo lato admin"
+              ></textarea>
+            </div>
+
+            <div class="legend">
+              <span class="legend-item"><span class="dot free"></span> Libero</span>
+              <span class="legend-item"><span class="dot busy"></span> Occupato</span>
+              <span class="legend-item"><span class="dot selected"></span> Selezionato</span>
+            </div>
+
+            <details class="slots-dropdown" open>
+              <summary>Apri / chiudi fasce orarie</summary>
+              <div id="adminSlotsContainer" class="slots-grid"></div>
+            </details>
+
+            <div class="selected-box">
+              <p><strong>Inizio selezionato:</strong> <span id="adminSelectedStartText">-</span></p>
+              <p><strong>Fine selezionata:</strong> <span id="adminSelectedEndText">-</span></p>
+            </div>
+
+            <input type="hidden" name="start_hour" id="adminStartHourInput" required>
+            <input type="hidden" name="end_hour" id="adminEndHourInput" required>
+
+            <button type="submit" class="primary-btn">Conferma prenotazione admin</button>
+          </form>
         </div>
 
-<div class="table-wrap">
-  <table class="compact-table bookings-table">
-            <tr>
-              <th>Utente</th>
-              <th>Stanza</th>
-              <th>Data</th>
-              <th>Da</th>
-              <th>A</th>
-              <th>Ore</th>
-              <th>Azione</th>
-            </tr>
+        <div class="card glass">
+          <div class="section-head">
+            <h2>Elenco prenotazioni</h2>
+            <span class="badge badge-blue"><%= bookings.length %> totali</span>
+          </div>
 
-            <% bookings.forEach(b => { %>
+          <div class="table-wrap">
+            <table class="compact-table bookings-table">
               <tr>
-                <td><strong><%= b.username %></strong></td>
-                <td><%= b.room_name %></td>
-                <td><%= b.booking_date %></td>
-                <td><%= formatTime(b.start_hour) %></td>
-<td><%= formatTime(b.end_hour) %></td>
-                <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
-                <td>
-                  <form method="POST" action="/admin/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero eliminare questa prenotazione?')">
-                    <button type="submit" class="delete-btn icon-action-btn">X</button>
-                  </form>
-                </td>
+                <th>Utente</th>
+                <th>Stanza</th>
+                <th>Data</th>
+                <th>Da</th>
+                <th>A</th>
+                <th>Ore</th>
+                <th class="admin-note-col">Nota admin</th>
+                <th>Azione</th>
               </tr>
-            <% }) %>
-          </table>
+
+              <% bookings.forEach(b => { %>
+                <tr>
+                  <td><strong><%= b.username %></strong></td>
+                  <td><%= b.room_name %></td>
+                  <td><%= b.booking_date %></td>
+                  <td><%= formatTime(b.start_hour) %></td>
+                  <td><%= formatTime(b.end_hour) %></td>
+                  <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
+                  <td>
+                    <% if (b.admin_note) { %>
+                      <details class="admin-note-toggle">
+                        <summary>Apri nota</summary>
+                        <div class="admin-note-box"><%= b.admin_note %></div>
+                      </details>
+                    <% } else { %>
+                      <span class="muted-small">-</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <form method="POST" action="/admin/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero eliminare questa prenotazione?')">
+                      <button type="submit" class="delete-btn icon-action-btn">X</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+<script>
+  const adminRoomSelect = document.getElementById('adminRoomSelect');
+  const adminBookingDate = document.getElementById('adminBookingDate');
+  const adminSlotsContainer = document.getElementById('adminSlotsContainer');
+  const adminStartHourInput = document.getElementById('adminStartHourInput');
+  const adminEndHourInput = document.getElementById('adminEndHourInput');
+  const adminSelectedStartText = document.getElementById('adminSelectedStartText');
+  const adminSelectedEndText = document.getElementById('adminSelectedEndText');
+
+  let occupiedSlots = [];
+  let selectedStart = null;
+  let selectedEnd = null;
+
+  function formatHour(value) {
+    const numeric = Number(value);
+    const hours = Math.floor(numeric);
+    const minutes = numeric % 1 === 0.5 ? 30 : 0;
+    return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+  }
+
+  function normalizeSlot(value) {
+    return Number(Number(value).toFixed(1));
+  }
+
+  function resetSelection() {
+    selectedStart = null;
+    selectedEnd = null;
+    adminStartHourInput.value = '';
+    adminEndHourInput.value = '';
+    adminSelectedStartText.textContent = '-';
+    adminSelectedEndText.textContent = '-';
+  }
+
+  function refreshSelectedUI() {
+    document.querySelectorAll('#adminSlotsContainer .slot-btn').forEach(btn => {
+      btn.classList.remove('selected');
+      const hour = Number(btn.dataset.hour);
+
+      if (
+        selectedStart !== null &&
+        selectedEnd !== null &&
+        hour >= selectedStart &&
+        hour < selectedEnd
+      ) {
+        btn.classList.add('selected');
+      }
+    });
+
+    adminSelectedStartText.textContent = selectedStart !== null ? formatHour(selectedStart) : '-';
+    adminSelectedEndText.textContent = selectedEnd !== null ? formatHour(selectedEnd) : '-';
+  }
+
+  function handleSlotClick(hour) {
+    hour = normalizeSlot(hour);
+
+    if (selectedStart === null) {
+      selectedStart = hour;
+      selectedEnd = normalizeSlot(hour + 0.5);
+    } else if (selectedStart !== null && selectedEnd !== null) {
+      if (hour < selectedStart) {
+        selectedStart = hour;
+      } else {
+        selectedEnd = normalizeSlot(hour + 0.5);
+      }
+
+      for (let h = selectedStart; h < selectedEnd; h += 0.5) {
+        const current = normalizeSlot(h);
+        if (occupiedSlots.includes(current)) {
+          alert('Hai incluso una fascia occupata. Seleziona solo orari liberi consecutivi.');
+          resetSelection();
+          refreshSelectedUI();
+          return;
+        }
+      }
+    }
+
+    adminStartHourInput.value = selectedStart;
+    adminEndHourInput.value = selectedEnd;
+    refreshSelectedUI();
+  }
+
+  function buildSlots() {
+    adminSlotsContainer.innerHTML = '';
+
+    for (let h = 8; h < 20.5; h += 0.5) {
+      const slotValue = normalizeSlot(h);
+
+      const slot = document.createElement('button');
+      slot.type = 'button';
+      slot.className = 'slot-btn';
+      slot.dataset.hour = slotValue;
+      slot.textContent = formatHour(slotValue);
+
+      if (occupiedSlots.includes(slotValue)) {
+        slot.classList.add('busy');
+        slot.disabled = true;
+      } else {
+        slot.classList.add('free');
+        slot.addEventListener('click', () => handleSlotClick(slotValue));
+      }
+
+      adminSlotsContainer.appendChild(slot);
+    }
+
+    refreshSelectedUI();
+  }
+
+  async function loadAvailability() {
+    const roomId = adminRoomSelect.value;
+    const date = adminBookingDate.value;
+
+    resetSelection();
+    adminSlotsContainer.innerHTML = '';
+
+    if (!roomId || !date) return;
+
+    try {
+      const response = await fetch(`/admin/availability?room_id=${encodeURIComponent(roomId)}&booking_date=${encodeURIComponent(date)}`);
+      const data = await response.json();
+
+      occupiedSlots = (data.occupiedSlots || []).map(v => normalizeSlot(v));
+      buildSlots();
+    } catch (err) {
+      console.error(err);
+      adminSlotsContainer.innerHTML = '<p>Errore nel caricamento disponibilità</p>';
+    }
+  }
+
+  adminRoomSelect.addEventListener('change', loadAvailability);
+  adminBookingDate.addEventListener('change', loadAvailability);
+
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+
+  adminBookingDate.min = todayStr;
+  adminBookingDate.value = todayStr;
+  loadAvailability();
+</script>
 </body>
 </html>

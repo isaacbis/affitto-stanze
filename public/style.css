@@ -2581,3 +2581,47 @@ tr:hover td {
     width: 100%;
   }
 }
+
+
+
+.admin-bookings-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-note-field {
+  margin: 18px 0 14px;
+}
+
+.admin-note-col {
+  min-width: 170px;
+}
+
+.admin-note-toggle summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #356fda;
+  list-style: none;
+}
+
+.admin-note-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-note-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(53, 111, 218, 0.08);
+  border: 1px solid rgba(53, 111, 218, 0.14);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+@media (max-width: 768px) {
+  .admin-note-col {
+    min-width: 140px;
+  }
+}
+
