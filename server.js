@@ -489,16 +489,70 @@ async function ensureDefaultAdmin() {
 /* =========================
    AUTH MIDDLEWARE
 ========================= */
+function destroySessionAndRedirect(req, res) {
+  return req.session.destroy(() => {
+    res.clearCookie('affitto_stanze.sid');
+    res.redirect('/login');
+  });
+}
+
 function requireAdmin(req, res, next) {
-  if (!req.session.user) return res.redirect('/login');
-  if (req.session.user.role !== 'admin') return res.status(403).send('Accesso negato');
-  next();
+  (async () => {
+    try {
+      const sessionUser = req.session.user;
+
+      if (!sessionUser?.id) {
+        return res.redirect('/login');
+      }
+
+      const currentUser = await getUserById(String(sessionUser.id));
+
+      if (!currentUser || !userIsActive(currentUser) || currentUser.role !== 'admin') {
+        return destroySessionAndRedirect(req, res);
+      }
+
+      // aggiorna i dati in sessione nel caso lo username sia cambiato
+      req.session.user = {
+        id: currentUser.id,
+        username: currentUser.username,
+        role: currentUser.role
+      };
+
+      return next();
+    } catch (err) {
+      console.error('Errore middleware admin:', err);
+      return res.status(500).send('Errore autenticazione admin');
+    }
+  })();
 }
 
 function requireUser(req, res, next) {
-  if (!req.session.user) return res.redirect('/login');
-  if (req.session.user.role !== 'user') return res.status(403).send('Accesso negato');
-  next();
+  (async () => {
+    try {
+      const sessionUser = req.session.user;
+
+      if (!sessionUser?.id) {
+        return res.redirect('/login');
+      }
+
+      const currentUser = await getUserById(String(sessionUser.id));
+
+      if (!currentUser || !userIsActive(currentUser) || currentUser.role !== 'user') {
+        return destroySessionAndRedirect(req, res);
+      }
+
+      req.session.user = {
+        id: currentUser.id,
+        username: currentUser.username,
+        role: currentUser.role
+      };
+
+      return next();
+    } catch (err) {
+      console.error('Errore middleware user:', err);
+      return res.status(500).send('Errore autenticazione utente');
+    }
+  })();
 }
 
 async function renderAdminUsersPage(res, { error = null, success = null } = {}) {
@@ -703,16 +757,47 @@ app.post('/admin/users/toggle/:id', requireAdmin, async (req, res) => {
     const id = String(req.params.id);
     const user = await getUserById(id);
 
-    if (!user) return res.redirect('/admin/users');
+    if (!user) {
+      return await renderAdminUsersPage(res, {
+        error: 'Utente non trovato'
+      });
+    }
+
+    const isCurrentlyActive = userIsActive(user);
+    const isAdmin = user.role === 'admin';
+    const isSelf = String(req.session.user.id) === id;
+
+    // Evita che un admin si disattivi da solo
+    if (isAdmin && isCurrentlyActive && isSelf) {
+      return await renderAdminUsersPage(res, {
+        error: 'Non puoi disattivare il tuo account admin mentre sei loggato'
+      });
+    }
+
+    // Evita di disattivare l’ultimo admin attivo
+    if (isAdmin && isCurrentlyActive) {
+      const allUsers = await getAllUsers();
+      const activeAdmins = allUsers.filter(u => u.role === 'admin' && userIsActive(u));
+
+      if (activeAdmins.length <= 1) {
+        return await renderAdminUsersPage(res, {
+          error: 'Non puoi disattivare l’ultimo admin attivo'
+        });
+      }
+    }
 
     await usersCol.doc(id).update({
-      active: !userIsActive(user)
+      active: !isCurrentlyActive
     });
 
-    res.redirect('/admin/users');
+    return await renderAdminUsersPage(res, {
+      success: `Stato utente aggiornato: ${user.username}`
+    });
   } catch (err) {
     console.error('Errore aggiornamento utente:', err);
-    res.status(500).send('Errore aggiornamento utente');
+    return await renderAdminUsersPage(res, {
+      error: 'Errore aggiornamento utente'
+    });
   }
 });
 
