@@ -83,7 +83,7 @@
 
         <div class="booking-mobile-actions">
           <% if (b.cancellable) { %>
-            <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
+            <form method="POST" action="/user/bookings/delete/<%= b.id %>" data-confirm="Vuoi davvero cancellare questa prenotazione?">
               <button type="submit" class="mobile-delete-btn">Elimina prenotazione</button>
             </form>
           <% } else { %>
