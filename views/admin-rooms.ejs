@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestione Stanze</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
+<link rel="stylesheet" href="/style.css?v=20260314-4"></head>
 <body>
   <div class="page">
     <div class="container modern">
@@ -77,14 +76,14 @@
     </form>
 
     <form
-      method="POST"
-      action="/admin/rooms/delete/<%= r.id %>"
-      onsubmit="return confirm('Vuoi davvero eliminare questa stanza?')"
-    >
-      <button type="submit" class="delete-btn">
-        Elimina
-      </button>
-    </form>
+  method="POST"
+  action="/admin/rooms/delete/<%= r.id %>"
+  data-confirm="Vuoi davvero eliminare questa stanza?"
+>
+  <button type="submit" class="delete-btn">
+    Elimina
+  </button>
+</form>
   </div>
 </div>
               </div>
@@ -94,5 +93,7 @@
       </div>
     </div>
   </div>
+<script src="/js/confirm-forms.js?v=<%= assetVersion %>"></script>
+
 </body>
 </html>

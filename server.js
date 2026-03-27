@@ -40,9 +40,19 @@ const db = initFirebase();
 /* =========================
    APP CONFIG
 ========================= */
+const isProduction = process.env.NODE_ENV === 'production';
+const sessionSecret =
+  process.env.SESSION_SECRET ||
+  (isProduction ? '' : 'dev-session-secret-change-me');
+
+if (!sessionSecret) {
+  throw new Error('Variabile ambiente SESSION_SECRET mancante');
+}
+
 app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.assetVersion = process.env.ASSET_VERSION || '20260327-1';
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -50,11 +60,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'cambia-questo-secret-subito',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 8
@@ -324,7 +334,15 @@ async function ensureDefaultAdmin() {
 
   if (!snap.empty) return;
 
-  const hash = await bcrypt.hash('admin123', 10);
+  const initialAdminPassword =
+    process.env.DEFAULT_ADMIN_PASSWORD ||
+    (isProduction ? '' : 'admin123');
+
+  if (!initialAdminPassword) {
+    throw new Error('Variabile ambiente DEFAULT_ADMIN_PASSWORD mancante per creare l’admin iniziale');
+  }
+
+  const hash = await bcrypt.hash(initialAdminPassword, 10);
 
   await usersCol.add({
     username: 'admin',
@@ -334,7 +352,7 @@ async function ensureDefaultAdmin() {
     created_at: nowIso()
   });
 
-  console.log('Admin creato: username=admin password=admin123');
+  console.log(`Admin creato: username=admin password=${initialAdminPassword}`);
 }
 
 /* =========================
@@ -876,20 +894,25 @@ const currentMonth = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1
       endDate = monthLastDay(monthStr);
     }
 
-    const [allBookings, users] = await Promise.all([
-      getAllBookings(),
-      getActiveUsersSortedByUsername()
-    ]);
+    const [allBookings, allUsers] = await Promise.all([
+  getAllBookings(),
+  getAllUsers()
+]);
 
-    const filteredBookings = allBookings.filter(b => {
-      if (!bookingIsActive(b)) return false;
-      if (String(b.booking_date) < startDate) return false;
-      if (String(b.booking_date) > endDate) return false;
-      if (userId && String(b.user_id) !== String(userId)) return false;
-      return true;
-    });
+const users = allUsers
+  .filter(u => u.role === 'user')
+  .sort((a, b) => String(a.username || '').localeCompare(String(b.username || ''), 'it'));
 
-    const usersMap = new Map(users.map(u => [String(u.id), u.username]));
+const filteredBookings = allBookings.filter(b => {
+  if (!bookingIsActive(b)) return false;
+  if (String(b.booking_date) < startDate) return false;
+  if (String(b.booking_date) > endDate) return false;
+  if (userId && String(b.user_id) !== String(userId)) return false;
+  return true;
+});
+
+const usersMap = new Map(users.map(u => [String(u.id), u.username]));
+
     const aggregate = new Map();
 
     for (const booking of filteredBookings) {

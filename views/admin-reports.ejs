@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Report</title>
-  <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/style.css?v=<%= assetVersion %>">
 </head>
 <body>
   <div class="page">
@@ -51,7 +51,7 @@
       <option value="">Tutti</option>
       <% users.forEach(u => { %>
         <option value="<%= u.id %>" <%= String(filters.userId) === String(u.id) ? 'selected' : '' %>>
-          <%= u.username %>
+          <%= u.username %><%= (u.active === false || u.active === 0 || u.active === '0') ? ' (disattivato)' : '' %>
         </option>
       <% }) %>
     </select>

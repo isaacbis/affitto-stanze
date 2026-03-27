@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Le mie prenotazioni</title>
-  <link rel="stylesheet" href="/style.css?v=20260314-4">
+<link rel="stylesheet" href="/style.css?v=<%= assetVersion %>">
 </head>
 <body>
 <%
@@ -49,7 +49,7 @@
           <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
           <td>
             <% if (b.cancellable) { %>
-              <form method="POST" action="/user/bookings/delete/<%= b.id %>" onsubmit="return confirm('Vuoi davvero cancellare questa prenotazione?')">
+              <form method="POST" action="/user/bookings/delete/<%= b.id %>" data-confirm="Vuoi davvero cancellare questa prenotazione?">
                 <button type="submit" class="delete-btn icon-action-btn">X</button>
               </form>
             <% } else { %>
@@ -97,5 +97,7 @@
 
   </div>
   </div>
+<script src="/js/confirm-forms.js?v=<%= assetVersion %>"></script>
+
 </body>
 </html>
