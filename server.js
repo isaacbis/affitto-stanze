@@ -294,6 +294,29 @@ function dateToYmd(date) {
     String(d.getDate()).padStart(2, '0')
   ].join('-');
 }
+
+function getRomeTodayYmd() {
+  return getRomeNowParts().booking_date;
+}
+
+function addDaysToYmd(ymd, days) {
+  const shifted = new Date(ymdToUtcMs(ymd) + Number(days) * 86400000);
+
+  return [
+    shifted.getUTCFullYear(),
+    String(shifted.getUTCMonth() + 1).padStart(2, '0'),
+    String(shifted.getUTCDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function getWeekStartMondayYmd(baseYmd = getRomeTodayYmd()) {
+  const baseDate = new Date(ymdToUtcMs(baseYmd));
+  const day = baseDate.getUTCDay(); // 0 = domenica, 1 = lunedì
+  const diff = (day + 6) % 7; // lunedì = 0
+
+  return addDaysToYmd(baseYmd, -diff);
+}
+
 function monthLastDay(monthStr) {
   const d = new Date(`${monthStr}-01T00:00:00`);
   d.setMonth(d.getMonth() + 1);
