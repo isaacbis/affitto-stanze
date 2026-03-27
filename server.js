@@ -158,6 +158,13 @@ const usersCol = db.collection('users');
 const roomsCol = db.collection('rooms');
 const bookingsCol = db.collection('bookings');
 
+const sessionsCol = db.collection('sessions');
+const bookingsArchiveCol = db.collection('bookings_archive');
+
+const SESSION_CLEANUP_INTERVAL_MS = 1000 * 60 * 60 * 8;   // 8 ore
+const BOOKINGS_CLEANUP_INTERVAL_MS = 1000 * 60 * 60 * 24; // 24 ore
+const CLEANUP_BATCH_SIZE = 300;
+
 /* =========================
    GENERIC HELPERS
 ========================= */
@@ -1445,20 +1452,149 @@ app.post('/user/bookings/delete/:id', requireUser, async (req, res) => {
     res.status(500).send('Errore cancellazione prenotazione');
   }
 });
+
+/* =========================
+   CLEANUP HELPERS
+========================= */
+function subtractMonthsFromYmd(ymd, months) {
+  let [y, m, d] = String(ymd).split('-').map(Number);
+
+  m -= Number(months);
+
+  while (m <= 0) {
+    m += 12;
+    y -= 1;
+  }
+
+  const lastDayOfTargetMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const safeDay = Math.min(d, lastDayOfTargetMonth);
+
+  return `${y}-${pad2(m)}-${pad2(safeDay)}`;
+}
+
+async function cleanupExpiredSessions() {
+  let totalDeleted = 0;
+  const now = new Date();
+
+  while (true) {
+    const snap = await sessionsCol
+      .where('expiresAt', '<=', now)
+      .limit(CLEANUP_BATCH_SIZE)
+      .get();
+
+    if (snap.empty) break;
+
+    const batch = db.batch();
+
+    snap.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    totalDeleted += snap.size;
+
+    if (snap.size < CLEANUP_BATCH_SIZE) break;
+  }
+
+  if (totalDeleted > 0) {
+    console.log(`[cleanup] Sessioni scadute eliminate: ${totalDeleted}`);
+  }
+}
+
+async function archiveOldBookings() {
+  let totalArchived = 0;
+  const cutoffDate = subtractMonthsFromYmd(getRomeTodayYmd(), 3);
+  const archivedAt = nowIso();
+
+  while (true) {
+    const snap = await bookingsCol
+      .where('booking_date', '<', cutoffDate)
+      .limit(CLEANUP_BATCH_SIZE)
+      .get();
+
+    if (snap.empty) break;
+
+    const batch = db.batch();
+
+    snap.docs.forEach(doc => {
+      const data = doc.data();
+
+      batch.set(
+        bookingsArchiveCol.doc(doc.id),
+        {
+          ...data,
+          original_id: doc.id,
+          archived_at: archivedAt,
+          archive_reason: 'older_than_3_months'
+        },
+        { merge: true }
+      );
+
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    totalArchived += snap.size;
+
+    if (snap.size < CLEANUP_BATCH_SIZE) break;
+  }
+
+  if (totalArchived > 0) {
+    console.log(
+      `[cleanup] Bookings archiviate: ${totalArchived} | cutoff: ${cutoffDate}`
+    );
+  }
+}
+
+async function runStartupCleanup() {
+  try {
+    await cleanupExpiredSessions();
+  } catch (err) {
+    console.error('Errore pulizia sessioni:', err);
+  }
+
+  try {
+    await archiveOldBookings();
+  } catch (err) {
+    console.error('Errore archiviazione bookings:', err);
+  }
+}
+
+function startCleanupIntervals() {
+  setInterval(async () => {
+    try {
+      await cleanupExpiredSessions();
+    } catch (err) {
+      console.error('Errore pulizia periodica sessioni:', err);
+    }
+  }, SESSION_CLEANUP_INTERVAL_MS);
+
+  setInterval(async () => {
+    try {
+      await archiveOldBookings();
+    } catch (err) {
+      console.error('Errore pulizia periodica bookings:', err);
+    }
+  }, BOOKINGS_CLEANUP_INTERVAL_MS);
+}
+
+
 /* =========================
    START SERVER
 ========================= */
 async function startServer() {
   try {
     await ensureDefaultAdmin();
+    await runStartupCleanup();
 
     app.listen(PORT, () => {
       console.log(`Server avviato sulla porta ${PORT}`);
     });
+
+    startCleanupIntervals();
   } catch (err) {
     console.error('Errore avvio server:', err);
     process.exit(1);
   }
 }
-
 startServer();
