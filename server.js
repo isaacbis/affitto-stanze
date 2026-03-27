@@ -235,9 +235,11 @@ async function getUserByUsername(username) {
 }
 
 async function getActiveRoomsSortedByName() {
-  const snap = await roomsCol.where('active', '==', true).get();
+  const snap = await roomsCol.get();
+
   return snap.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(room => roomIsActive(room))
     .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'it'));
 }
 
@@ -246,7 +248,7 @@ async function getActiveUsersSortedByUsername() {
 
   return snap.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
-    .filter(u => u.role === 'user' && u.active === true)
+    .filter(u => u.role === 'user' && userIsActive(u))
     .sort((a, b) => String(a.username || '').localeCompare(String(b.username || ''), 'it'));
 }
 
@@ -260,6 +262,44 @@ async function getBookingsForDateAndRoom(roomId, bookingDate) {
   return snap.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
     .sort((a, b) => Number(a.start_hour) - Number(b.start_hour));
+}
+
+function bookingsOverlap(startA, endA, startB, endB) {
+  return !(Number(startA) >= Number(endB) || Number(endA) <= Number(startB));
+}
+
+async function createBookingAtomically(bookingData) {
+  return await db.runTransaction(async transaction => {
+    const conflictQuery = bookingsCol
+      .where('room_id', '==', String(bookingData.room_id))
+      .where('booking_date', '==', String(bookingData.booking_date))
+      .where('status', '==', 'active');
+
+    const conflictSnap = await transaction.get(conflictQuery);
+
+    const conflict = conflictSnap.docs.find(doc => {
+      const data = doc.data();
+      return bookingsOverlap(
+        bookingData.start_hour,
+        bookingData.end_hour,
+        data.start_hour,
+        data.end_hour
+      );
+    });
+
+    if (conflict) {
+      const err = new Error('BOOKING_CONFLICT');
+      err.code = 'BOOKING_CONFLICT';
+      throw err;
+    }
+
+    const newBookingRef = bookingsCol.doc();
+    transaction.set(newBookingRef, {
+      ...bookingData
+    });
+
+    return newBookingRef.id;
+  });
 }
 
 async function enrichBookings(rawBookings) {
@@ -760,40 +800,36 @@ app.post('/admin/bookings/create', requireAdmin, async (req, res) => {
       });
     }
 
-    const existingBookings = await getBookingsForDateAndRoom(room_id, booking_date);
-
-    const conflict = existingBookings.find(b => {
-      const existingStart = Number(b.start_hour);
-      const existingEnd = Number(b.end_hour);
-      return !(start >= existingEnd || end <= existingStart);
-    });
-
-    if (conflict) {
-      return await renderAdminBookingsPage(res, {
-        error: 'Quella fascia oraria è già prenotata per questa stanza'
-      });
-    }
-
     const totalHours = end - start;
-    const privateNote = String(admin_note || '').trim().slice(0, 1000);
+const privateNote = String(admin_note || '').trim().slice(0, 1000);
 
-    await bookingsCol.add({
-      user_id: String(user_id),
-      room_id: String(room_id),
-      booking_date: String(booking_date),
-      start_hour: start,
-      end_hour: end,
-      total_hours: totalHours,
-      status: 'active',
-      admin_note: privateNote,
-      created_by_admin_id: String(req.session.user.id),
-      created_by_admin_username: String(req.session.user.username || ''),
-      created_at: nowIso()
-    });
-
+try {
+  await createBookingAtomically({
+    user_id: String(user_id),
+    room_id: String(room_id),
+    booking_date: String(booking_date),
+    start_hour: start,
+    end_hour: end,
+    total_hours: totalHours,
+    status: 'active',
+    admin_note: privateNote,
+    created_by_admin_id: String(req.session.user.id),
+    created_by_admin_username: String(req.session.user.username || ''),
+    created_at: nowIso()
+  });
+} catch (err) {
+  if (err.code === 'BOOKING_CONFLICT') {
     return await renderAdminBookingsPage(res, {
-      success: 'Prenotazione inserita con successo'
+      error: 'Quella fascia oraria è già prenotata per questa stanza'
     });
+  }
+  throw err;
+}
+
+return await renderAdminBookingsPage(res, {
+  success: 'Prenotazione inserita con successo'
+});
+
   } catch (err) {
     console.error('Errore creazione prenotazione admin:', err);
     res.status(500).send('Errore creazione prenotazione admin');
@@ -811,16 +847,6 @@ app.post('/admin/bookings/delete/:id', requireAdmin, async (req, res) => {
   }
 });
 
-app.post('/admin/bookings/delete/:id', requireAdmin, async (req, res) => {
-  try {
-    const id = String(req.params.id);
-    await bookingsCol.doc(id).delete();
-    res.redirect('/admin/bookings');
-  } catch (err) {
-    console.error('Errore eliminazione prenotazione:', err);
-    res.status(500).send('Errore eliminazione prenotazione');
-  }
-});
 
 /* =========================
    ROUTES - ADMIN REPORTS
@@ -1066,51 +1092,58 @@ if (
   });
 }
 
-    const bookingStartDate = buildBookingStartDate(booking_date, start);
-    const now = new Date();
+    const room = await getRoomById(String(room_id));
 
-    if (bookingStartDate.getTime() <= now.getTime()) {
-      return res.render('user-book-room', {
-        rooms,
-        error: 'Non puoi prenotare in un orario già passato',
-        success: null
-      });
-    }
+if (!room || !roomIsActive(room)) {
+  return res.render('user-book-room', {
+    rooms,
+    error: 'Stanza non disponibile',
+    success: null
+  });
+}
 
-    const existingBookings = await getBookingsForDateAndRoom(room_id, booking_date);
+const bookingStartDate = buildBookingStartDate(booking_date, start);
+const now = new Date();
 
-    const conflict = existingBookings.find(b => {
-      const existingStart = Number(b.start_hour);
-      const existingEnd = Number(b.end_hour);
-      return !(start >= existingEnd || end <= existingStart);
-    });
+if (bookingStartDate.getTime() <= now.getTime()) {
+  return res.render('user-book-room', {
+    rooms,
+    error: 'Non puoi prenotare in un orario già passato',
+    success: null
+  });
+}
 
-    if (conflict) {
-      return res.render('user-book-room', {
-        rooms,
-        error: 'Quella fascia oraria è già prenotata per questa stanza',
-        success: null
-      });
-    }
+const totalHours = end - start;
 
-    const totalHours = end - start;
 
-    await bookingsCol.add({
-      user_id: String(req.session.user.id),
-      room_id: String(room_id),
-      booking_date: String(booking_date),
-      start_hour: start,
-      end_hour: end,
-      total_hours: totalHours,
-      status: 'active',
-      created_at: nowIso()
-    });
-
-    res.render('user-book-room', {
+try {
+  await createBookingAtomically({
+    user_id: String(req.session.user.id),
+    room_id: String(room_id),
+    booking_date: String(booking_date),
+    start_hour: start,
+    end_hour: end,
+    total_hours: totalHours,
+    status: 'active',
+    created_at: nowIso()
+  });
+} catch (err) {
+  if (err.code === 'BOOKING_CONFLICT') {
+    return res.render('user-book-room', {
       rooms,
-      error: null,
-      success: 'Prenotazione inserita con successo'
+      error: 'Quella fascia oraria è già prenotata per questa stanza',
+      success: null
     });
+  }
+  throw err;
+}
+
+res.render('user-book-room', {
+  rooms,
+  error: null,
+  success: 'Prenotazione inserita con successo'
+});
+
   } catch (err) {
     console.error('Errore creazione prenotazione:', err);
     res.status(500).send('Errore creazione prenotazione');
