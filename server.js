@@ -37,6 +37,76 @@ function initFirebase() {
 
 const db = initFirebase();
 
+class FirestoreSessionStore extends session.Store {
+  constructor({ firestore, collection = 'sessions' }) {
+    super();
+    this.col = firestore.collection(collection);
+  }
+
+  get(sid, callback) {
+    this.col.doc(String(sid)).get()
+      .then(doc => {
+        if (!doc.exists) return callback(null, null);
+
+        const data = doc.data() || {};
+        const expiresAt = data.expiresAt?.toMillis
+          ? data.expiresAt.toMillis()
+          : new Date(data.expiresAt || 0).getTime();
+
+        if (expiresAt && expiresAt <= Date.now()) {
+          return this.destroy(sid, () => callback(null, null));
+        }
+
+        const parsedSession = typeof data.session === 'string'
+          ? JSON.parse(data.session)
+          : data.session;
+
+        return callback(null, parsedSession || null);
+      })
+      .catch(err => callback(err));
+  }
+
+  set(sid, sess, callback) {
+    const expiresAt = sess?.cookie?.expires
+      ? new Date(sess.cookie.expires)
+      : new Date(Date.now() + 1000 * 60 * 60 * 8);
+
+    this.col.doc(String(sid)).set(
+      {
+        session: JSON.stringify(sess),
+        expiresAt,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    )
+      .then(() => callback && callback(null))
+      .catch(err => callback && callback(err));
+  }
+
+  destroy(sid, callback) {
+    this.col.doc(String(sid)).delete()
+      .then(() => callback && callback(null))
+      .catch(err => callback && callback(err));
+  }
+
+  touch(sid, sess, callback) {
+    const expiresAt = sess?.cookie?.expires
+      ? new Date(sess.cookie.expires)
+      : new Date(Date.now() + 1000 * 60 * 60 * 8);
+
+    this.col.doc(String(sid)).set(
+      {
+        expiresAt,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    )
+      .then(() => callback && callback(null))
+      .catch(err => callback && callback(err));
+  }
+}
+
+
 /* =========================
    APP CONFIG
 ========================= */
@@ -58,11 +128,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const sessionStore = new FirestoreSessionStore({
+  firestore: db,
+  collection: 'sessions'
+});
+
 app.use(
   session({
+    store: sessionStore,
+    name: 'affitto_stanze.sid',
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
+    rolling: true,
+    unset: 'destroy',
     cookie: {
       secure: isProduction,
       httpOnly: true,
@@ -84,6 +163,10 @@ const bookingsCol = db.collection('bookings');
 ========================= */
 function nowIso() {
   return new Date().toISOString();
+}
+
+function normalizeUsername(value) {
+  return String(value || '').trim();
 }
 
 function toBool(value) {
@@ -141,13 +224,57 @@ function buildBookingStartDate(bookingDate, startHour) {
   );
 }
 
-function isBookingCancellable(bookingDate, startHour) {
-  const bookingStart = buildBookingStartDate(bookingDate, startHour);
-  const now = new Date();
-  const diffMs = bookingStart.getTime() - now.getTime();
+function getRomeNowParts() {
+  const parts = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Rome',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).formatToParts(new Date());
 
+  const map = Object.fromEntries(
+    parts
+      .filter(part => part.type !== 'literal')
+      .map(part => [part.type, part.value])
+  );
+
+  return {
+    booking_date: `${map.year}-${map.month}-${map.day}`,
+    minutesNow:
+      Number(map.hour) * 60 +
+      Number(map.minute) +
+      Number(map.second) / 60
+  };
+}
+
+function ymdToUtcMs(ymd) {
+  const [y, m, d] = String(ymd).split('-').map(Number);
+  return Date.UTC(y, m - 1, d);
+}
+
+function getMinutesUntilBooking(bookingDate, startHour) {
+  const nowRome = getRomeNowParts();
+
+  const dayDiff = Math.round(
+    (ymdToUtcMs(bookingDate) - ymdToUtcMs(nowRome.booking_date)) / 86400000
+  );
+
+  const bookingMinutes = Number(startHour) * 60;
+
+  return dayDiff * 1440 + (bookingMinutes - nowRome.minutesNow);
+}
+
+function hasBookingAlreadyStarted(bookingDate, startHour) {
+  return getMinutesUntilBooking(bookingDate, startHour) <= 0;
+}
+
+function isBookingCancellable(bookingDate, startHour) {
   // cancellabile solo se mancano PIÙ di 60 minuti
-  return diffMs > 60 * 60 * 1000;
+  return getMinutesUntilBooking(bookingDate, startHour) > 60;
 }
 
 function getWeekStartMonday(baseDate = new Date()) {
@@ -233,8 +360,12 @@ async function getBookingById(id) {
 }
 
 async function getUserByUsername(username) {
+  const normalizedUsername = normalizeUsername(username);
+
+  if (!normalizedUsername) return null;
+
   const snap = await usersCol
-    .where('username', '==', String(username))
+    .where('username', '==', normalizedUsername)
     .limit(1)
     .get();
 
@@ -431,7 +562,8 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = normalizeUsername(req.body.username);
+    const password = String(req.body.password || '');
 
     if (!username || !password) {
       return res.render('login', { error: 'Compila username e password' });
@@ -464,7 +596,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie('connect.sid');
+    res.clearCookie('affitto_stanze.sid');
     res.redirect('/login');
   });
 });
@@ -522,7 +654,9 @@ app.get('/admin/users', requireAdmin, async (req, res) => {
 
 app.post('/admin/users/create', requireAdmin, async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const username = normalizeUsername(req.body.username);
+    const password = String(req.body.password || '');
+    const role = String(req.body.role || '');
 
     if (!username || !password || !role) {
       return await renderAdminUsersPage(res, {
@@ -543,12 +677,12 @@ app.post('/admin/users/create', requireAdmin, async (req, res) => {
       });
     }
 
-    const hash = await bcrypt.hash(String(password), 10);
+    const hash = await bcrypt.hash(password, 10);
 
     await usersCol.add({
-      username: String(username).trim(),
+      username,
       password_hash: hash,
-      role: String(role),
+      role,
       active: true,
       created_at: nowIso()
     });
@@ -809,14 +943,11 @@ app.post('/admin/bookings/create', requireAdmin, async (req, res) => {
       });
     }
 
-    const bookingStartDate = buildBookingStartDate(booking_date, start);
-    const now = new Date();
-
-    if (bookingStartDate.getTime() <= now.getTime()) {
-      return await renderAdminBookingsPage(res, {
-        error: 'Non puoi prenotare in un orario già passato'
-      });
-    }
+    if (hasBookingAlreadyStarted(String(booking_date), start)) {
+  return await renderAdminBookingsPage(res, {
+    error: 'Non puoi prenotare in un orario già passato'
+  });
+}
 
     const totalHours = end - start;
 const privateNote = String(admin_note || '').trim().slice(0, 1000);
@@ -1125,10 +1256,7 @@ if (!room || !roomIsActive(room)) {
   });
 }
 
-const bookingStartDate = buildBookingStartDate(booking_date, start);
-const now = new Date();
-
-if (bookingStartDate.getTime() <= now.getTime()) {
+if (hasBookingAlreadyStarted(String(booking_date), start)) {
   return res.render('user-book-room', {
     rooms,
     error: 'Non puoi prenotare in un orario già passato',
