@@ -2476,3 +2476,112 @@ td .success-btn {
     line-height: 1.1;
   }
 }
+
+/* ===== Colori un po' più accesi ===== */
+:root {
+  --primary: #3f8cff;
+  --primary-2: #7f66ff;
+  --primary-3: #49d7ff;
+  --violet: #8e6cff;
+  --pink: #ff7fbe;
+  --green: #18c964;
+  --green-2: #0fa24f;
+  --red: #ff3838;
+  --red-2: #d91f1f;
+  --orange: #ffb84d;
+}
+
+/* sfondo leggermente più vivo */
+body {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(63, 140, 255, 0.34), transparent 22%),
+    radial-gradient(circle at 88% 14%, rgba(142, 108, 255, 0.28), transparent 20%),
+    radial-gradient(circle at 82% 84%, rgba(255, 127, 190, 0.24), transparent 22%),
+    radial-gradient(circle at 18% 88%, rgba(73, 215, 255, 0.24), transparent 20%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
+}
+
+/* pulsanti principali */
+button,
+.primary-btn,
+.login-submit-btn {
+  background: linear-gradient(135deg, #3f8cff, #7f66ff, #49d7ff);
+}
+
+.success-btn {
+  background: linear-gradient(135deg, #20d46b, #12b75a, #3ee0c0);
+}
+
+.warning-btn {
+  background: linear-gradient(135deg, #ffd166, #ffb84d, #ff9f68);
+  color: #7a4300;
+}
+
+.delete-btn,
+.mobile-delete-btn {
+  background: linear-gradient(135deg, #ff3838, #d91f1f);
+  box-shadow:
+    0 10px 22px rgba(255, 56, 56, 0.38),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* slot prenotazioni */
+.slot-btn.free {
+  background: linear-gradient(135deg, #20d46b, #12b75a, #3ee0c0);
+}
+
+.slot-btn.busy {
+  background: linear-gradient(135deg, #ff7d7d, #ff5252, #ff8fb1);
+}
+
+.slot-btn.selected {
+  background: linear-gradient(135deg, #3f8cff, #8e6cff, #49d7ff) !important;
+  box-shadow:
+    0 14px 28px rgba(63, 140, 255, 0.24),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* badge e stati */
+.badge-blue,
+.role-user,
+.hours-chip {
+  background: rgba(63, 140, 255, 0.20);
+  color: #125fd4;
+}
+
+.badge-violet,
+.role-admin {
+  background: rgba(142, 108, 255, 0.20);
+  color: #5b35dc;
+}
+
+.status-on {
+  background: rgba(24, 201, 100, 0.20);
+  color: #0d8e45;
+}
+
+.status-off {
+  background: rgba(255, 56, 56, 0.18);
+  color: #c61f1f;
+}
+
+/* versione più accesa sulle card prenotazioni mobile */
+.booking-mobile-card .status-on,
+.booking-mobile-card .dot.free,
+.booking-mobile-card .badge-blue,
+.booking-mobile-card .hours-chip {
+  background: linear-gradient(135deg, #18c964, #0fa24f) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 8px 16px rgba(24, 201, 100, 0.36),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+
+.booking-mobile-card .status-off,
+.booking-mobile-card .dot.busy {
+  background: linear-gradient(135deg, #ff3838, #d91f1f) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 8px 16px rgba(255, 56, 56, 0.34),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
