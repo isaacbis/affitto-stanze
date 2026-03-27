@@ -19,6 +19,10 @@
     return;
   }
 
+  const SLOT_START = 8;
+  const SLOT_END = 20.5;
+  const SLOT_STEP = 0.5;
+
   let occupiedSlots = [];
   let selectedStart = null;
   let selectedEnd = null;
@@ -32,6 +36,37 @@
 
   function normalizeSlot(value) {
     return Number(Number(value).toFixed(1));
+  }
+
+  function getRomeNow() {
+    const parts = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Europe/Rome',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+
+    const map = Object.fromEntries(
+      parts
+        .filter(part => part.type !== 'literal')
+        .map(part => [part.type, part.value])
+    );
+
+    return {
+      date: `${map.year}-${map.month}-${map.day}`,
+      minutesNow:
+        Number(map.hour) * 60 +
+        Number(map.minute) +
+        Number(map.second) / 60
+    };
+  }
+
+  function isPastSlot(date, slotValue, nowRome) {
+    return date === nowRome.date && slotValue * 60 <= nowRome.minutesNow;
   }
 
   function resetSelection() {
@@ -70,15 +105,15 @@
 
     if (selectedStart === null) {
       selectedStart = hour;
-      selectedEnd = normalizeSlot(hour + 0.5);
+      selectedEnd = normalizeSlot(hour + SLOT_STEP);
     } else if (selectedStart !== null && selectedEnd !== null) {
       if (hour < selectedStart) {
         selectedStart = hour;
       } else {
-        selectedEnd = normalizeSlot(hour + 0.5);
+        selectedEnd = normalizeSlot(hour + SLOT_STEP);
       }
 
-      for (let h = selectedStart; h < selectedEnd; h += 0.5) {
+      for (let h = selectedStart; h < selectedEnd; h += SLOT_STEP) {
         const current = normalizeSlot(h);
 
         if (occupiedSlots.includes(current)) {
@@ -97,8 +132,10 @@
 
   function buildSlots() {
     slotsContainer.innerHTML = '';
+    const date = bookingDate.value;
+    const nowRome = getRomeNow();
 
-    for (let h = 8; h < 20.5; h += 0.5) {
+    for (let h = SLOT_START; h < SLOT_END; h += SLOT_STEP) {
       const slotValue = normalizeSlot(h);
 
       const slot = document.createElement('button');
@@ -110,6 +147,10 @@
       if (occupiedSlots.includes(slotValue)) {
         slot.classList.add('busy');
         slot.disabled = true;
+      } else if (isPastSlot(date, slotValue, nowRome)) {
+        slot.classList.add('busy', 'past');
+        slot.disabled = true;
+        slot.title = 'Orario già passato';
       } else {
         slot.classList.add('free');
         slot.addEventListener('click', () => handleSlotClick(slotValue));
@@ -151,12 +192,7 @@
   roomSelect.addEventListener('change', loadAvailability);
   bookingDate.addEventListener('change', loadAvailability);
 
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayStr = `${yyyy}-${mm}-${dd}`;
-
+  const todayStr = getRomeNow().date;
   bookingDate.min = todayStr;
   bookingDate.value = todayStr;
 

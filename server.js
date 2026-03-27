@@ -668,7 +668,7 @@ app.get('/admin/dashboard', requireAdmin, async (req, res) => {
 
     const totalUsers = users.filter(u => u.role === 'user' && userIsActive(u)).length;
     const totalRooms = rooms.filter(roomIsActive).length;
-    const today = dateToYmd(new Date());
+const today = getRomeTodayYmd();
 
     const activeBookings = bookings.filter(bookingIsActive);
     const todayBookings = activeBookings.filter(b => b.booking_date === today).length;
@@ -1089,26 +1089,20 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
   try {
     const { type = 'monthly', month, weekStart, userId } = req.query;
 
-const nowLocal = new Date();
-const currentMonth = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, '0')}`;
+const todayRome = getRomeTodayYmd();
+const currentMonth = todayRome.slice(0, 7);
 
-    let startDate;
-    let endDate;
+let startDate;
+let endDate;
 
-    if (type === 'weekly') {
-      const base = weekStart
-        ? new Date(`${weekStart}T00:00:00`)
-        : getWeekStartMonday(new Date());
-
-      startDate = dateToYmd(base);
-      const end = new Date(base);
-      end.setDate(end.getDate() + 6);
-      endDate = dateToYmd(end);
-    } else {
-      const monthStr = month || currentMonth;
-      startDate = `${monthStr}-01`;
-      endDate = monthLastDay(monthStr);
-    }
+if (type === 'weekly') {
+  startDate = weekStart || getWeekStartMondayYmd(todayRome);
+  endDate = addDaysToYmd(startDate, 6);
+} else {
+  const monthStr = month || currentMonth;
+  startDate = `${monthStr}-01`;
+  endDate = monthLastDay(monthStr);
+}
 
     const [allBookings, allUsers] = await Promise.all([
   getAllBookings(),
@@ -1152,15 +1146,7 @@ const usersMap = new Map(users.map(u => [String(u.id), u.username]));
     const reportRows = [...aggregate.values()].sort((a, b) => b.total_hours - a.total_hours);
 
     const effectiveMonth = month || currentMonth;
-
-const nowDate = new Date();
-const monday = new Date(nowDate);
-monday.setDate(nowDate.getDate() - ((nowDate.getDay() + 6) % 7));
-const effectiveWeekStart = weekStart || [
-  monday.getFullYear(),
-  String(monday.getMonth() + 1).padStart(2, '0'),
-  String(monday.getDate()).padStart(2, '0')
-].join('-');
+const effectiveWeekStart = weekStart || getWeekStartMondayYmd(todayRome);
 
 res.render('admin-reports', {
   reportRows,
