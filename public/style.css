@@ -2585,3 +2585,29 @@ button,
     0 8px 16px rgba(255, 56, 56, 0.34),
     inset 0 1px 0 rgba(255,255,255,0.25) !important;
 }
+
+
+.report-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.report-pdf-btn {
+  background: linear-gradient(135deg, #ff3b3b, #dc2626);
+  color: #ffffff;
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .report-head-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .report-pdf-btn {
+    width: 100%;
+  }
+}

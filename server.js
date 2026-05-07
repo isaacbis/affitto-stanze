@@ -3,6 +3,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const admin = require('firebase-admin');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1115,84 +1116,226 @@ app.post('/admin/bookings/delete/:id', requireAdmin, async (req, res) => {
 /* =========================
    ROUTES - ADMIN REPORTS
 ========================= */
-app.get('/admin/reports', requireAdmin, async (req, res) => {
-  try {
-    const { type = 'monthly', month, weekStart, userId } = req.query;
+async function buildAdminReportData(query = {}) {
+  const { type = 'monthly', month, weekStart, userId } = query;
 
-const todayRome = getRomeTodayYmd();
-const currentMonth = todayRome.slice(0, 7);
+  const todayRome = getRomeTodayYmd();
+  const currentMonth = todayRome.slice(0, 7);
 
-let startDate;
-let endDate;
+  let startDate;
+  let endDate;
 
-if (type === 'weekly') {
-  startDate = weekStart || getWeekStartMondayYmd(todayRome);
-  endDate = addDaysToYmd(startDate, 6);
-} else {
-  const monthStr = month || currentMonth;
-  startDate = `${monthStr}-01`;
-  endDate = monthLastDay(monthStr);
-}
+  if (type === 'weekly') {
+    startDate = weekStart || getWeekStartMondayYmd(todayRome);
+    endDate = addDaysToYmd(startDate, 6);
+  } else {
+    const monthStr = month || currentMonth;
+    startDate = `${monthStr}-01`;
+    endDate = monthLastDay(monthStr);
+  }
 
-    const [allBookings, allUsers] = await Promise.all([
-  getAllBookings(),
-  getAllUsers()
-]);
+  const [allBookings, allUsers] = await Promise.all([
+    getAllBookings(),
+    getAllUsers()
+  ]);
 
-const users = allUsers
-  .filter(u => u.role === 'user')
-  .sort((a, b) => String(a.username || '').localeCompare(String(b.username || ''), 'it'));
+  const users = allUsers
+    .filter(u => u.role === 'user')
+    .sort((a, b) => String(a.username || '').localeCompare(String(b.username || ''), 'it'));
 
-const filteredBookings = allBookings.filter(b => {
-  if (!bookingIsActive(b)) return false;
-  if (String(b.booking_date) < startDate) return false;
-  if (String(b.booking_date) > endDate) return false;
-  if (userId && String(b.user_id) !== String(userId)) return false;
-  return true;
-});
+  const filteredBookings = allBookings.filter(b => {
+    if (!bookingIsActive(b)) return false;
+    if (String(b.booking_date) < startDate) return false;
+    if (String(b.booking_date) > endDate) return false;
+    if (userId && String(b.user_id) !== String(userId)) return false;
+    return true;
+  });
 
-const usersMap = new Map(users.map(u => [String(u.id), u.username]));
+  const usersMap = new Map(users.map(u => [String(u.id), u.username]));
 
-    const aggregate = new Map();
+  const aggregate = new Map();
 
-    for (const booking of filteredBookings) {
-      const uid = String(booking.user_id);
-      const username = usersMap.get(uid) || 'Utente';
+  for (const booking of filteredBookings) {
+    const uid = String(booking.user_id);
+    const username = usersMap.get(uid) || 'Utente';
 
-      if (!aggregate.has(uid)) {
-        aggregate.set(uid, {
-          user_id: uid,
-          username,
-          total_hours: 0,
-          total_bookings: 0
-        });
-      }
-
-      const row = aggregate.get(uid);
-      row.total_hours += Number(booking.total_hours || 0);
-      row.total_bookings += 1;
+    if (!aggregate.has(uid)) {
+      aggregate.set(uid, {
+        user_id: uid,
+        username,
+        total_hours: 0,
+        total_bookings: 0
+      });
     }
 
-    const reportRows = [...aggregate.values()].sort((a, b) => b.total_hours - a.total_hours);
+    const row = aggregate.get(uid);
+    row.total_hours += Number(booking.total_hours || 0);
+    row.total_bookings += 1;
+  }
 
-    const effectiveMonth = month || currentMonth;
-const effectiveWeekStart = weekStart || getWeekStartMondayYmd(todayRome);
+  const reportRows = [...aggregate.values()].sort((a, b) => b.total_hours - a.total_hours);
 
-res.render('admin-reports', {
-  reportRows,
-  users,
-  filters: {
-    type,
-    month: effectiveMonth,
-    weekStart: effectiveWeekStart,
-    userId: userId || ''
-  },
-  startDate,
-  endDate
-});
+  const effectiveMonth = month || currentMonth;
+  const effectiveWeekStart = weekStart || getWeekStartMondayYmd(todayRome);
+
+  const selectedUser = userId
+    ? users.find(u => String(u.id) === String(userId))
+    : null;
+
+  return {
+    reportRows,
+    users,
+    filters: {
+      type,
+      month: effectiveMonth,
+      weekStart: effectiveWeekStart,
+      userId: userId || ''
+    },
+    startDate,
+    endDate,
+    selectedUserLabel: selectedUser ? selectedUser.username : 'Tutti'
+  };
+}
+
+app.get('/admin/reports', requireAdmin, async (req, res) => {
+  try {
+    const reportData = await buildAdminReportData(req.query);
+
+    res.render('admin-reports', reportData);
   } catch (err) {
     console.error('Errore report:', err);
     res.status(500).send('Errore report');
+  }
+});
+
+app.get('/admin/reports/pdf', requireAdmin, async (req, res) => {
+  try {
+    const {
+      reportRows,
+      filters,
+      startDate,
+      endDate,
+      selectedUserLabel
+    } = await buildAdminReportData(req.query);
+
+    const totalHours = reportRows.reduce((sum, row) => {
+      return sum + Number(row.total_hours || 0);
+    }, 0);
+
+    const totalBookings = reportRows.reduce((sum, row) => {
+      return sum + Number(row.total_bookings || 0);
+    }, 0);
+
+    const reportTypeLabel = filters.type === 'weekly' ? 'Settimanale' : 'Mensile';
+    const fileName = `report-${startDate}-${endDate}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${fileName}"`
+    );
+
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 50
+    });
+
+    doc.pipe(res);
+
+    doc
+      .fontSize(22)
+      .text('Report ore prenotate', { align: 'center' });
+
+    doc.moveDown(0.8);
+
+    doc
+      .fontSize(11)
+      .text(`Periodo: ${startDate} - ${endDate}`)
+      .text(`Tipo report: ${reportTypeLabel}`)
+      .text(`Utente: ${selectedUserLabel}`)
+      .text(`Generato il: ${new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' })}`);
+
+    doc.moveDown(1);
+
+    doc
+      .fontSize(13)
+      .text(`Totale ore: ${totalHours}h`)
+      .text(`Totale prenotazioni: ${totalBookings}`);
+
+    doc.moveDown(1.2);
+
+    const tableTop = doc.y;
+    const colUserX = 50;
+    const colHoursX = 330;
+    const colBookingsX = 430;
+
+    doc
+      .fontSize(11)
+      .font('Helvetica-Bold')
+      .text('Utente', colUserX, tableTop)
+      .text('Ore', colHoursX, tableTop)
+      .text('Pren.', colBookingsX, tableTop);
+
+    doc
+      .moveTo(50, tableTop + 18)
+      .lineTo(545, tableTop + 18)
+      .stroke();
+
+    let y = tableTop + 30;
+
+    doc.font('Helvetica');
+
+    if (reportRows.length === 0) {
+      doc
+        .fontSize(11)
+        .text('Nessun dato disponibile per il periodo selezionato.', 50, y);
+    } else {
+      reportRows.forEach(row => {
+        if (y > 740) {
+          doc.addPage();
+          y = 50;
+
+          doc
+            .font('Helvetica-Bold')
+            .fontSize(11)
+            .text('Utente', colUserX, y)
+            .text('Ore', colHoursX, y)
+            .text('Pren.', colBookingsX, y);
+
+          doc
+            .moveTo(50, y + 18)
+            .lineTo(545, y + 18)
+            .stroke();
+
+          y += 30;
+          doc.font('Helvetica');
+        }
+
+        doc
+          .fontSize(10)
+          .text(String(row.username || 'Utente'), colUserX, y, {
+            width: 250
+          })
+          .text(`${row.total_hours || 0}h`, colHoursX, y)
+          .text(String(row.total_bookings || 0), colBookingsX, y);
+
+        y += 24;
+      });
+    }
+
+    doc.moveDown(2);
+
+    doc
+      .fontSize(9)
+      .fillColor('#666666')
+      .text('Report generato automaticamente dal gestionale affitto stanze.', 50, 780, {
+        align: 'center'
+      });
+
+    doc.end();
+  } catch (err) {
+    console.error('Errore generazione PDF report:', err);
+    res.status(500).send('Errore generazione PDF report');
   }
 });
 

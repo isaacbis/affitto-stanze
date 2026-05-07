@@ -66,9 +66,18 @@
 
       <div class="card glass">
         <div class="section-head">
-          <h2>Periodo selezionato</h2>
-          <span class="badge"><%= startDate %> → <%= endDate %></span>
-        </div>
+  <h2>Periodo selezionato</h2>
+  <div class="report-head-actions">
+    <span class="badge"><%= startDate %> → <%= endDate %></span>
+
+    <a
+      class="btn-link report-pdf-btn"
+      href="/admin/reports/pdf?type=<%= encodeURIComponent(filters.type) %>&month=<%= encodeURIComponent(filters.month) %>&weekStart=<%= encodeURIComponent(filters.weekStart) %>&userId=<%= encodeURIComponent(filters.userId || '') %>"
+    >
+      Scarica PDF
+    </a>
+  </div>
+</div>
 
 <div class="table-wrap">
   <table class="compact-table reports-table">
