@@ -2958,3 +2958,442 @@ tr:hover td {
     font-size: 12.5px;
   }
 }
+
+/* =========================================================
+   EXTRA APP STYLE - SOLO CSS
+   Aggiungi in fondo a style.css
+========================================================= */
+
+/* Layout più morbido e da app */
+.page {
+  padding-top: 22px;
+}
+
+.container.modern {
+  max-width: 1180px;
+}
+
+/* Card più premium */
+.card,
+.topbar,
+.room-card,
+.booking-mobile-card,
+.login-card {
+  border-radius: 30px !important;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.90), rgba(255,255,255,0.68));
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.09),
+    0 8px 20px rgba(15, 23, 42, 0.045),
+    inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+/* Effetto profondità leggero */
+.card:hover,
+.room-card:hover,
+.booking-mobile-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 30px 70px rgba(15, 23, 42, 0.11),
+    0 10px 22px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+/* Topbar più da app */
+.topbar {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 24px;
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  right: -50px;
+  top: -70px;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(63,140,255,0.28), transparent 68%);
+  pointer-events: none;
+}
+
+.topbar h1 {
+  font-size: clamp(27px, 3.4vw, 38px);
+}
+
+.subtitle {
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Navbar tipo tab app */
+.modern-nav,
+.nav {
+  border-radius: 24px;
+  padding: 7px;
+  background: rgba(255,255,255,0.66);
+  border: 1px solid rgba(255,255,255,0.75);
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.modern-nav a,
+.nav a {
+  border-radius: 18px;
+  min-height: 46px;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.modern-nav a.active,
+.nav a.active {
+  background: linear-gradient(135deg, #3f8cff, #7f66ff, #49d7ff);
+  box-shadow:
+    0 14px 28px rgba(63, 140, 255, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+/* Statistiche più impattanti */
+.stat-card {
+  min-height: 132px;
+  border-radius: 30px;
+  padding: 20px;
+}
+
+.stat-card h3 {
+  font-size: 42px;
+  margin-bottom: 0;
+}
+
+.stat-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  font-size: 27px;
+}
+
+/* Pulsanti più premium */
+button,
+.primary-btn,
+.success-btn,
+.warning-btn,
+.delete-btn,
+.mobile-delete-btn,
+.btn-link,
+.hero-action,
+.quick-action-btn {
+  border-radius: 18px !important;
+  min-height: 44px;
+  font-weight: 850;
+  letter-spacing: -0.015em;
+}
+
+.primary-btn,
+.login-submit-btn,
+button {
+  background: linear-gradient(135deg, #247cff, #7655ff, #30d4ff);
+  box-shadow:
+    0 14px 28px rgba(63, 140, 255, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+.btn-link,
+.quick-action-btn,
+.hero-action {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(240,247,255,0.86));
+  color: #2563eb;
+}
+
+.danger-link,
+.delete-btn,
+.mobile-delete-btn,
+.report-pdf-btn {
+  background: linear-gradient(135deg, #ff3434, #d91f1f, #ff6b6b) !important;
+  color: #ffffff !important;
+}
+
+/* Click più reattivo */
+button:active,
+.primary-btn:active,
+.success-btn:active,
+.warning-btn:active,
+.delete-btn:active,
+.mobile-delete-btn:active,
+.btn-link:active,
+.hero-action:active,
+.quick-action-btn:active,
+.modern-nav a:active,
+.nav a:active,
+.slot-btn:active {
+  transform: scale(0.965);
+}
+
+/* Input più eleganti */
+input,
+select,
+textarea {
+  border-radius: 18px;
+  min-height: 48px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(246,250,255,0.90));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(63, 140, 255, 0.68);
+  box-shadow:
+    0 0 0 4px rgba(63, 140, 255, 0.15),
+    0 16px 34px rgba(63, 140, 255, 0.12);
+}
+
+/* Tabelle più pulite */
+.table-wrap {
+  border-radius: 26px;
+  padding: 8px;
+  background: rgba(255,255,255,0.44);
+  border: 1px solid rgba(255,255,255,0.66);
+  box-shadow:
+    0 18px 42px rgba(15, 23, 42, 0.055),
+    inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+table {
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+th {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(229,240,255,0.92));
+  color: #475569;
+  font-size: 11px;
+}
+
+td {
+  background: rgba(255,255,255,0.88);
+}
+
+tr:nth-child(even) td {
+  background: rgba(246,250,255,0.90);
+}
+
+tr:hover td {
+  background: rgba(226, 240, 255, 0.96);
+}
+
+/* Badge più belli */
+.badge,
+.hours-chip,
+.role-pill,
+.status-pill,
+.mini-badge {
+  border-radius: 999px;
+  font-weight: 850;
+  box-shadow:
+    0 8px 16px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.hours-chip {
+  background: linear-gradient(135deg, #3f8cff, #7f66ff) !important;
+  color: #ffffff !important;
+}
+
+/* Report più moderno */
+.report-filters-grid {
+  padding: 18px;
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.42));
+  border: 1px solid rgba(255,255,255,0.70);
+}
+
+.report-head-actions {
+  border-radius: 22px;
+  padding: 8px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.75);
+}
+
+/* Slot più grossi e leggibili */
+.slot-btn {
+  border-radius: 20px;
+  min-height: 64px;
+  font-size: 16px;
+}
+
+.slot-btn.free {
+  background: linear-gradient(135deg, #14d66f, #0cae55, #38e5c3);
+}
+
+.slot-btn.busy {
+  background: linear-gradient(135deg, #ff6b6b, #ef4444, #ff8fb1);
+}
+
+.slot-btn.selected {
+  background: linear-gradient(135deg, #247cff, #7655ff, #30d4ff) !important;
+}
+
+/* Login più raffinato */
+.login-card {
+  max-width: 440px;
+}
+
+.login-card-top h2 {
+  font-size: 34px;
+}
+
+.login-mini-badge {
+  background: linear-gradient(135deg, rgba(63,140,255,0.16), rgba(127,102,255,0.16));
+  color: #2563eb;
+}
+
+/* Mobile più app */
+@media (max-width: 768px) {
+  .page {
+    padding: 10px 8px 22px;
+  }
+
+  .topbar {
+    border-radius: 28px !important;
+    padding: 18px;
+  }
+
+  .topbar h1 {
+    font-size: 26px;
+  }
+
+  .card,
+  .glass,
+  .room-card,
+  .booking-mobile-card {
+    border-radius: 26px !important;
+    padding: 15px;
+  }
+
+  .modern-nav,
+  .nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    border-radius: 24px;
+    padding: 8px;
+  }
+
+  .modern-nav a,
+  .nav a {
+    width: 100%;
+    min-height: 44px;
+    font-size: 13px;
+    padding: 8px 6px;
+  }
+
+  .stats-grid,
+  .grid3 {
+    gap: 12px;
+  }
+
+  .stat-card {
+    border-radius: 26px;
+    min-height: 110px;
+    padding: 16px;
+  }
+
+  .stat-card h3 {
+    font-size: 32px;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 23px;
+  }
+
+  .table-wrap {
+    border-radius: 24px;
+    padding: 5px;
+  }
+
+  th {
+    font-size: 9px;
+  }
+
+  td {
+    font-size: 9.5px;
+  }
+
+  .report-filters-grid {
+    border-radius: 24px;
+    padding: 12px;
+  }
+
+  .report-head-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .report-head-actions .badge,
+  .report-head-actions .btn-link,
+  .report-pdf-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  input,
+  select,
+  textarea,
+  button,
+  .primary-btn,
+  .btn-link {
+    min-height: 46px;
+  }
+
+  .slot-btn {
+    min-height: 60px;
+    border-radius: 18px;
+  }
+}
+
+/* Mobile molto piccolo */
+@media (max-width: 430px) {
+  .topbar h1 {
+    font-size: 23px;
+  }
+
+  .subtitle {
+    font-size: 12.5px;
+  }
+
+  .card h2,
+  .section-head h2 {
+    font-size: 19px;
+  }
+
+  .modern-nav a,
+  .nav a {
+    font-size: 12.5px;
+  }
+
+  .stat-card {
+    min-height: 100px;
+  }
+
+  .stat-card h3 {
+    font-size: 28px;
+  }
+
+  .badge,
+  .hours-chip,
+  .role-pill,
+  .status-pill,
+  .mini-badge {
+    font-size: 8.5px;
+  }
+}
