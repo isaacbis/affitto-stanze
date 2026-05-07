@@ -3437,3 +3437,48 @@ tr:hover td {
     border-bottom: 0;
   }
 }
+
+@media (max-width: 768px) {
+  .modern-nav,
+  .nav {
+    position: sticky;
+    top: 6px;
+    z-index: 50;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .modern-nav a,
+  .nav a {
+    min-height: 46px;
+    font-size: 13px;
+    border-radius: 16px;
+  }
+}
+
+.login-card {
+  transform: translateY(-10px);
+  box-shadow:
+    0 32px 80px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.86);
+}
+
+.login-card-top h2 {
+  font-size: clamp(30px, 7vw, 42px);
+  font-weight: 900;
+}
+
+.login-submit-btn {
+  min-height: 56px;
+  font-size: 16px;
+}
+
+.card + .card {
+  margin-top: 26px;
+}
+
+.section-head {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
