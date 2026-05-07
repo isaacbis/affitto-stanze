@@ -704,8 +704,8 @@ const today = getRomeTodayYmd();
     const todayBookings = activeBookings.filter(b => b.booking_date === today).length;
 
     const latestBookingsRaw = [...activeBookings]
-  .sort(sortByBookingDateTimeDesc)
-  .slice(0, 10);
+  .filter(b => b.booking_date === today)
+  .sort((a, b) => Number(a.start_hour) - Number(b.start_hour));
 
     const latestBookings = await enrichBookings(latestBookingsRaw);
 

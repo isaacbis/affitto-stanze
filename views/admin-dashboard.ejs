@@ -104,9 +104,8 @@
 
       <div class="card glass">
         <div class="section-head">
-          <h2>Ultime prenotazioni</h2>
-          <span class="badge badge-blue">Le ultime 10</span>
-        </div>
+          <h2>Prenotazioni di oggi</h2>
+<span class="badge badge-blue"><%= latestBookings.length %> oggi</span>
 
         <div class="table-wrap">
   <table class="compact-table admin-latest-table">
@@ -118,16 +117,24 @@
               <th>A</th>
               <th>Ore</th>
             </tr>
-            <% latestBookings.forEach(b => { %>
-              <tr>
-                <td><strong><%= b.username %></strong></td>
-                <td><%= b.room_name %></td>
-                <td><%= b.booking_date %></td>
-                <td><%= formatTime(b.start_hour) %></td>
-<td><%= formatTime(b.end_hour) %></td>
-                <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
-              </tr>
-            <% }) %>
+            <% if (latestBookings.length === 0) { %>
+  <tr>
+    <td colspan="6" class="muted-text">
+      Nessuna prenotazione per oggi
+    </td>
+  </tr>
+<% } else { %>
+  <% latestBookings.forEach(b => { %>
+    <tr>
+      <td><strong><%= b.username %></strong></td>
+      <td><%= b.room_name %></td>
+      <td><%= b.booking_date %></td>
+      <td><%= formatTime(b.start_hour) %></td>
+      <td><%= formatTime(b.end_hour) %></td>
+      <td><span class="hours-chip"><%= b.total_hours %>h</span></td>
+    </tr>
+  <% }) %>
+<% } %>
           </table>
         </div>
       </div>
