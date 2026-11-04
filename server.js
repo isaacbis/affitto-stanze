@@ -635,6 +635,95 @@ async function renderAdminBookingsPage(res, { error = null, success = null } = {
    ROUTES - GENERIC
 ========================= */
 
+/* API iOS: stessa sessione e stesse collezioni del gestionale. */
+app.use('/api/v1', (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  if (req.get('X-Affitto-Client') !== 'ios') return res.status(403).json({ error: 'Richiesta non valida' });
+  next();
+});
+app.post('/api/v1/login', async (req, res) => {
+  try {
+    const user = await getUserByUsername(req.body.username);
+    if (!user || !userIsActive(user) || !await bcrypt.compare(String(req.body.password || ''), user.password_hash))
+      return res.status(401).json({ error: 'Credenziali non valide' });
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error: 'Errore di accesso' });
+      req.session.user = { id: user.id, username: user.username, role: user.role };
+      req.session.save(error => error ? res.status(500).json({ error: 'Errore di accesso' }) : res.json(req.session.user));
+    });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Errore di accesso' }); }
+});
+app.post('/api/v1/logout', (req, res) => req.session.destroy(err => {
+  if (err) return res.status(500).json({ error: 'Errore di uscita' });
+  res.clearCookie('affitto_stanze.sid'); res.json({ ok: true });
+}));
+async function apiAuth(req, res, next) {
+  try {
+    const user = req.session.user?.id && await getUserById(req.session.user.id);
+    if (!user || !userIsActive(user) || !isValidRole(user.role)) return res.status(401).json({ error: 'Sessione scaduta' });
+    req.apiUser = { id: user.id, username: user.username, role: user.role }; next();
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Errore di autenticazione' }); }
+}
+app.post('/api/v1/change-password', apiAuth, async (req, res) => {
+  try {
+    const current = String(req.body.current_password || ''), next = String(req.body.new_password || '');
+    if (!current || !next) return res.status(400).json({error: 'Compila tutti i campi'});
+    const user = await getUserById(req.apiUser.id);
+    if (!await bcrypt.compare(current, user.password_hash || '')) return res.status(400).json({error: 'La password attuale non è corretta'});
+    if (await bcrypt.compare(next, user.password_hash || '')) return res.status(400).json({error: 'La nuova password deve essere diversa'});
+    await usersCol.doc(req.apiUser.id).update({password_hash: await bcrypt.hash(next, 10)});
+    res.json({ok: true});
+  } catch (err) { console.error(err); res.status(500).json({error: 'Errore cambio password'}); }
+});
+app.get('/api/v1/me', apiAuth, (req, res) => res.json(req.apiUser));
+app.get('/api/v1/rooms', apiAuth, async (req, res) => {
+  try { res.json((await getActiveRoomsSortedByName()).map(({id, name}) => ({id, name}))); }
+  catch (err) { console.error(err); res.status(500).json({error: 'Errore caricamento stanze'}); }
+});
+app.get('/api/v1/users', apiAuth, async (req, res) => {
+  if (req.apiUser.role !== 'admin') return res.sendStatus(403);
+  try { res.json((await getActiveUsersSortedByUsername()).map(({id, username, role}) => ({id, username, role}))); }
+  catch (err) { console.error(err); res.status(500).json({error: 'Errore caricamento utenti'}); }
+});
+app.get('/api/v1/bookings', apiAuth, async (req, res) => {
+  try {
+    let bookings = await getAllBookings();
+    if (req.apiUser.role !== 'admin') bookings = bookings.filter(b => String(b.user_id) === String(req.apiUser.id));
+    bookings = await enrichBookings(bookings.sort(sortByBookingDateTimeDesc));
+    res.json(bookings.map(b => ({ id: b.id, room_name: b.room_name, username: b.username, booking_date: b.booking_date, start_hour: Number(b.start_hour), end_hour: Number(b.end_hour), cancellable: req.apiUser.role === 'admin' || isBookingCancellable(b.booking_date, b.start_hour) })));
+  } catch (err) { console.error(err); res.status(500).json({error: 'Errore caricamento prenotazioni'}); }
+});
+app.get('/api/v1/availability', apiAuth, async (req, res) => {
+  try { const bookings = await getBookingsForDateAndRoom(req.query.room_id || '', req.query.booking_date || '');
+    res.json(bookings.map(b => ({start_hour: Number(b.start_hour), end_hour: Number(b.end_hour)})));
+  } catch (err) { console.error(err); res.status(500).json({error: 'Errore disponibilità'}); }
+});
+app.post('/api/v1/bookings', apiAuth, async (req, res) => {
+  try {
+    const {room_id, booking_date, start_hour, end_hour} = req.body;
+    const start = Number(start_hour), end = Number(end_hour);
+    const date = String(booking_date || '');
+    const dateValid = /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
+    if (!room_id || !dateValid || start_hour == null || end_hour == null || !isValidHalfHour(start) || !isValidHalfHour(end) || start < 8 || end > 20.5 || start >= end)
+      return res.status(400).json({error: 'Data o orari non validi'});
+    const userId = req.apiUser.role === 'admin' ? String(req.body.user_id || '') : req.apiUser.id;
+    const [user, room] = await Promise.all([getUserById(userId), getRoomById(String(room_id))]);
+    if (!user || user.role !== 'user' || !userIsActive(user) || !room || !roomIsActive(room)) return res.status(400).json({error: 'Utente o stanza non disponibili'});
+    if (hasBookingAlreadyStarted(date, start)) return res.status(400).json({error: 'Non puoi prenotare un orario già passato'});
+    const data = {user_id: userId, room_id: String(room_id), booking_date: date, start_hour: start, end_hour: end, total_hours: end-start, status: 'active', created_at: nowIso()};
+    if (req.apiUser.role === 'admin') Object.assign(data, {admin_note: String(req.body.admin_note || '').trim().slice(0, 1000), created_by_admin_id: req.apiUser.id, created_by_admin_username: req.apiUser.username});
+    const id = await createBookingAtomically(data); res.status(201).json({id});
+  } catch (err) { if (err.code === 'BOOKING_CONFLICT') return res.status(409).json({error: 'Questa fascia oraria è già prenotata'}); console.error(err); res.status(500).json({error: 'Errore creazione prenotazione'}); }
+});
+app.delete('/api/v1/bookings/:id', apiAuth, async (req, res) => {
+  try {
+    const booking = await getBookingById(req.params.id);
+    if (!booking || (req.apiUser.role !== 'admin' && String(booking.user_id) !== String(req.apiUser.id))) return res.status(404).json({error: 'Prenotazione non trovata'});
+    if (req.apiUser.role !== 'admin' && !isBookingCancellable(booking.booking_date, booking.start_hour)) return res.status(400).json({error: 'Puoi cancellare fino a un’ora prima'});
+    await bookingsCol.doc(req.params.id).delete(); res.json({ok: true});
+  } catch (err) { console.error(err); res.status(500).json({error: 'Errore cancellazione'}); }
+});
+
 app.get('/', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   if (req.session.user.role === 'admin') return res.redirect('/admin/dashboard');
