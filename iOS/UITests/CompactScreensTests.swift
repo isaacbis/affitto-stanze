@@ -9,6 +9,32 @@ final class CompactScreensTests:XCTestCase {
     func capture(_ name:String,_ app:XCUIApplication) {
         let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)
     }
+    func testNotificationOpensAuthorizedBookingAndHandlesCancellation() {
+        for type in ["created","deleted","other-user"] {
+            let app=XCUIApplication();app.launchArguments=["--ui-preview","--ui-notification=\(type)"];app.launch()
+            if type=="created" {
+                XCTAssertTrue(app.navigationBars["Dettaglio"].waitForExistence(timeout:10))
+                XCTAssertTrue(app.buttons["Fine"].isHittable)
+            } else if type=="deleted" {
+                XCTAssertTrue(app.alerts["Prenotazione cancellata"].waitForExistence(timeout:10))
+                app.alerts.buttons["OK"].tap()
+                XCTAssertTrue(app.buttons["Tutte"].isHittable)
+            } else {
+                XCTAssertTrue(app.tabBars.buttons["Home"].waitForExistence(timeout:10))
+                XCTAssertFalse(app.navigationBars["Dettaglio"].exists)
+                XCTAssertFalse(app.alerts["Prenotazione cancellata"].exists)
+            }
+            capture("Apertura notifica - \(type)",app);app.terminate()
+        }
+    }
+    func testNotificationSettingsFitOnProfile() {
+        let app=preview("profile")
+        XCTAssertTrue(app.buttons["notifications.toggle"].waitForExistence(timeout:10))
+        XCTAssertTrue(app.buttons["notifications.toggle"].isHittable)
+        XCTAssertTrue(app.buttons["Esci dall’account"].isHittable)
+        XCTAssertEqual(app.scrollViews.count,0)
+        capture("Profilo con notifiche",app)
+    }
     func testLoginFitsWithKeyboard() {
         let app=preview(login:true)
         let username=app.textFields["login.username"]

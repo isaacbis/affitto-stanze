@@ -3,13 +3,17 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @State private var restoring = true
+    @EnvironmentObject var notifications:NotificationManager
+    @Environment(\.scenePhase) private var scenePhase
     var body: some View {
         VStack(spacing:0) {
             AdvertisingHeader()
             Group { if restoring { ProgressView("Caricamento…") } else if store.user == nil { LoginView() } else { AppRoot() } }
                 .frame(maxWidth:.infinity,maxHeight:.infinity)
         }
-            .tint(brand).task { await store.restore(); restoring = false }
+            .tint(brand).task { notifications.attach(store);await store.restore(); restoring = false;await notifications.synchronize() }
+            .onChange(of:store.user?.id) {_,_ in Task {await notifications.synchronize()}}
+            .onChange(of:scenePhase) {_,phase in if phase == .active {Task {await notifications.synchronize()}}}
             .alert("Attenzione", isPresented: Binding(get:{store.error != nil},set:{if !$0 {store.error=nil}})) { Button("OK") {store.error=nil} } message: {Text(store.error ?? "")}
     }
 }
@@ -79,16 +83,46 @@ struct LoginView: View {
     func signIn() {guard !username.isEmpty && !password.isEmpty else{return};focus=nil;Task {await store.login(username,password)}}
 }
 struct MainView: View {
+    @EnvironmentObject var notifications:NotificationManager
+    @State private var selectedTab=0
+    @State private var notificationMessage:String?
+    @State private var notificationBooking:Booking?
     @EnvironmentObject var store: Store
     @Environment(\.scenePhase) private var phase
     var body: some View {
-        TabView {
-            NavigationStack { DashboardScreen() }.tabItem {Label("Home",systemImage:"house")}
-            NavigationStack { NewBooking() }.tabItem {Label("Prenota",systemImage:"plus.circle")}
-            NavigationStack { BookingList() }.tabItem {Label("Prenotazioni",systemImage:"calendar")}
-            if store.user?.role == "admin" { NavigationStack { ManagementScreen() }.tabItem {Label("Gestione",systemImage:"square.grid.2x2")} }
-            else { NavigationStack { ProfileScreen() }.tabItem {Label("Profilo",systemImage:"person")} }
+        TabView(selection:$selectedTab) {
+            NavigationStack { DashboardScreen() }.tabItem {Label("Home",systemImage:"house")}.tag(0)
+            NavigationStack { NewBooking() }.tabItem {Label("Prenota",systemImage:"plus.circle")}.tag(1)
+            NavigationStack { BookingList() }.tabItem {Label("Prenotazioni",systemImage:"calendar")}.tag(2)
+            if store.user?.role == "admin" { NavigationStack { ManagementScreen() }.tabItem {Label("Gestione",systemImage:"square.grid.2x2")}.tag(3) }
+            else { NavigationStack { ProfileScreen() }.tabItem {Label("Profilo",systemImage:"person")}.tag(3) }
         }.onChange(of:phase) {_,p in if p == .active {Task {await store.refresh()}}}
+        .onChange(of:notifications.openedEvent) {_,_ in openNotification()}
+        .onAppear {openNotification()}
+        .task {
+            #if DEBUG
+            if let arg=ProcessInfo.processInfo.arguments.first(where:{$0.hasPrefix("--ui-notification=")}),ProcessInfo.processInfo.arguments.contains("--ui-preview") {
+                let type=String(arg.dropFirst("--ui-notification=".count))
+                notifications.receive(["recipient_id":type=="other-user" ? "another-account" : "preview","booking_id":"booking-1","event_type":type,"event_id":UUID().uuidString],opened:true)
+            }
+            #endif
+        }
+        .sheet(item:$notificationBooking) {booking in
+            NavigationStack {BookingDetail(booking:booking).toolbar {ToolbarItem(placement:.topBarTrailing) {Button("Fine") {notificationBooking=nil}}}}
+        }
+        .alert("Prenotazione cancellata",isPresented:Binding(get:{notificationMessage != nil},set:{if !$0 {notificationMessage=nil}})) {Button("OK") {notificationMessage=nil}} message:{Text(notificationMessage ?? "")}
+    }
+    func openNotification() {
+        guard notifications.openedEvent != nil,notifications.openedRecipient==store.user?.id else{return}
+        selectedTab=2
+        let bookingID=notifications.openedBookingID,type=notifications.openedType,recipient=notifications.openedRecipient
+        notifications.clearOpenedEvent()
+        Task {
+            await store.refresh()
+            guard store.user?.id==recipient else{return}
+            if type=="deleted" {notificationMessage="La prenotazione è stata cancellata. L’elenco è stato aggiornato."}
+            else if let booking=store.bookings.first(where:{$0.id==bookingID}) {notificationBooking=booking}
+        }
     }
 }
 struct DashboardScreen: View {
@@ -262,6 +296,7 @@ struct BookingDetail: View {
     }
 }
 struct ProfileScreen:View {
+    @EnvironmentObject var notifications:NotificationManager
     @EnvironmentObject var store:Store
     var body:some View {
         Canvas {
@@ -271,8 +306,9 @@ struct ProfileScreen:View {
                 Link(destination:URL(string:"https://affitto-stanze.onrender.com/privacy.html")!) {DetailLink(label:"Dati personali",value:"Privacy")}
                 Link(destination:URL(string:"https://affitto-stanze.onrender.com/support.html")!) {DetailLink(label:"Hai bisogno di aiuto?",value:"Assistenza")}
             }
+            Card {NotificationSettingsRow()}
             Spacer(minLength:0)
-            Button("Esci dall’account",role:.destructive) {Task {await store.logout()}}.buttonStyle(.bordered).disabled(store.loading).frame(maxWidth:.infinity)
+            Button("Esci dall’account",role:.destructive) {Task {await notifications.prepareLogout();await store.logout()}}.buttonStyle(.bordered).disabled(store.loading).frame(maxWidth:.infinity)
         }.navigationTitle("Profilo")
     }
 }

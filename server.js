@@ -6,6 +6,7 @@ const { initializeApp, getApps, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { createLoginThrottle } = require('./lib/login-throttle');
 const { installMobileAdmin } = require('./lib/mobile-admin');
+const { createNotifications } = require('./lib/notifications');
 const PDFDocument = require('pdfkit');
 
 const app = express();
@@ -40,6 +41,7 @@ function initFirebase() {
 }
 
 const db = initFirebase();
+const notifications = createNotifications({db, env:process.env});
 const loginThrottle = createLoginThrottle({ db });
 
 class FirestoreSessionStore extends session.Store {
@@ -474,7 +476,19 @@ async function createBookingAtomically(bookingData) {
       ...bookingData
     });
 
+    notifications.enqueue(transaction, 'created', newBookingRef.id, bookingData);
     return newBookingRef.id;
+  });
+}
+
+// Deletion and its notification event commit together; concurrent deletes emit one event.
+async function deleteBookingAtomically(id) {
+  return db.runTransaction(async transaction => {
+    const ref=bookingsCol.doc(String(id)), snap=await transaction.get(ref);
+    if (!snap.exists) return false;
+    transaction.delete(ref);
+    notifications.enqueue(transaction, 'deleted', ref.id, snap.data());
+    return true;
   });
 }
 
@@ -679,6 +693,8 @@ app.post('/api/v1/change-password', apiAuth, async (req, res) => {
     res.json({ok: true});
   } catch (err) { console.error(err); res.status(500).json({error: 'Errore cambio password'}); }
 });
+notifications.install(app, apiAuth);
+
 app.get('/api/v1/me', apiAuth, (req, res) => res.json(req.apiUser));
 app.get('/api/v1/rooms', apiAuth, async (req, res) => {
   try { res.json((await getActiveRoomsSortedByName()).map(({id, name}) => ({id, name}))); }
@@ -725,13 +741,13 @@ app.delete('/api/v1/bookings/:id', apiAuth, async (req, res) => {
     const booking = await getBookingById(req.params.id);
     if (!booking || (req.apiUser.role !== 'admin' && String(booking.user_id) !== String(req.apiUser.id))) return res.status(404).json({error: 'Prenotazione non trovata'});
     if (req.apiUser.role !== 'admin' && !isBookingCancellable(booking.booking_date, booking.start_hour)) return res.status(400).json({error: 'Puoi cancellare fino a un’ora prima'});
-    await bookingsCol.doc(req.params.id).delete(); res.json({ok: true});
+    await deleteBookingAtomically(req.params.id); res.json({ok: true});
   } catch (err) { console.error(err); res.status(500).json({error: 'Errore cancellazione'}); }
 });
 
 installMobileAdmin(app, {db, apiAuth, getAllUsers, getAllRooms, userIsActive, roomIsActive, getUserById, buildAdminReportData, sendReportPDF});
 
-app.get('/health', (req, res) => res.set('Cache-Control', 'no-store').json({ status: 'ok', release: '2026-11-04-native-full-1' }));
+app.get('/health', (req, res) => res.set('Cache-Control', 'no-store').json({ status: 'ok', release: '2026-11-04-push-1', notifications: notifications.configured }));
 
 app.get('/', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
@@ -1199,7 +1215,7 @@ return await renderAdminBookingsPage(res, {
 app.post('/admin/bookings/delete/:id', requireAdmin, async (req, res) => {
   try {
     const id = String(req.params.id);
-    await bookingsCol.doc(id).delete();
+    await deleteBookingAtomically(id);
     res.redirect('/admin/bookings');
   } catch (err) {
     console.error('Errore eliminazione prenotazione:', err);
@@ -1683,7 +1699,7 @@ app.post('/user/bookings/delete/:id', requireUser, async (req, res) => {
         .send('Non puoi cancellare prenotazioni già passate o entro 1 ora dall’inizio');
     }
 
-    await bookingsCol.doc(req.params.id).delete();
+    await deleteBookingAtomically(req.params.id);
 
     res.redirect('/user/my-bookings');
   } catch (err) {
@@ -1843,6 +1859,7 @@ async function startServer() {
     });
 
     startCleanupIntervals();
+    notifications.start();
   } catch (err) {
     console.error('Errore avvio server:', err);
     process.exit(1);

@@ -114,3 +114,24 @@ test('Complete native admin API: permissions, users, rooms, private notes and re
   assert.equal((await request(`/api/v1/bookings/${bookingID}`,{method:'DELETE',cookie:admin})).status,200);
   assert.equal((await request(`/api/v1/admin/rooms/${roomID}`,{method:'DELETE',cookie:admin})).status,200);
 }));
+
+
+test('Push API and website share atomic booking events; device endpoints enforce identity and authentication',async()=>withServer(async({request,db})=>{
+  const login=async(username)=>{const r=await request('/api/v1/login',{method:'POST',body:{username,password:'test-password'}});return r.headers.get('set-cookie').split(';')[0];};
+  const alice=await login('alice'),admin=await login('admin');
+  const body={installation_id:require('node:crypto').randomUUID(),installation_secret:'ab'.repeat(32),token:'cd'.repeat(32),environment:'production',sequence:1};
+  assert.equal((await request('/api/v1/push/device',{method:'POST',body})).status,401);
+  assert.equal((await request('/api/v1/push/device',{method:'POST',body,cookie:alice})).status,200);
+  assert.equal((await request('/api/v1/push/device',{method:'DELETE',body:{...body,installation_secret:'ff'.repeat(32)}})).status,403);
+  assert.equal((await request('/user/book-room',{method:'POST',cookie:alice,body:{room_id:'room',booking_date:'2099-01-02',start_hour:8,end_hour:9}})).status,200);
+  const bookings=await db.collection('bookings').get();assert.equal(bookings.size,1);
+  const id=bookings.docs[0].id;
+  assert.equal((await db.collection('push_events').get()).size,1);
+  assert.equal((await request('/user/book-room',{method:'POST',cookie:alice,body:{room_id:'room',booking_date:'2099-01-02',start_hour:8,end_hour:9}})).status,200);
+  assert.equal((await db.collection('push_events').get()).size,1,'A rejected overlapping booking emits no event');
+  await Promise.all([request('/admin/bookings/delete/'+id,{method:'POST',cookie:admin}),request('/admin/bookings/delete/'+id,{method:'POST',cookie:admin})]);
+  const events=await db.collection('push_events').get();assert.equal(events.size,2);assert.deepEqual(events.docs.map(d=>d.data().type),['created','deleted']);
+  assert.equal((await request('/api/v1/logout',{method:'POST',cookie:alice})).status,200);
+  assert.equal((await request('/api/v1/push/device',{method:'DELETE',body})).status,200,'Offline logout cleanup does not need a login session');
+  assert.ok((await db.collection('push_devices').get()).docs.every(d=>d.data().token===undefined));
+}));

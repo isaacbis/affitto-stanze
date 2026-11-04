@@ -2,9 +2,11 @@ import SwiftUI
 
 @main
 struct AffittoStanzeApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject private var notifications = NotificationManager.shared
     @StateObject private var store = Store()
     @StateObject private var advertising = AdvertisingManager()
-    var body: some Scene { WindowGroup { ContentView().environmentObject(store).environmentObject(advertising) } }
+    var body: some Scene { WindowGroup { ContentView().environmentObject(store).environmentObject(advertising).environmentObject(notifications) } }
 }
 
 struct User: Codable, Identifiable {
