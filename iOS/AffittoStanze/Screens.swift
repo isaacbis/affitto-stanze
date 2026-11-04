@@ -45,15 +45,16 @@ struct LoginView: View {
         GeometryReader { geo in
             let short = geo.size.height < 450
             let tiny = geo.size.height < 330
-            VStack(alignment: .leading, spacing: short ? 12 : 24) {
+            let compact = geo.size.height < 620
+            VStack(alignment: .leading, spacing: compact ? 12 : 24) {
                 Spacer(minLength: 0)
                 HStack(spacing: 10) {
                     Image(systemName: "square.grid.2x2.fill").foregroundStyle(.white).padding(10).background(primaryGradient,in:RoundedRectangle(cornerRadius:12))
                     Text("AFFITTO STANZE").font(.caption.bold()).tracking(1.4).foregroundStyle(brand)
                 }
                 if !short {
-                    Text("Il tuo spazio,\nsempre con te.").font(.system(.largeTitle,design:.rounded,weight:.bold)).foregroundStyle(Color(red:0.11,green:0.15,blue:0.28))
-                    Text("Prenotazioni e gestione, in un unico posto.").font(.subheadline).foregroundStyle(.secondary)
+                    Text("Il tuo spazio,\nsempre con te.").font(.system(size:compact ? 27 : 34,weight:.bold,design:.rounded)).fixedSize(horizontal:false,vertical:true).foregroundStyle(Color(red:0.11,green:0.15,blue:0.28))
+                    Text("Prenotazioni e gestione, in un unico posto.").font(compact ? .caption : .subheadline).foregroundStyle(.secondary)
                 }
                 VStack(alignment: .leading, spacing: 12) {
                     if !tiny { Text("Bentornato").font(.title2.bold()) }
@@ -68,10 +69,10 @@ struct LoginView: View {
                     if tiny && !passwordStep { MainButton(title:"Continua",disabled:username.isEmpty) {passwordStep=true;focus=1} }
                     else { MainButton(title:"Accedi",busy:store.loading,disabled:username.isEmpty || password.isEmpty) {signIn()} }
                     if tiny && passwordStep {Button("Modifica username") {passwordStep=false;focus=0}.font(.caption)}
-                }.padding(short ? 16 : 22).background(.white,in:RoundedRectangle(cornerRadius:24)).shadow(color:brand.opacity(0.12),radius:20,y:10)
+                }.padding(compact ? 16 : 22).background(.white,in:RoundedRectangle(cornerRadius:24)).shadow(color:brand.opacity(0.12),radius:20,y:10)
                 if !short {HStack {Link("Privacy",destination:URL(string:"https://affitto-stanze.onrender.com/privacy.html")!);Text("·").foregroundStyle(.secondary);Link("Assistenza",destination:URL(string:"https://affitto-stanze.onrender.com/support.html")!)}.font(.caption).frame(maxWidth:.infinity)}
                 Spacer(minLength: 0)
-            }.padding(.horizontal,24).padding(.vertical,short ? 8 : 20).frame(maxWidth:460).frame(maxWidth:.infinity,maxHeight:.infinity)
+            }.padding(.horizontal,24).padding(.vertical,short ? 8 : (compact ? 14 : 20)).frame(maxWidth:460).frame(maxWidth:.infinity,maxHeight:.infinity)
                 .background(LinearGradient(colors:[Color(red:0.88,green:0.90,blue:1),Color(red:0.99,green:0.92,blue:0.92),Color(red:0.86,green:0.96,blue:0.96)],startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea())
         }.preferredColorScheme(.light)
     }
