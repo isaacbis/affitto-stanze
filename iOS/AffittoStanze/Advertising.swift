@@ -89,10 +89,9 @@ struct AdvertisingHeader: View {
         VStack(spacing:0) {
             if !keyboardVisible && (ads.preview || ads.ready || ads.privacyOptionsRequired) {
                 HStack(spacing:8) {
-                    VStack(spacing:3) {
-                        Text("Pubblicità").font(.system(size:10)).foregroundStyle(.secondary)
+                    VStack(spacing:0) {
                         if ads.preview {
-                            Text("Spazio pubblicitario · Anteprima").font(.caption).foregroundStyle(.secondary)
+                            Text("Pubblicità · Anteprima").font(.caption).foregroundStyle(.secondary)
                                 .frame(width:320,height:50).background(Color(uiColor:.secondarySystemBackground))
                                 .accessibilityIdentifier("advertising.preview")
                         } else if ads.ready {
@@ -104,7 +103,7 @@ struct AdvertisingHeader: View {
                             Image(systemName:"hand.raised").font(.caption).frame(width:44,height:50)
                         }.disabled(ads.changingPrivacy).accessibilityLabel("Scelte privacy pubblicitarie")
                     }
-                }.frame(maxWidth:.infinity).padding(.vertical,6)
+                }.frame(maxWidth:.infinity).padding(.vertical,3)
                     .background(Color(uiColor:.systemBackground))
                 Divider()
             }

@@ -96,34 +96,104 @@ struct DashboardScreen: View {
     var admin: Bool {store.user?.role == "admin"}
     var shown: [Booking] {
         if admin {return store.bookings.filter{$0.booking_date == BookingClock.day(Date()) && ($0.status ?? "active") == "active"}.sorted{$0.start_hour < $1.start_hour}}
-        return Array(store.bookings.sorted{$0.booking_date == $1.booking_date ? $0.start_hour > $1.start_hour : $0.booking_date > $1.booking_date}.prefix(10))
+        return store.bookings.sorted{$0.booking_date == $1.booking_date ? $0.start_hour > $1.start_hour : $0.booking_date > $1.booking_date}
     }
     var body: some View {
-        Canvas {
-            Text("Ciao, \(store.user?.username ?? "")").font(.title2.bold()).lineLimit(1)
+        VStack(spacing:6) {
             if admin {
-                HStack(spacing:10) {
+                HStack(spacing:8) {
                     metric("Utenti",store.adminUsers.filter{$0.role == "user" && $0.isActive}.count)
                     metric("Stanze",store.adminRooms.filter{$0.isActive}.count)
                     metric("Oggi",shown.count)
-                }
+                }.padding(.horizontal,12)
             }
-            NavigationLink {NewBooking()} label: { HStack {Image(systemName:"plus.circle.fill"); Text("Prenota una stanza").fontWeight(.semibold);Spacer();Image(systemName:"arrow.right")}.padding(16).foregroundStyle(.white).background(primaryGradient,in:RoundedRectangle(cornerRadius:18)) }
-            Text(admin ? "Prenotazioni di oggi" : "Ultime prenotazioni").font(.headline)
-            PagedRows(items:shown,empty:admin ? "Nessuna prenotazione oggi" : "Nessuna prenotazione",rowHeight:78) { b in BookingRow(booking:b,admin:admin) }
-        }.navigationTitle("Affitto stanze").toolbar {
+            BookingPages(bookings:shown,admin:admin,today:admin,empty:admin ? "Nessuna prenotazione oggi" : "Nessuna prenotazione")
+        }.padding(.top,6).background(AppBackdrop())
+        .navigationTitle(admin ? "Prenotazioni di oggi" : "Ultime prenotazioni").navigationBarTitleDisplayMode(.inline)
+        .toolbar {
             ToolbarItem(placement:.topBarLeading) {Button {Task {await store.refresh()}} label:{Image(systemName:"arrow.clockwise")}.accessibilityLabel("Aggiorna")}
-            ToolbarItem(placement:.topBarTrailing) {NavigationLink {ProfileScreen()} label:{Image(systemName:"person.crop.circle")}.accessibilityLabel("Profilo")}
+            ToolbarItemGroup(placement:.topBarTrailing) {
+                NavigationLink {NewBooking()} label:{Image(systemName:"plus.circle")}.accessibilityLabel("Prenota una stanza")
+                NavigationLink {ProfileScreen()} label:{Image(systemName:"person.crop.circle")}.accessibilityLabel("Profilo")
+            }
         }
     }
     func metric(_ title:String,_ value:Int)->some View {
         let color=title == "Utenti" ? coral : title == "Stanze" ? sea : brand
-        return VStack(spacing:4) {Text("\(value)").font(.title2.bold());Text(title).font(.caption.weight(.medium)).foregroundStyle(.white.opacity(0.88))}
-            .foregroundStyle(.white).frame(maxWidth:.infinity).padding(.vertical,12)
-            .background(LinearGradient(colors:[color,color.opacity(0.78)],startPoint:.topLeading,endPoint:.bottomTrailing),in:RoundedRectangle(cornerRadius:16))
-            .shadow(color:color.opacity(0.16),radius:7,y:3)
+        return HStack(spacing:4) {Text("\(value)").bold();Text(title)}
+            .font(.caption2).foregroundStyle(color).frame(maxWidth:.infinity).padding(.vertical,4)
+            .background(color.opacity(0.10),in:Capsule())
     }
 }
+
+/// Both booking sections keep a stable group of eight, independently of screen height.
+struct BookingPages:View {
+    let bookings:[Booking]; let admin:Bool
+    var today=false;var empty="Nessuna prenotazione"
+    @State private var page=0
+    private let pageSize=8
+    var body:some View {
+        GeometryReader { geo in
+            let pages=max(1,(bookings.count+pageSize-1)/pageSize)
+            let current=min(page,pages-1)
+            let rows=Array(bookings.dropFirst(current*pageSize).prefix(pageSize))
+            let height=max(0,(geo.size.height-58)/CGFloat(pageSize))
+            VStack(spacing:1) {
+                if rows.isEmpty {
+                    ContentUnavailableView(empty,systemImage:"calendar").frame(maxHeight:.infinity)
+                } else {
+                    ForEach(rows) {booking in
+                        CompactBookingRow(booking:booking,admin:admin,today:today)
+                            .frame(height:height)
+                    }
+                    if rows.count < pageSize {Spacer(minLength:0)}
+                }
+                HStack {
+                    Button {page=max(0,current-1)} label: {
+                        Label("Precedente",systemImage:"chevron.left").font(.caption.weight(.medium)).frame(minHeight:44)
+                    }.disabled(current == 0).accessibilityLabel("Pagina precedente")
+                    Spacer(minLength:4)
+                    Text("\(current+1) / \(pages)").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("bookings.page")
+                    Spacer(minLength:4)
+                    Button {page=min(pages-1,current+1)} label: {
+                        Label("Successivo",systemImage:"chevron.right").labelStyle(.titleAndIcon).font(.caption.weight(.medium)).frame(minHeight:44)
+                    }.disabled(current == pages-1).accessibilityLabel("Pagina successiva")
+                }.padding(.horizontal,4).frame(height:44)
+            }.padding(.horizontal,12).padding(.bottom,6)
+        }.onChange(of:bookings.map(\.id)) {_,_ in page=0}
+    }
+}
+
+private struct CompactBookingRow:View {
+    let booking:Booking;let admin:Bool;let today:Bool
+    var body:some View {
+        NavigationLink {BookingDetail(booking:booking)} label: {
+            HStack(spacing:8) {
+                RoundedRectangle(cornerRadius:2).fill(roomColor(booking.room_name)).frame(width:3)
+                VStack(alignment:.leading,spacing:2) {
+                    HStack(spacing:6) {
+                        Text(booking.room_name).font(.system(size:13,weight:.semibold)).lineLimit(1)
+                        Spacer(minLength:2)
+                        Text("\(timeLabel(booking.start_hour))–\(timeLabel(booking.end_hour))").font(.system(size:12,weight:.medium)).monospacedDigit().fixedSize()
+                    }
+                    HStack(spacing:6) {
+                        if admin {Text(booking.username).foregroundStyle(brand).lineLimit(1)}
+                        if !today {Spacer(minLength:2);Text(BookingClock.label(booking.booking_date)).foregroundStyle(.secondary).lineLimit(1)}
+                    }.font(.system(size:11))
+                }
+                Image(systemName:"chevron.right").font(.system(size:10,weight:.semibold)).foregroundStyle(.tertiary)
+            }.padding(.horizontal,10).padding(.vertical,5).frame(maxWidth:.infinity,maxHeight:.infinity)
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain)
+        .background(Color(uiColor:.secondarySystemGroupedBackground),in:RoundedRectangle(cornerRadius:10))
+        .overlay(RoundedRectangle(cornerRadius:10).stroke(brand.opacity(0.08),lineWidth:1))
+        .accessibilityElement(children:.combine)
+        .accessibilityLabel("\(booking.room_name), \(admin ? booking.username + ", " : "")\(BookingClock.label(booking.booking_date)), \(timeLabel(booking.start_hour))–\(timeLabel(booking.end_hour))")
+        .accessibilityIdentifier("booking.row.\(booking.id)")
+    }
+}
+
 struct BookingRow: View {
     let booking:Booking; let admin:Bool
     var body: some View {
@@ -145,14 +215,34 @@ struct BookingList: View {
     var shown:[Booking] {store.bookings.filter {b in
         (filter == 2 || (filter == 0 ? b.isFuture : !b.isFuture)) && (search.isEmpty || "\(b.room_name) \(b.username) \(b.booking_date)".localizedCaseInsensitiveContains(search))
     }.sorted {a,b in a.booking_date == b.booking_date ? a.start_hour < b.start_hour : (filter == 0 ? a.booking_date < b.booking_date : a.booking_date > b.booking_date)}}
+    @State private var searching=false
     var body:some View {
-        Canvas {
-            Picker("Periodo",selection:$filter) {Text("Prossime").tag(0);Text("Storico").tag(1);Text("Tutte").tag(2)}.pickerStyle(.segmented)
-            Input(title:"Cerca stanza, data o utente",text:$search)
-            PagedRows(items:shown,empty:"Nessuna prenotazione") {b in BookingRow(booking:b,admin:store.user?.role == "admin")}
-        }.navigationTitle("Prenotazioni").toolbar {Button {Task {await store.refresh()}} label:{Image(systemName:"arrow.clockwise")}.accessibilityLabel("Aggiorna")}
+        BookingPages(bookings:shown,admin:store.user?.role == "admin")
+            .padding(.top,6).background(AppBackdrop()).navigationTitle("Prenotazioni").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement:.principal) {
+                    Picker("Periodo",selection:$filter) {Text("Prossime").tag(0);Text("Storico").tag(1);Text("Tutte").tag(2)}
+                        .pickerStyle(.segmented).frame(maxWidth:260)
+                }
+                ToolbarItem(placement:.topBarTrailing) {
+                    Button {searching=true} label:{Image(systemName:search.isEmpty ? "magnifyingglass" : "line.3.horizontal.decrease.circle.fill")}.accessibilityLabel("Cerca prenotazioni")
+                }
+            }
+            .sheet(isPresented:$searching) {
+                NavigationStack {
+                    Canvas {
+                        Input(title:"Cerca stanza, data o utente",text:$search)
+                        Text("\(shown.count) prenotazioni trovate").font(.subheadline).foregroundStyle(.secondary)
+                        if !search.isEmpty {Button("Cancella ricerca") {search=""}}
+                        Spacer(minLength:0)
+                        MainButton(title:"Mostra risultati") {searching=false}
+                    }.navigationTitle("Cerca prenotazioni")
+                        .toolbar {ToolbarItem(placement:.topBarTrailing) {Button("Fine") {searching=false}}}
+                }.presentationDetents([.large])
+            }
     }
 }
+
 struct BookingDetail: View {
     let booking:Booking
     @EnvironmentObject var store:Store

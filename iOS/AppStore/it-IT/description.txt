@@ -10,3 +10,6 @@ Per gli amministratori:
 • Report mensili e settimanali, filtri per utente ed esportazione PDF.
 
 L’app utilizza gli stessi dati del gestionale web. Sono necessarie credenziali fornite dall’amministratore. Le funzioni disponibili dipendono dal ruolo dell’account. Date e orari si riferiscono al fuso di Roma.
+
+
+Gli elenchi delle prenotazioni mostrano otto elementi per pagina, con pulsanti Precedente e Successivo. L’app include banner pubblicitari Google non personalizzati e consente di gestire le scelte pubblicitarie.

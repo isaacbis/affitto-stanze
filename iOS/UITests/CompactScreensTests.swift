@@ -86,4 +86,27 @@ final class CompactScreensTests:XCTestCase {
         XCTAssertTrue(userApp.buttons["booking.room"].isHittable);capture("Prenota utente",userApp)
     }
 
+    func testBookingsUseEightRowsPerPage() {
+        for route in ["home", "bookings"] {
+            let app=preview(route == "home" ? nil : route)
+            if route == "bookings" {
+                XCTAssertTrue(app.buttons["Tutte"].waitForExistence(timeout:10));app.buttons["Tutte"].tap()
+            }
+            let rows=app.descendants(matching:.any).matching(NSPredicate(format:"identifier BEGINSWITH %@", "booking.row."))
+            XCTAssertTrue(rows.firstMatch.waitForExistence(timeout:10))
+            XCTAssertEqual(rows.count,8,"Eight bookings must be visible in \(route)")
+            XCTAssertEqual(app.scrollViews.count,0)
+            for index in 0..<rows.count {
+                XCTAssertTrue(rows.element(boundBy:index).isHittable)
+                XCTAssertGreaterThanOrEqual(rows.element(boundBy:index).frame.height,44)
+            }
+            capture("Otto prenotazioni - \(route)",app)
+            app.buttons["Pagina successiva"].tap();XCTAssertEqual(rows.count,8)
+            app.buttons["Pagina successiva"].tap();XCTAssertEqual(rows.count,2)
+            app.buttons["Pagina precedente"].tap();XCTAssertEqual(rows.count,8)
+            rows.firstMatch.tap();XCTAssertTrue(app.navigationBars["Dettaglio"].waitForExistence(timeout:3))
+            app.terminate()
+        }
+    }
+
 }

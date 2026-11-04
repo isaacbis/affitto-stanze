@@ -4,7 +4,7 @@ Aprire `AffittoStanze.xcodeproj` con Xcode. SwiftUI nativo, iOS 17 o successivo.
 
 ## Schermate senza scorrimento verticale
 
-Le schermate principali usano contenuti compatti e pulsanti Precedente/Successiva. Gli elenchi mostrano un numero di righe calcolato in base allo spazio disponibile. La prenotazione è divisa in passaggi: stanza/data, inizio, fine, nota privata per gli amministratori e riepilogo. Il login si compatta quando compare la tastiera; sui display più piccoli può passare alla password in un secondo passaggio.
+Le schermate principali usano contenuti compatti e pulsanti Precedente/Successiva. Home e Prenotazioni mostrano gruppi fissi di otto prenotazioni, con righe apribili e ricerca separata per lasciare spazio all’elenco. Gli elenchi mostrano un numero di righe calcolato in base allo spazio disponibile. La prenotazione è divisa in passaggi: stanza/data, inizio, fine, nota privata per gli amministratori e riepilogo. Il login si compatta quando compare la tastiera; sui display più piccoli può passare alla password in un secondo passaggio.
 
 Anche descrizioni e note lunghe si leggono su pagine. Selettore data, tastiera e pannello di condivisione PDF sono controlli standard di iOS e mantengono il proprio comportamento di sistema.
 
@@ -46,7 +46,7 @@ Bundle ID definitivo `com.isaacmorganti.affittostanze`, team Apple configurato, 
 
 ## Banner Google AdMob
 
-Build 3 integra Google Mobile Ads 13.12.0 e UMP 3.1.0 tramite Swift Package Manager, versioni bloccate in Package.resolved. App ID in Info.plist e banner in AdsConfiguration.plist sono identificativi pubblici. Il banner standard 320×50 è in cima, fuori dai pulsanti di prenotazione, e si nasconde con la tastiera. La gestione funziona anche senza consenso, senza rete pubblicitaria o senza annunci disponibili.
+Dalla build 3 il progetto integra Google Mobile Ads 13.12.0 e UMP 3.1.0 tramite Swift Package Manager, versioni bloccate in Package.resolved. App ID in Info.plist e banner in AdsConfiguration.plist sono identificativi pubblici. Il banner standard 320×50 è in cima, fuori dai pulsanti di prenotazione, e si nasconde con la tastiera. La gestione funziona anche senza consenso, senza rete pubblicitaria o senza annunci disponibili.
 
 UMP aggiorna il consenso a ogni avvio. L’SDK pubblicitario e le richieste sono avviati solo se canRequestAds lo consente; le scelte si riaprono dal pulsante accanto al banner dove richiesto. Le richieste sono non personalizzate (npa=1, personalizzazione disabilitata), ID publisher di prima parte disabilitato, raccolta posizione da autorizzazioni disabilitata, nessuna richiesta ATT/IDFA. Nessun dato del gestionale è passato a Google. Debug, simulatore e ricevuta sandbox TestFlight usano l’unità banner ufficiale di prova. --ui-preview non avvia SDK/rete e mostra uno spazio fittizio per verificare il layout.
 

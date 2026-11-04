@@ -21,7 +21,7 @@ c.setFillColor(color(0.23,0.33,0.76));c.fillEllipse(in:CGRect(x:416,y:504,width:
 // Reservation confirmation badge.
 c.saveGState();c.setShadow(offset:CGSize(width:0,height:-8),blur:22,color:color(0.03,0.06,0.25,0.25))
 c.setFillColor(color(1,1,1));c.fillEllipse(in:CGRect(x:536,y:156,width:288,height:288));c.restoreGState()
-c.setFillColor(color(0.95,0.36,0.35));c.fillEllipse(in:CGRect(x:553,y:173,width:254,height:254))
+c.setFillColor(color(0.12,0.66,0.34));c.fillEllipse(in:CGRect(x:553,y:173,width:254,height:254))
 c.setStrokeColor(color(1,1,1));c.setLineWidth(24);c.setLineCap(.round);c.setLineJoin(.round)
 c.move(to:CGPoint(x:611,y:299));c.addLine(to:CGPoint(x:658,y:252));c.addLine(to:CGPoint(x:747,y:347));c.strokePath()
 let image=c.makeImage()!
