@@ -26,7 +26,7 @@ function memoryFirestore() {
   return { collection,
     runTransaction(fn) {
       const job = serial.then(async () => {
-        const writes = []; const result = await fn({ get: ref => ref.get(), set: (ref, value) => writes.push(() => ref.set(value)) });
+        const writes = []; const result = await fn({ get: ref => ref.get(), delete: ref => writes.push(() => ref.delete()), set: (ref, value) => writes.push(() => ref.set(value)) });
         for (const write of writes) await write(); return result;
       });
       serial = job.catch(() => {}); return job;

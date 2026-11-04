@@ -5,8 +5,7 @@ import tempfile
 root = Path(__file__).resolve().parent.parent
 s = (root / 'iOS/AffittoStanze/AffittoStanzeApp.swift').read_text()
 code = ('import SwiftUI\nimport Foundation\n'
-        + s[s.index('struct User:'):s.index('struct ContentView:')]
-        + s[s.index('enum BookingClock'):s.index('struct NewBooking:')]
+        + s[s.index('struct User:'):]
         + (root / 'iOS/Tests/session-check.swift').read_text())
 with tempfile.TemporaryDirectory(prefix='affitto-swift-test-') as directory:
     source = Path(directory) / 'Check.swift'

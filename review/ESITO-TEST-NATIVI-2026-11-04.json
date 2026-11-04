@@ -1,0 +1,14 @@
+{
+  "iPhone SE 3": {
+    "result": "Passed",
+    "passed": 5,
+    "failed": 0,
+    "runtimeWarnings": []
+  },
+  "iPhone 17 Pro Max": {
+    "result": "Passed",
+    "passed": 4,
+    "failed": 0,
+    "runtimeWarnings": []
+  }
+}

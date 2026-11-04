@@ -5,6 +5,7 @@ const path = require('path');
 const { initializeApp, getApps, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { createLoginThrottle } = require('./lib/login-throttle');
+const { installMobileAdmin } = require('./lib/mobile-admin');
 const PDFDocument = require('pdfkit');
 
 const app = express();
@@ -693,7 +694,7 @@ app.get('/api/v1/bookings', apiAuth, async (req, res) => {
     let bookings = await getAllBookings();
     if (req.apiUser.role !== 'admin') bookings = bookings.filter(b => String(b.user_id) === String(req.apiUser.id));
     bookings = await enrichBookings(bookings.sort(sortByBookingDateTimeDesc));
-    res.json(bookings.map(b => ({ id: b.id, room_name: b.room_name, username: b.username, booking_date: b.booking_date, start_hour: Number(b.start_hour), end_hour: Number(b.end_hour), cancellable: req.apiUser.role === 'admin' || isBookingCancellable(b.booking_date, b.start_hour) })));
+    res.json(bookings.map(b => ({ ...(req.apiUser.role === 'admin' ? {admin_note:String(b.admin_note || ''), created_by_admin_username:String(b.created_by_admin_username || '')} : {}), status:String(b.status || "active"), user_id:String(b.user_id), room_id:String(b.room_id), id: b.id, room_name: b.room_name, username: b.username, booking_date: b.booking_date, start_hour: Number(b.start_hour), end_hour: Number(b.end_hour), cancellable: req.apiUser.role === 'admin' || isBookingCancellable(b.booking_date, b.start_hour) })));
   } catch (err) { console.error(err); res.status(500).json({error: 'Errore caricamento prenotazioni'}); }
 });
 app.get('/api/v1/availability', apiAuth, async (req, res) => {
@@ -728,7 +729,9 @@ app.delete('/api/v1/bookings/:id', apiAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({error: 'Errore cancellazione'}); }
 });
 
-app.get('/health', (req, res) => res.set('Cache-Control', 'no-store').json({ status: 'ok', release: '2026-11-04-security-1' }));
+installMobileAdmin(app, {db, apiAuth, getAllUsers, getAllRooms, userIsActive, roomIsActive, getUserById, buildAdminReportData, sendReportPDF});
+
+app.get('/health', (req, res) => res.set('Cache-Control', 'no-store').json({ status: 'ok', release: '2026-11-04-native-full-1' }));
 
 app.get('/', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
@@ -1300,7 +1303,8 @@ app.get('/admin/reports', requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/admin/reports/pdf', requireAdmin, async (req, res) => {
+app.get('/admin/reports/pdf', requireAdmin, sendReportPDF);
+async function sendReportPDF(req, res) {
   try {
     const {
       reportRows,
@@ -1429,7 +1433,7 @@ app.get('/admin/reports/pdf', requireAdmin, async (req, res) => {
     console.error('Errore generazione PDF report:', err);
     res.status(500).send('Errore generazione PDF report');
   }
-});
+}
 
 /* =========================
    ROUTES - USER DASHBOARD

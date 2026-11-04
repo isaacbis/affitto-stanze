@@ -75,3 +75,42 @@ test('Shared throttle: account across IPs, IP across accounts, expiry and IPv6 s
   assert.equal((await attempt('ipv6-d','2001:db8::4')).status,429);
   assert.equal((await attempt('')).status,400);
 });
+
+
+test('Complete native admin API: permissions, users, rooms, private notes and reports', async () => withServer(async ({request}) => {
+  const login = async username => {
+    const res = await request('/api/v1/login',{method:'POST',body:{username,password:'test-password'}});
+    assert.equal(res.status,200);return res.headers.get('set-cookie').split(';')[0];
+  };
+  const admin = await login('admin'), alice = await login('alice');
+  for (const route of ['/users','/rooms','/reports','/reports/pdf'])
+    assert.equal((await request('/api/v1/admin'+route,{cookie:alice})).status,403,route);
+  const users = await (await request('/api/v1/admin/users',{cookie:admin})).json();
+  assert.equal(users.length,3); assert.ok(users.every(u => !('password_hash' in u)));
+  assert.equal((await request('/api/v1/admin/users/admin/toggle',{method:'POST',cookie:admin})).status,400);
+  const created = await request('/api/v1/admin/users',{method:'POST',cookie:admin,body:{username:'carol',password:'new-password',role:'user'}});
+  assert.equal(created.status,201);const userID=(await created.json()).id;
+  assert.equal((await request('/api/v1/admin/users',{method:'POST',cookie:admin,body:{username:'carol',password:'new-password',role:'user'}})).status,409);
+  assert.equal((await request(`/api/v1/admin/users/${userID}/toggle`,{method:'POST',cookie:admin})).status,200);
+  assert.equal((await request('/api/v1/login',{method:'POST',body:{username:'carol',password:'new-password'}})).status,401);
+  assert.equal((await request(`/api/v1/admin/users/${userID}/toggle`,{method:'POST',cookie:admin})).status,200);
+  assert.equal((await request(`/api/v1/admin/users/${userID}/password`,{method:'POST',cookie:admin,body:{new_password:'reset-password'}})).status,200);
+  assert.equal((await request('/api/v1/login',{method:'POST',body:{username:'carol',password:'reset-password'}})).status,200);
+  const newRoom=await request('/api/v1/admin/rooms',{method:'POST',cookie:admin,body:{name:'Seconda stanza',description:'Descrizione di prova'}});
+  assert.equal(newRoom.status,201);const roomID=(await newRoom.json()).id;
+  const rooms=await (await request('/api/v1/admin/rooms',{cookie:admin})).json();assert.ok(rooms.some(r => r.id===roomID && r.description==='Descrizione di prova' && r.active));
+  const booking=await request('/api/v1/bookings',{method:'POST',cookie:admin,body:{user_id:'alice',room_id:roomID,booking_date:'2099-01-02',start_hour:10,end_hour:11.5,admin_note:'Nota privata'}});
+  assert.equal(booking.status,201);const bookingID=(await booking.json()).id;
+  assert.equal((await request(`/api/v1/admin/rooms/${roomID}`,{method:'DELETE',cookie:admin})).status,409);
+  const adminBookings=await (await request('/api/v1/bookings',{cookie:admin})).json();assert.equal(adminBookings[0].admin_note,'Nota privata');assert.equal(adminBookings[0].created_by_admin_username,'admin');
+  const aliceBookings=await (await request('/api/v1/bookings',{cookie:alice})).json();assert.equal(aliceBookings[0].admin_note,undefined);assert.equal(aliceBookings[0].created_by_admin_username,undefined);
+  for (const query of ['type=monthly&month=2099-01&userId=alice','type=weekly&weekStart=2099-01-01']) {
+    const res=await request('/api/v1/admin/reports?'+query,{cookie:admin});assert.equal(res.status,200);const report=await res.json();assert.equal(report.totalHours,1.5);assert.equal(report.totalBookings,1);assert.equal(report.reportRows[0].username,'alice');assert.ok(report.users.every(u=>!('password_hash' in u)));
+    const pdf=await request('/api/v1/admin/reports/pdf?'+query,{cookie:admin});assert.equal(pdf.status,200);assert.match(await pdf.text(),/^%PDF/);
+  }
+  assert.equal((await request('/api/v1/admin/reports?month=2099-99',{cookie:admin})).status,400);
+  assert.equal((await request(`/api/v1/admin/rooms/${roomID}/toggle`,{method:'POST',cookie:admin})).status,200);
+  assert.equal((await request('/api/v1/bookings',{method:'POST',cookie:admin,body:{user_id:'alice',room_id:roomID,booking_date:'2099-01-03',start_hour:10,end_hour:11}})).status,400);
+  assert.equal((await request(`/api/v1/bookings/${bookingID}`,{method:'DELETE',cookie:admin})).status,200);
+  assert.equal((await request(`/api/v1/admin/rooms/${roomID}`,{method:'DELETE',cookie:admin})).status,200);
+}));

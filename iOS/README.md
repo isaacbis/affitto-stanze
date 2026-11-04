@@ -1,16 +1,45 @@
 # Affitto stanze per iPhone
 
-Aprire `AffittoStanze.xcodeproj` con Xcode. Il progetto richiede iOS 17 o successivo. Per installarlo su un iPhone selezionare il proprio team Apple in Signing & Capabilities e sostituire il bundle identifier provvisorio `com.example.affittostanze` con uno univoco.
+Aprire `AffittoStanze.xcodeproj` con Xcode. SwiftUI nativo, iOS 17 o successivo. Il progetto usa lo stesso server, le stesse sessioni e lo stesso database Firebase del sito `https://affitto-stanze.onrender.com`.
 
-L'app usa `https://affitto-stanze.onrender.com/api/v1/`. Le rotte sono state aggiunte a `../server.js` e usano la stessa sessione, Firebase e transazione del sito. L’API è stata pubblicata su Render il 4 novembre 2026 (commit 3301910); verificati risposta login e blocco delle richieste non autenticate. Prima del rilascio è necessario verificare login, sessione, disponibilità, conflitti e cancellazione con utenti di test e dati di prova, e verificare la configurazione Firebase e di sessione nell'ambiente di destinazione.
+## Schermate senza scorrimento verticale
 
-Questa prima versione copre accesso, elenco, inserimento e cancellazione prenotazioni; l'amministratore può prenotare per un utente attivo. Include anche il cambio della propria password. Non include ancora gestione utenti e stanze, report o tutte le schermate del gestionale. Il progetto non è pronto per App Store: occorrono funzionalità mancanti, icona, identificativo definitivo, firma, test su dispositivo e simulatori, informazioni privacy e configurazione App Store Connect.
+Le schermate principali usano contenuti compatti e pulsanti Precedente/Successiva. Gli elenchi mostrano un numero di righe calcolato in base allo spazio disponibile. La prenotazione è divisa in passaggi: stanza/data, inizio, fine, nota privata per gli amministratori e riepilogo. Il login si compatta quando compare la tastiera; sui display più piccoli può passare alla password in un secondo passaggio.
 
+Anche descrizioni e note lunghe si leggono su pagine. Selettore data, tastiera e pannello di condivisione PDF sono controlli standard di iOS e mantengono il proprio comportamento di sistema.
 
-## Correzioni del 4 novembre 2026
+## Corrispondenza con il sito
 
-Sessioni isolate per account, rifiuto delle risposte di rete di sessioni precedenti, cancellazione dei dati alla scadenza e al logout. Disponibilità con caricamento ed errore espliciti, selezione di fasce libere e future, date e orari sempre nel fuso Europe/Rome. Elenco diviso in prossime prenotazioni e storico. Aggiornamento al ritorno in primo piano.
+| Funzione del sito | App nativa |
+| --- | --- |
+| Login, sessione, logout | Login e Profilo |
+| Dashboard utente e ultime prenotazioni | Home |
+| Dashboard amministratore, utenti/stanze attive e prenotazioni di oggi | Home amministratore |
+| Cambio della propria password | Profilo → Cambia password |
+| Prenotazione a intervalli di 30 minuti, 08:00–20:30 | Prenota, orari liberi/futuri e controllo conflitti lato server |
+| Elenco prenotazioni personali o amministrative | Prenotazioni, ricerca e pagine |
+| Cancellazione utente oltre un’ora prima; cancellazione amministratore | Dettaglio prenotazione, stesse regole lato server |
+| Prenotazioni per altri utenti, nota privata e autore amministrativo | Prenota amministratore e Dettaglio |
+| Lista utenti, creazione con ruolo, attivazione/disattivazione | Gestione → Utenti |
+| Reimpostazione password di un utente | Dettaglio utente → Reimposta password |
+| Protezione contro disattivazione propria e dell’ultimo amministratore | Controllo lato server |
+| Lista stanze, creazione e descrizione | Gestione → Stanze |
+| Attivazione/disattivazione ed eliminazione senza prenotazioni collegate | Dettaglio stanza |
+| Report mensile/settimanale e filtro utente, compresi gli utenti disattivati | Gestione → Report |
+| Totale ore, conteggio prenotazioni ed esportazione PDF | Report → Esporta e condividi PDF |
 
-Il server usa Node.js 22 o superiore e le API modulari di Firebase Admin. I tentativi di accesso sono limitati in modo condiviso fra sito e app tramite Firestore (15 tentativi per account e 60 per IP ogni 15 minuti). Non vengono più scritte password nei log. Le password eventualmente registrate in passato richiedono un cambio manuale tramite l’account amministrativo.
+Non sono aggiunte operazioni che il sito non offre, come modifica di prenotazioni o eliminazione di utenti. Le note private non vengono restituite dall’API agli utenti normali.
 
-Verifiche server: `npm test`; dipendenze: `npm audit --omit=dev`. I test usano dati in memoria e non contattano il database di produzione. Per il controllo Swift locale, il runner `test/check-ios.py` estrae dal sorgente i modelli/client e compila il test con Swift sul Mac.
+## Server e test
+
+Node.js 22 o superiore. Le nuove rotte amministrative in `lib/mobile-admin.js` usano gli stessi helper del sito e lo stesso generatore PDF. La limitazione degli accessi condivisa in Firestore rimane attiva. Nessuna password è scritta nei nuovi log.
+
+- `npm test`: test HTTP con database simulato per ruoli, prenotazioni, conflitti, cancellazioni, password, gestione utenti/stanze, riservatezza delle note e report/PDF.
+- `python3 test/check-ios.py`: controlli isolati Swift su sessioni e date, senza rete reale.
+- Xcode → Product → Test: test interfaccia su dati isolati, senza contattare Firebase o modificare prenotazioni reali.
+
+I dati per i test visivi sono compilati solo in Debug e attivati solo passando esplicitamente `--ui-preview`; i normali avvii dell’app si collegano al gestionale. Il codice di prova non è presente nella configurazione Release.
+
+## Distribuzione
+
+Prima di App Store occorrono identificativo definitivo (attualmente `com.example.affittostanze`), firma Apple, icona, informazioni privacy e assistenza e configurazione App Store Connect. Il progetto contiene ora le schermate e le operazioni presenti nel sito; la parità funzionale non sostituisce le verifiche con account di prova sull’ambiente di destinazione.
