@@ -30,9 +30,12 @@ final class CompactScreensTests:XCTestCase {
             // Wait for the mocked initial data, not for a live network.
             if route == "users" {XCTAssertTrue(app.staticTexts["Utente 1"].waitForExistence(timeout:5))}
             if route == "rooms" {XCTAssertTrue(app.staticTexts["Sala 1"].waitForExistence(timeout:5))}
-            XCTAssertEqual(app.scrollViews.count,0,"Unexpected scrolling in \(route)")
-            if route == "bookings" {app.buttons["Tutte"].tap()}
-            if ["users","rooms","bookings"].contains(route) {
+            if route == "bookings" {
+                app.buttons["Tutte"].tap()
+                XCTAssertTrue(app.scrollViews["bookings.list"].waitForExistence(timeout:5))
+            }
+            XCTAssertEqual(app.scrollViews.count,route == "bookings" ? 1 : 0,"Unexpected scrolling in \(route)")
+            if ["users","rooms"].contains(route) {
                 let next=app.buttons["Pagina successiva"]
                 XCTAssertTrue(next.waitForExistence(timeout:5));XCTAssertTrue(next.isHittable);next.tap()
                 XCTAssertTrue(app.buttons["Pagina precedente"].isEnabled)
@@ -86,25 +89,49 @@ final class CompactScreensTests:XCTestCase {
         XCTAssertTrue(userApp.buttons["booking.room"].isHittable);capture("Prenota utente",userApp)
     }
 
-    func testBookingsUseEightRowsPerPage() {
+    func testBookingsScrollFiveRowsWithFixedHeaders() {
         for route in ["home", "bookings"] {
-            let app=preview(route == "home" ? nil : route)
+            let app=preview()
+            XCTAssertTrue(app.tabBars.buttons["Prenotazioni"].waitForExistence(timeout:10))
             if route == "bookings" {
-                XCTAssertTrue(app.buttons["Tutte"].waitForExistence(timeout:10));app.buttons["Tutte"].tap()
+                app.tabBars.buttons["Prenotazioni"].tap()
+                XCTAssertTrue(app.buttons["Tutte"].waitForExistence(timeout:5));app.buttons["Tutte"].tap()
             }
+            let list=app.scrollViews["bookings.list"]
+            XCTAssertTrue(list.waitForExistence(timeout:10))
+            XCTAssertEqual(app.scrollViews.count,1)
+            XCTAssertFalse(app.buttons["Pagina successiva"].exists)
+            let header = route == "home" ? app.staticTexts.matching(identifier:"dashboard.metrics").firstMatch : app.buttons["Tutte"]
+            XCTAssertTrue(header.exists)
+            let headerFrame=header.frame
+            let tabsFrame=app.tabBars.firstMatch.frame
             let rows=app.descendants(matching:.any).matching(NSPredicate(format:"identifier BEGINSWITH %@", "booking.row."))
-            XCTAssertTrue(rows.firstMatch.waitForExistence(timeout:10))
-            XCTAssertEqual(rows.count,8,"Eight bookings must be visible in \(route)")
-            XCTAssertEqual(app.scrollViews.count,0)
-            for index in 0..<rows.count {
-                XCTAssertTrue(rows.element(boundBy:index).isHittable)
-                XCTAssertGreaterThanOrEqual(rows.element(boundBy:index).frame.height,44)
+            let fullyVisible=rows.allElementsBoundByIndex.filter {
+                let frame=$0.frame, viewport=list.frame
+                return frame.height >= 44 && frame.minY >= viewport.minY-1 && frame.maxY <= viewport.maxY+1
             }
-            capture("Otto prenotazioni - \(route)",app)
-            app.buttons["Pagina successiva"].tap();XCTAssertEqual(rows.count,8)
-            app.buttons["Pagina successiva"].tap();XCTAssertEqual(rows.count,2)
-            app.buttons["Pagina precedente"].tap();XCTAssertEqual(rows.count,8)
-            rows.firstMatch.tap();XCTAssertTrue(app.navigationBars["Dettaglio"].waitForExistence(timeout:3))
+            XCTAssertEqual(fullyVisible.count,5,"Five complete rows must fit in \(route)")
+            let firstID=fullyVisible.first!.identifier
+            capture("Cinque prenotazioni - \(route)",app)
+            list.swipeUp()
+            XCTAssertEqual(header.frame,headerFrame,"The header must stay fixed")
+            XCTAssertEqual(app.tabBars.firstMatch.frame,tabsFrame)
+            XCTAssertFalse(app.descendants(matching:.any)[firstID].isHittable)
+            capture("Elenco dopo scorrimento - \(route)",app)
+            // Reach the end of all 18 fixture bookings, without changing pages.
+            for _ in 0..<5 {list.swipeUp()}
+            XCTAssertEqual(header.frame,headerFrame)
+            let visibleAtEnd=rows.allElementsBoundByIndex.filter {$0.isHittable && $0.frame.intersects(list.frame)}
+            XCTAssertFalse(visibleAtEnd.isEmpty)
+            XCTAssertTrue(app.descendants(matching:.any)["booking.row.booking-9"].isHittable,"The eighteenth booking must be reachable")
+            capture("Fine elenco - \(route)",app)
+            if route == "bookings" {
+                app.buttons["Prossime"].tap();app.buttons["Tutte"].tap()
+                XCTAssertTrue(app.descendants(matching:.any)[firstID].waitForExistence(timeout:3))
+                XCTAssertTrue(app.descendants(matching:.any)[firstID].isHittable,"A changed filter resets to the first result")
+                app.descendants(matching:.any)[firstID].tap()
+            } else {visibleAtEnd.last!.tap()}
+            XCTAssertTrue(app.navigationBars["Dettaglio"].waitForExistence(timeout:3))
             app.terminate()
         }
     }

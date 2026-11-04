@@ -2,9 +2,9 @@
 
 Aprire `AffittoStanze.xcodeproj` con Xcode. SwiftUI nativo, iOS 17 o successivo. Il progetto usa lo stesso server, le stesse sessioni e lo stesso database Firebase del sito `https://affitto-stanze.onrender.com`.
 
-## Schermate senza scorrimento verticale
+## Schermate e scorrimento degli elenchi
 
-Le schermate principali usano contenuti compatti e pulsanti Precedente/Successiva. Home e Prenotazioni mostrano gruppi fissi di otto prenotazioni, con righe apribili e ricerca separata per lasciare spazio all’elenco. Gli elenchi mostrano un numero di righe calcolato in base allo spazio disponibile. La prenotazione è divisa in passaggi: stanza/data, inizio, fine, nota privata per gli amministratori e riepilogo. Il login si compatta quando compare la tastiera; sui display più piccoli può passare alla password in un secondo passaggio.
+Dalla build 6, Home e Prenotazioni mostrano cinque righe complete nello spazio disponibile. Solo l’elenco delle prenotazioni scorre verticalmente per raggiungere tutti gli altri risultati, senza pulsanti di pagina; contatori, filtri, banner e barra delle schede rimangono fermi. Quando cambiano i risultati di un filtro o di una ricerca, l’elenco riparte dall’inizio. Gli altri elenchi mantengono pagine e un numero di righe calcolato in base allo spazio disponibile. La prenotazione è divisa in passaggi: stanza/data, inizio, fine, nota privata per gli amministratori e riepilogo. Il login si compatta quando compare la tastiera; sui display più piccoli può passare alla password in un secondo passaggio.
 
 Anche descrizioni e note lunghe si leggono su pagine. Selettore data, tastiera e pannello di condivisione PDF sono controlli standard di iOS e mantengono il proprio comportamento di sistema.
 
@@ -17,7 +17,7 @@ Anche descrizioni e note lunghe si leggono su pagine. Selettore data, tastiera e
 | Dashboard amministratore, utenti/stanze attive e prenotazioni di oggi | Home amministratore |
 | Cambio della propria password | Profilo → Cambia password |
 | Prenotazione a intervalli di 30 minuti, 08:00–20:30 | Prenota, orari liberi/futuri e controllo conflitti lato server |
-| Elenco prenotazioni personali o amministrative | Prenotazioni, ricerca e pagine |
+| Elenco prenotazioni personali o amministrative | Prenotazioni, ricerca e scorrimento interno |
 | Cancellazione utente oltre un’ora prima; cancellazione amministratore | Dettaglio prenotazione, stesse regole lato server |
 | Prenotazioni per altri utenti, nota privata e autore amministrativo | Prenota amministratore e Dettaglio |
 | Lista utenti, creazione con ruolo, attivazione/disattivazione | Gestione → Utenti |

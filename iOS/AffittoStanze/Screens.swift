@@ -105,9 +105,9 @@ struct DashboardScreen: View {
                     metric("Utenti",store.adminUsers.filter{$0.role == "user" && $0.isActive}.count)
                     metric("Stanze",store.adminRooms.filter{$0.isActive}.count)
                     metric("Oggi",shown.count)
-                }.padding(.horizontal,12)
+                }.padding(.horizontal,12).accessibilityIdentifier("dashboard.metrics")
             }
-            BookingPages(bookings:shown,admin:admin,today:admin,empty:admin ? "Nessuna prenotazione oggi" : "Nessuna prenotazione")
+            BookingScrollList(bookings:shown,admin:admin,today:admin,empty:admin ? "Nessuna prenotazione oggi" : "Nessuna prenotazione")
         }.padding(.top,6).background(AppBackdrop())
         .navigationTitle(admin ? "Prenotazioni di oggi" : "Ultime prenotazioni").navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -126,42 +126,32 @@ struct DashboardScreen: View {
     }
 }
 
-/// Both booking sections keep a stable group of eight, independently of screen height.
-struct BookingPages:View {
+/// Only the booking list scrolls; its available height fits five complete rows.
+struct BookingScrollList:View {
     let bookings:[Booking]; let admin:Bool
     var today=false;var empty="Nessuna prenotazione"
-    @State private var page=0
-    private let pageSize=8
+    private let visibleRows=5
+    private let rowSpacing:CGFloat=6
     var body:some View {
         GeometryReader { geo in
-            let pages=max(1,(bookings.count+pageSize-1)/pageSize)
-            let current=min(page,pages-1)
-            let rows=Array(bookings.dropFirst(current*pageSize).prefix(pageSize))
-            let height=max(0,(geo.size.height-58)/CGFloat(pageSize))
-            VStack(spacing:1) {
-                if rows.isEmpty {
-                    ContentUnavailableView(empty,systemImage:"calendar").frame(maxHeight:.infinity)
-                } else {
-                    ForEach(rows) {booking in
-                        CompactBookingRow(booking:booking,admin:admin,today:today)
-                            .frame(height:height)
+            let height=max(44,(geo.size.height-6-rowSpacing*CGFloat(visibleRows-1))/CGFloat(visibleRows))
+            if bookings.isEmpty {
+                ContentUnavailableView(empty,systemImage:"calendar").frame(maxWidth:.infinity,maxHeight:.infinity)
+            } else {
+                ScrollView(.vertical) {
+                    LazyVStack(spacing:rowSpacing) {
+                        ForEach(bookings) {booking in
+                            CompactBookingRow(booking:booking,admin:admin,today:today)
+                                .frame(height:height)
+                        }
                     }
-                    if rows.count < pageSize {Spacer(minLength:0)}
                 }
-                HStack {
-                    Button {page=max(0,current-1)} label: {
-                        Label("Precedente",systemImage:"chevron.left").font(.caption.weight(.medium)).frame(minHeight:44)
-                    }.disabled(current == 0).accessibilityLabel("Pagina precedente")
-                    Spacer(minLength:4)
-                    Text("\(current+1) / \(pages)").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-                        .accessibilityIdentifier("bookings.page")
-                    Spacer(minLength:4)
-                    Button {page=min(pages-1,current+1)} label: {
-                        Label("Successivo",systemImage:"chevron.right").labelStyle(.titleAndIcon).font(.caption.weight(.medium)).frame(minHeight:44)
-                    }.disabled(current == pages-1).accessibilityLabel("Pagina successiva")
-                }.padding(.horizontal,4).frame(height:44)
-            }.padding(.horizontal,12).padding(.bottom,6)
-        }.onChange(of:bookings.map(\.id)) {_,_ in page=0}
+                .accessibilityIdentifier("bookings.list")
+                // A changed filter/search starts at the first result; unchanged refreshes preserve position.
+                .id(bookings.map(\.id))
+                .padding(.horizontal,12).padding(.bottom,6)
+            }
+        }
     }
 }
 
@@ -217,7 +207,7 @@ struct BookingList: View {
     }.sorted {a,b in a.booking_date == b.booking_date ? a.start_hour < b.start_hour : (filter == 0 ? a.booking_date < b.booking_date : a.booking_date > b.booking_date)}}
     @State private var searching=false
     var body:some View {
-        BookingPages(bookings:shown,admin:store.user?.role == "admin")
+        BookingScrollList(bookings:shown,admin:store.user?.role == "admin")
             .padding(.top,6).background(AppBackdrop()).navigationTitle("Prenotazioni").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement:.principal) {
