@@ -12,8 +12,10 @@ final class CompactScreensTests:XCTestCase {
     func testLoginFitsWithKeyboard() {
         let app=preview(login:true)
         let username=app.textFields["login.username"]
-        XCTAssertTrue(username.waitForExistence(timeout:10));capture("Login",app)
+        XCTAssertTrue(username.waitForExistence(timeout:10))
+        XCTAssertTrue(app.staticTexts["advertising.preview"].exists);capture("Login",app)
         username.tap();username.typeText("preview")
+        XCTAssertFalse(app.staticTexts["advertising.preview"].exists)
         // Compact phones use a second step when the keyboard reduces the space.
         if app.buttons["Continua"].exists {app.buttons["Continua"].tap()}
         let password=app.secureTextFields["login.password"]
@@ -29,6 +31,7 @@ final class CompactScreensTests:XCTestCase {
             if route == "users" {XCTAssertTrue(app.staticTexts["Utente 1"].waitForExistence(timeout:5))}
             if route == "rooms" {XCTAssertTrue(app.staticTexts["Sala 1"].waitForExistence(timeout:5))}
             XCTAssertEqual(app.scrollViews.count,0,"Unexpected scrolling in \(route)")
+            if route == "bookings" {app.buttons["Tutte"].tap()}
             if ["users","rooms","bookings"].contains(route) {
                 let next=app.buttons["Pagina successiva"]
                 XCTAssertTrue(next.waitForExistence(timeout:5));XCTAssertTrue(next.isHittable);next.tap()

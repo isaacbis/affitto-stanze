@@ -3,7 +3,8 @@ import SwiftUI
 @main
 struct AffittoStanzeApp: App {
     @StateObject private var store = Store()
-    var body: some Scene { WindowGroup { ContentView().environmentObject(store) } }
+    @StateObject private var advertising = AdvertisingManager()
+    var body: some Scene { WindowGroup { ContentView().environmentObject(store).environmentObject(advertising) } }
 }
 
 struct User: Codable, Identifiable {

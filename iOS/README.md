@@ -40,11 +40,14 @@ Node.js 22 o superiore. Le nuove rotte amministrative in `lib/mobile-admin.js` u
 
 I dati per i test visivi sono compilati solo in Debug e attivati solo passando esplicitamente `--ui-preview`; i normali avvii dell’app si collegano al gestionale. Il codice di prova non è presente nella configurazione Release.
 
-## Distribuzione
-
-Prima di App Store occorrono identificativo definitivo (attualmente `com.example.affittostanze`), firma Apple, icona, informazioni privacy e assistenza e configurazione App Store Connect. Il progetto contiene ora le schermate e le operazioni presenti nel sito; la parità funzionale non sostituisce le verifiche con account di prova sull’ambiente di destinazione.
-
-
 ## Versione 1.0.0 e distribuzione
 
 Bundle ID definitivo `com.isaacmorganti.affittostanze`, team Apple configurato, icona opaca 1024×1024 e versione/build esplicite. Le pagine pubbliche privacy e assistenza sono in public/privacy.html e public/support.html. Contatto pubblico confermato dal titolare. Le credenziali e il telefono per App Review non sono salvati nel repository. Metadati italiani in iOS/AppStore/it-IT.
+
+## Banner Google AdMob
+
+Build 3 integra Google Mobile Ads 13.12.0 e UMP 3.1.0 tramite Swift Package Manager, versioni bloccate in Package.resolved. App ID in Info.plist e banner in AdsConfiguration.plist sono identificativi pubblici. Il banner standard 320×50 è in cima, fuori dai pulsanti di prenotazione, e si nasconde con la tastiera. La gestione funziona anche senza consenso, senza rete pubblicitaria o senza annunci disponibili.
+
+UMP aggiorna il consenso a ogni avvio. L’SDK pubblicitario e le richieste sono avviati solo se canRequestAds lo consente; le scelte si riaprono dal pulsante accanto al banner dove richiesto. Le richieste sono non personalizzate (npa=1, personalizzazione disabilitata), ID publisher di prima parte disabilitato, raccolta posizione da autorizzazioni disabilitata, nessuna richiesta ATT/IDFA. Nessun dato del gestionale è passato a Google. Debug, simulatore e ricevuta sandbox TestFlight usano l’unità banner ufficiale di prova. --ui-preview non avvia SDK/rete e mostra uno spazio fittizio per verificare il layout.
+
+Prima dell’invio App Store verificare il messaggio UMP pubblicato per quest’app, le dichiarazioni privacy e pubblicità in App Store Connect, il file pubblico /app-ads.txt e la verifica AdMob dell’app dopo la pubblicazione nello store. La creazione dell’unità non garantisce l’erogazione immediata di annunci o ricavi.

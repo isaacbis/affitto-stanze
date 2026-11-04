@@ -4,7 +4,11 @@ struct ContentView: View {
     @EnvironmentObject var store: Store
     @State private var restoring = true
     var body: some View {
-        Group { if restoring { ProgressView("Caricamento…") } else if store.user == nil { LoginView() } else { AppRoot() } }
+        VStack(spacing:0) {
+            AdvertisingHeader()
+            Group { if restoring { ProgressView("Caricamento…") } else if store.user == nil { LoginView() } else { AppRoot() } }
+                .frame(maxWidth:.infinity,maxHeight:.infinity)
+        }
             .tint(brand).task { await store.restore(); restoring = false }
             .alert("Attenzione", isPresented: Binding(get:{store.error != nil},set:{if !$0 {store.error=nil}})) { Button("OK") {store.error=nil} } message: {Text(store.error ?? "")}
     }
