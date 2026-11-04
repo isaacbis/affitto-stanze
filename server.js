@@ -2,7 +2,9 @@ const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const path = require('path');
-const admin = require('firebase-admin');
+const { initializeApp, getApps, cert } = require('firebase-admin/app');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { createLoginThrottle } = require('./lib/login-throttle');
 const PDFDocument = require('pdfkit');
 
 const app = express();
@@ -12,8 +14,8 @@ const PORT = process.env.PORT || 3000;
    FIREBASE INIT
 ========================= */
 function initFirebase() {
-  if (admin.apps.length) {
-    return admin.firestore();
+  if (getApps().length) {
+    return getFirestore();
   }
 
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -29,14 +31,15 @@ function initFirebase() {
     throw new Error('FIREBASE_SERVICE_ACCOUNT non è un JSON valido');
   }
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+  initializeApp({
+    credential: cert(serviceAccount)
   });
 
-  return admin.firestore();
+  return getFirestore();
 }
 
 const db = initFirebase();
+const loginThrottle = createLoginThrottle({ db });
 
 class FirestoreSessionStore extends session.Store {
   constructor({ firestore, collection = 'sessions' }) {
@@ -76,7 +79,7 @@ class FirestoreSessionStore extends session.Store {
       {
         session: JSON.stringify(sess),
         expiresAt,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: FieldValue.serverTimestamp()
       },
       { merge: true }
     )
@@ -98,7 +101,7 @@ class FirestoreSessionStore extends session.Store {
     this.col.doc(String(sid)).set(
       {
         expiresAt,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: FieldValue.serverTimestamp()
       },
       { merge: true }
     )
@@ -514,7 +517,7 @@ async function ensureDefaultAdmin() {
     created_at: nowIso()
   });
 
-  console.log(`Admin creato: username=admin password=${initialAdminPassword}`);
+  console.log('Account amministratore iniziale creato');
 }
 
 /* =========================
@@ -641,7 +644,7 @@ app.use('/api/v1', (req, res, next) => {
   if (req.get('X-Affitto-Client') !== 'ios') return res.status(403).json({ error: 'Richiesta non valida' });
   next();
 });
-app.post('/api/v1/login', async (req, res) => {
+app.post('/api/v1/login', loginThrottle, async (req, res) => {
   try {
     const user = await getUserByUsername(req.body.username);
     if (!user || !userIsActive(user) || !await bcrypt.compare(String(req.body.password || ''), user.password_hash))
@@ -707,7 +710,8 @@ app.post('/api/v1/bookings', apiAuth, async (req, res) => {
     if (!room_id || !dateValid || start_hour == null || end_hour == null || !isValidHalfHour(start) || !isValidHalfHour(end) || start < 8 || end > 20.5 || start >= end)
       return res.status(400).json({error: 'Data o orari non validi'});
     const userId = req.apiUser.role === 'admin' ? String(req.body.user_id || '') : req.apiUser.id;
-    const [user, room] = await Promise.all([getUserById(userId), getRoomById(String(room_id))]);
+    if (!userId || userId.includes('/') || typeof room_id !== 'string' || room_id.includes('/')) return res.status(400).json({error: 'Utente o stanza non validi'});
+    const [user, room] = await Promise.all([getUserById(userId), getRoomById(room_id)]);
     if (!user || user.role !== 'user' || !userIsActive(user) || !room || !roomIsActive(room)) return res.status(400).json({error: 'Utente o stanza non disponibili'});
     if (hasBookingAlreadyStarted(date, start)) return res.status(400).json({error: 'Non puoi prenotare un orario già passato'});
     const data = {user_id: userId, room_id: String(room_id), booking_date: date, start_hour: start, end_hour: end, total_hours: end-start, status: 'active', created_at: nowIso()};
@@ -724,6 +728,8 @@ app.delete('/api/v1/bookings/:id', apiAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({error: 'Errore cancellazione'}); }
 });
 
+app.get('/health', (req, res) => res.set('Cache-Control', 'no-store').json({ status: 'ok', release: '2026-11-04-security-1' }));
+
 app.get('/', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   if (req.session.user.role === 'admin') return res.redirect('/admin/dashboard');
@@ -734,7 +740,7 @@ app.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', loginThrottle, async (req, res) => {
   try {
     const username = normalizeUsername(req.body.username);
     const password = String(req.body.password || '');
@@ -754,12 +760,9 @@ app.post('/login', async (req, res) => {
       return res.render('login', { error: 'Credenziali non valide' });
     }
 
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-      role: user.role
-    };
-
+    await new Promise((resolve, reject) => req.session.regenerate(err => err ? reject(err) : resolve()));
+    req.session.user = { id: user.id, username: user.username, role: user.role };
+    await new Promise((resolve, reject) => req.session.save(err => err ? reject(err) : resolve()));
     if (user.role === 'admin') return res.redirect('/admin/dashboard');
     return res.redirect('/user/dashboard');
   } catch (err) {
@@ -1704,7 +1707,19 @@ function subtractMonthsFromYmd(ymd, months) {
   return `${y}-${pad2(m)}-${pad2(safeDay)}`;
 }
 
+async function cleanupExpiredLoginAttempts() {
+  while (true) {
+    const snap = await db.collection('login_attempts').where('expiresAt', '<=', new Date()).limit(CLEANUP_BATCH_SIZE).get();
+    if (snap.empty) break;
+    const batch = db.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    if (snap.size < CLEANUP_BATCH_SIZE) break;
+  }
+}
+
 async function cleanupExpiredSessions() {
+  await cleanupExpiredLoginAttempts();
   let totalDeleted = 0;
   const now = new Date();
 
