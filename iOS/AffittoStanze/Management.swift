@@ -12,8 +12,13 @@ struct ManagementScreen:View {
         }.navigationTitle("Gestione").toolbar {NavigationLink {ProfileScreen()} label:{Image(systemName:"person.crop.circle")}.accessibilityLabel("Profilo")}
     }
     func menu<D:View>(_ title:String,_ symbol:String,destination:D)->some View {
-        NavigationLink {destination} label:{HStack(spacing:14) {Image(systemName:symbol).font(.title2).foregroundStyle(brand).frame(width:34);Text(title).font(.headline);Spacer();Image(systemName:"chevron.right").font(.caption).foregroundStyle(.secondary)}.padding(20).background(Color(uiColor:.secondarySystemGroupedBackground),in:RoundedRectangle(cornerRadius:20))}.foregroundStyle(.primary)
+        let color=title == "Utenti" ? coral : title == "Stanze" ? sea : honey
+        return NavigationLink {destination} label:{HStack(spacing:14) {
+            Image(systemName:symbol).font(.title2).foregroundStyle(.white).frame(width:44,height:44).background(LinearGradient(colors:[color,color.opacity(0.75)],startPoint:.topLeading,endPoint:.bottomTrailing),in:RoundedRectangle(cornerRadius:13))
+            Text(title).font(.headline);Spacer();Image(systemName:"chevron.right").font(.caption).foregroundStyle(color)
+        }.padding(.horizontal,16).padding(.vertical,15).background(Color(uiColor:.secondarySystemGroupedBackground),in:RoundedRectangle(cornerRadius:20)).overlay(RoundedRectangle(cornerRadius:20).stroke(color.opacity(0.18),lineWidth:1))}.foregroundStyle(.primary)
     }
+
 }
 struct UsersScreen:View {
     @EnvironmentObject var store:Store
@@ -22,7 +27,7 @@ struct UsersScreen:View {
         Canvas {
             Input(title:"Cerca utente",text:$search)
             PagedRows(items:store.adminUsers.filter{search.isEmpty || $0.username.localizedCaseInsensitiveContains(search)}) {user in
-                NavigationLink {UserDetail(original:user)} label:{HStack {VStack(alignment:.leading,spacing:5) {Text(user.username).font(.headline).lineLimit(1);Text("\(user.role == "admin" ? "Amministratore" : "Utente") · \(user.isActive ? "Attivo" : "Disattivato")").font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:user.isActive ? "checkmark.circle.fill" : "pause.circle").foregroundStyle(user.isActive ? .green : .orange)}.padding(14)}.foregroundStyle(.primary)
+                NavigationLink {UserDetail(original:user)} label:{HStack {VStack(alignment:.leading,spacing:5) {Text(user.username).foregroundStyle(coral).font(.headline).lineLimit(1);Text("\(user.role == "admin" ? "Amministratore" : "Utente") · \(user.isActive ? "Attivo" : "Disattivato")").font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:user.isActive ? "checkmark.circle.fill" : "pause.circle").foregroundStyle(user.isActive ? .green : .orange)}.padding(14)}.foregroundStyle(.primary)
             }
         }.navigationTitle("Utenti").toolbar {NavigationLink {CreateUser()} label:{Image(systemName:"plus")}.accessibilityLabel("Crea utente")}
     }
@@ -83,7 +88,7 @@ struct RoomsScreen:View {
         Canvas {
             Input(title:"Cerca stanza",text:$search)
             PagedRows(items:store.adminRooms.filter{search.isEmpty || $0.name.localizedCaseInsensitiveContains(search)}) {room in
-                NavigationLink {RoomDetail(original:room)} label:{HStack {VStack(alignment:.leading,spacing:4) {Text(room.name).font(.headline).lineLimit(1);Text(room.isActive ? "Attiva" : "Disattivata").font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:room.isActive ? "checkmark.circle.fill" : "pause.circle").foregroundStyle(room.isActive ? .green : .orange)}.padding(14)}.foregroundStyle(.primary)
+                NavigationLink {RoomDetail(original:room)} label:{HStack {VStack(alignment:.leading,spacing:4) {Text(room.name).foregroundStyle(sea).font(.headline).lineLimit(1);Text(room.isActive ? "Attiva" : "Disattivata").font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:room.isActive ? "checkmark.circle.fill" : "pause.circle").foregroundStyle(room.isActive ? .green : .orange)}.padding(14)}.foregroundStyle(.primary)
             }
         }.navigationTitle("Stanze").toolbar {NavigationLink {CreateRoom()} label:{Image(systemName:"plus")}.accessibilityLabel("Crea stanza")}
     }

@@ -1,0 +1,12 @@
+Affitto Stanze porta su iPhone il tuo gestionale per stanze e prenotazioni.
+
+Scegli la stanza, controlla le fasce disponibili e conferma la prenotazione con pochi passaggi. Ritrova gli appuntamenti in programma e lo storico e gestisci il tuo account.
+
+Per gli amministratori:
+• Panoramica delle prenotazioni di oggi, degli utenti e delle stanze attive.
+• Creazione e gestione degli account, con ruoli e reimpostazione password.
+• Creazione delle stanze e gestione della disponibilità.
+• Prenotazioni per conto degli utenti e note private.
+• Report mensili e settimanali, filtri per utente ed esportazione PDF.
+
+L’app utilizza gli stessi dati del gestionale web. Sono necessarie credenziali fornite dall’amministratore. Le funzioni disponibili dipendono dal ruolo dell’account. Date e orari si riferiscono al fuso di Roma.

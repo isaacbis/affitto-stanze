@@ -43,3 +43,8 @@ I dati per i test visivi sono compilati solo in Debug e attivati solo passando e
 ## Distribuzione
 
 Prima di App Store occorrono identificativo definitivo (attualmente `com.example.affittostanze`), firma Apple, icona, informazioni privacy e assistenza e configurazione App Store Connect. Il progetto contiene ora le schermate e le operazioni presenti nel sito; la parità funzionale non sostituisce le verifiche con account di prova sull’ambiente di destinazione.
+
+
+## Versione 1.0.0 e distribuzione
+
+Bundle ID definitivo `com.isaacmorganti.affittostanze`, team Apple configurato, icona opaca 1024×1024 e versione/build esplicite. Le pagine pubbliche privacy e assistenza sono in public/privacy.html e public/support.html. Contatto pubblico confermato dal titolare. Le credenziali e il telefono per App Review non sono salvati nel repository. Metadati italiani in iOS/AppStore/it-IT.

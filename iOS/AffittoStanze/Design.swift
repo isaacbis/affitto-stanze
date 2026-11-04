@@ -1,7 +1,26 @@
 import SwiftUI
 import UIKit
 
-let brand = Color(red: 0.30, green: 0.32, blue: 0.88)
+let brand = Color(red: 0.30, green: 0.25, blue: 0.83)
+let sea = Color(red: 0.02, green: 0.50, blue: 0.58)
+let coral = Color(red: 0.86, green: 0.29, blue: 0.36)
+let honey = Color(red: 0.76, green: 0.43, blue: 0.08)
+let sky = Color(red: 0.16, green: 0.43, blue: 0.80)
+let primaryGradient = LinearGradient(colors: [brand, Color(red:0.20,green:0.38,blue:0.86),sea], startPoint:.leading,endPoint:.trailing)
+func roomColor(_ value:String)->Color {
+    let colors:[Color]=[brand,sea,coral,honey,sky]
+    let index=value.utf8.reduce(0){($0+Int($1))%colors.count}
+    return colors[index]
+}
+struct AppBackdrop:View {
+    @Environment(\.colorScheme) private var scheme
+    var body:some View {
+        ZStack {
+            Color(uiColor:.systemGroupedBackground)
+            LinearGradient(colors:[brand.opacity(scheme == .dark ? 0.14 : 0.07),.clear,sea.opacity(scheme == .dark ? 0.12 : 0.07)],startPoint:.topLeading,endPoint:.bottomTrailing)
+        }.ignoresSafeArea()
+    }
+}
 
 struct Canvas<Content: View>: View {
     @ViewBuilder let content: () -> Content
@@ -9,7 +28,9 @@ struct Canvas<Content: View>: View {
         VStack(alignment: .leading, spacing: 12, content: content)
             .padding(.horizontal, 18).padding(.vertical, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
+            .background(AppBackdrop())
+            .toolbarBackground(Color(uiColor:.systemGroupedBackground).opacity(0.95),for:.navigationBar)
+            .toolbarBackground(.visible,for:.navigationBar)
             .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -19,13 +40,16 @@ struct Card<Content: View>: View {
         VStack(alignment: .leading, spacing: 10, content: content).padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius:20).stroke(brand.opacity(0.10),lineWidth:1))
+            .shadow(color:brand.opacity(0.04),radius:8,y:3)
     }
 }
 struct MainButton: View {
     let title: String; var busy = false; var disabled = false; let action: () -> Void
     var body: some View {
         Button(action: action) { HStack { Spacer(); if busy { ProgressView().tint(.white) } else { Text(title).fontWeight(.semibold) }; Spacer() }.padding(.vertical, 14) }
-            .foregroundStyle(.white).background(brand.opacity(disabled ? 0.4 : 1), in: RoundedRectangle(cornerRadius: 15))
+            .foregroundStyle(.white).background(primaryGradient.opacity(disabled ? 0.4 : 1), in: RoundedRectangle(cornerRadius: 15))
+            .shadow(color:brand.opacity(disabled ? 0 : 0.18),radius:9,y:4)
             .disabled(disabled || busy)
     }
 }
@@ -35,7 +59,8 @@ struct Input: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
             Group { if secure { SecureField(title, text: $text).textContentType(.newPassword) } else { TextField(title, text: $text).textInputAutocapitalization(.never).autocorrectionDisabled() } }
-                .padding(12).background(Color(uiColor: .tertiarySystemFill), in: RoundedRectangle(cornerRadius: 12))
+                .padding(12).background(brand.opacity(0.055), in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius:12).stroke(brand.opacity(0.15),lineWidth:1))
                 .accessibilityIdentifier(title)
         }
     }
@@ -44,9 +69,9 @@ struct Pager: View {
     @Binding var page: Int; let pages: Int
     var body: some View {
         HStack {
-            Button { page = max(0, page - 1) } label: { Image(systemName: "chevron.left").frame(width: 48, height: 44) }.disabled(page <= 0).accessibilityLabel("Pagina precedente")
+            Button { page = max(0, page - 1) } label: { Image(systemName: "chevron.left").frame(width: 48, height: 44).background(brand.opacity(0.08),in:RoundedRectangle(cornerRadius:13)) }.disabled(page <= 0).accessibilityLabel("Pagina precedente")
             Spacer(); Text("\(min(page + 1, max(pages, 1))) / \(max(pages, 1))").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary); Spacer()
-            Button { page = min(pages - 1, page + 1) } label: { Image(systemName: "chevron.right").frame(width: 48, height: 44) }.disabled(page >= pages - 1).accessibilityLabel("Pagina successiva")
+            Button { page = min(pages - 1, page + 1) } label: { Image(systemName: "chevron.right").frame(width: 48, height: 44).background(brand.opacity(0.08),in:RoundedRectangle(cornerRadius:13)) }.disabled(page >= pages - 1).accessibilityLabel("Pagina successiva")
         }
     }
 }
@@ -67,6 +92,8 @@ struct PagedRows<Item: Identifiable, Row: View>: View {
                     ForEach(Array(items.dropFirst(current * capacity).prefix(capacity))) { item in
                         row(item).frame(maxWidth: .infinity, minHeight: height, maxHeight: height, alignment: .leading)
                             .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 17))
+                            .overlay(RoundedRectangle(cornerRadius:17).stroke(brand.opacity(0.08),lineWidth:1))
+                            .shadow(color:brand.opacity(0.035),radius:5,y:2)
                     }
                     Spacer(minLength: 0)
                 }

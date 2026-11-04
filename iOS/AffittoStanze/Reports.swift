@@ -24,9 +24,9 @@ struct ReportsScreen:View {
             if loading {ProgressView("Caricamento report…").frame(maxWidth:.infinity,maxHeight:.infinity)}
             else if let error {Text(error).font(.subheadline).foregroundStyle(.red);Button("Riprova") {Task {await load()}};Spacer(minLength:0)}
             else if let report {
-                HStack {VStack(alignment:.leading) {Text("\(report.totalHours.formatted()) ore").font(.headline);Text("\(report.totalBookings) prenotazioni").font(.caption).foregroundStyle(.secondary)};Spacer();Text("\(BookingClock.label(report.startDate))\n\(BookingClock.label(report.endDate))").font(.caption).multilineTextAlignment(.trailing)}
+                HStack {VStack(alignment:.leading) {Text("\(report.totalHours.formatted()) ore").font(.headline).foregroundStyle(honey);Text("\(report.totalBookings) prenotazioni").font(.caption).foregroundStyle(.secondary)};Spacer();Text("\(BookingClock.label(report.startDate))\n\(BookingClock.label(report.endDate))").font(.caption).multilineTextAlignment(.trailing)}
                 PagedRows(items:report.reportRows,empty:"Nessun dato nel periodo",rowHeight:70) {row in
-                    HStack {Text(row.username).font(.subheadline.bold()).lineLimit(1);Spacer();VStack(alignment:.trailing,spacing:4) {Text("\(row.total_hours.formatted()) h").font(.headline).foregroundStyle(brand);Text("\(row.total_bookings) prenotazioni").font(.caption).foregroundStyle(.secondary)}}.padding(12)
+                    HStack {Text(row.username).font(.subheadline.bold()).lineLimit(1);Spacer();VStack(alignment:.trailing,spacing:4) {Text("\(row.total_hours.formatted()) h").font(.headline).foregroundStyle(sea);Text("\(row.total_bookings) prenotazioni").font(.caption).foregroundStyle(.secondary)}}.padding(12)
                 }
             } else {Spacer(minLength:0)}
             MainButton(title:"Esporta e condividi PDF",busy:exporting,disabled:loading || report == nil || loadedQuery != query) {Task {await export()}}

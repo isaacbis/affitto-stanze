@@ -44,7 +44,7 @@ struct LoginView: View {
             VStack(alignment: .leading, spacing: short ? 12 : 24) {
                 Spacer(minLength: 0)
                 HStack(spacing: 10) {
-                    Image(systemName: "square.grid.2x2.fill").foregroundStyle(.white).padding(10).background(brand,in:RoundedRectangle(cornerRadius:12))
+                    Image(systemName: "square.grid.2x2.fill").foregroundStyle(.white).padding(10).background(primaryGradient,in:RoundedRectangle(cornerRadius:12))
                     Text("AFFITTO STANZE").font(.caption.bold()).tracking(1.4).foregroundStyle(brand)
                 }
                 if !short {
@@ -65,10 +65,10 @@ struct LoginView: View {
                     else { MainButton(title:"Accedi",busy:store.loading,disabled:username.isEmpty || password.isEmpty) {signIn()} }
                     if tiny && passwordStep {Button("Modifica username") {passwordStep=false;focus=0}.font(.caption)}
                 }.padding(short ? 16 : 22).background(.white,in:RoundedRectangle(cornerRadius:24)).shadow(color:brand.opacity(0.12),radius:20,y:10)
-                if !short { Label("Area riservata utenti e amministratori",systemImage:"lock.shield").font(.caption).foregroundStyle(.secondary).frame(maxWidth:.infinity) }
+                if !short {HStack {Link("Privacy",destination:URL(string:"https://affitto-stanze.onrender.com/privacy.html")!);Text("·").foregroundStyle(.secondary);Link("Assistenza",destination:URL(string:"https://affitto-stanze.onrender.com/support.html")!)}.font(.caption).frame(maxWidth:.infinity)}
                 Spacer(minLength: 0)
             }.padding(.horizontal,24).padding(.vertical,short ? 8 : 20).frame(maxWidth:460).frame(maxWidth:.infinity,maxHeight:.infinity)
-                .background(LinearGradient(colors:[Color(red:0.91,green:0.93,blue:1),Color(red:0.96,green:0.92,blue:1),Color(red:0.90,green:0.96,blue:1)],startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea())
+                .background(LinearGradient(colors:[Color(red:0.88,green:0.90,blue:1),Color(red:0.99,green:0.92,blue:0.92),Color(red:0.86,green:0.96,blue:0.96)],startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea())
         }.preferredColorScheme(.light)
     }
     func signIn() {guard !username.isEmpty && !password.isEmpty else{return};focus=nil;Task {await store.login(username,password)}}
@@ -103,7 +103,7 @@ struct DashboardScreen: View {
                     metric("Oggi",shown.count)
                 }
             }
-            NavigationLink {NewBooking()} label: { HStack {Image(systemName:"plus.circle.fill"); Text("Prenota una stanza").fontWeight(.semibold);Spacer();Image(systemName:"arrow.right")}.padding(16).foregroundStyle(.white).background(brand,in:RoundedRectangle(cornerRadius:18)) }
+            NavigationLink {NewBooking()} label: { HStack {Image(systemName:"plus.circle.fill"); Text("Prenota una stanza").fontWeight(.semibold);Spacer();Image(systemName:"arrow.right")}.padding(16).foregroundStyle(.white).background(primaryGradient,in:RoundedRectangle(cornerRadius:18)) }
             Text(admin ? "Prenotazioni di oggi" : "Ultime prenotazioni").font(.headline)
             PagedRows(items:shown,empty:admin ? "Nessuna prenotazione oggi" : "Nessuna prenotazione",rowHeight:78) { b in BookingRow(booking:b,admin:admin) }
         }.navigationTitle("Affitto stanze").toolbar {
@@ -111,13 +111,20 @@ struct DashboardScreen: View {
             ToolbarItem(placement:.topBarTrailing) {NavigationLink {ProfileScreen()} label:{Image(systemName:"person.crop.circle")}.accessibilityLabel("Profilo")}
         }
     }
-    func metric(_ title:String,_ value:Int)->some View { VStack(spacing:4) {Text("\(value)").font(.title2.bold()).foregroundStyle(brand);Text(title).font(.caption).foregroundStyle(.secondary)}.frame(maxWidth:.infinity).padding(.vertical,12).background(Color(uiColor:.secondarySystemGroupedBackground),in:RoundedRectangle(cornerRadius:16)) }
+    func metric(_ title:String,_ value:Int)->some View {
+        let color=title == "Utenti" ? coral : title == "Stanze" ? sea : brand
+        return VStack(spacing:4) {Text("\(value)").font(.title2.bold());Text(title).font(.caption.weight(.medium)).foregroundStyle(.white.opacity(0.88))}
+            .foregroundStyle(.white).frame(maxWidth:.infinity).padding(.vertical,12)
+            .background(LinearGradient(colors:[color,color.opacity(0.78)],startPoint:.topLeading,endPoint:.bottomTrailing),in:RoundedRectangle(cornerRadius:16))
+            .shadow(color:color.opacity(0.16),radius:7,y:3)
+    }
 }
 struct BookingRow: View {
     let booking:Booking; let admin:Bool
     var body: some View {
         NavigationLink {BookingDetail(booking:booking)} label: {
-            HStack {
+            HStack(spacing:10) {
+                Image(systemName:"calendar").font(.headline).foregroundStyle(roomColor(booking.room_name)).frame(width:36,height:40).background(roomColor(booking.room_name).opacity(0.12),in:RoundedRectangle(cornerRadius:11))
                 VStack(alignment:.leading,spacing:4) {
                     Text(booking.room_name).font(.subheadline.bold()).lineLimit(1)
                     Text("\(BookingClock.label(booking.booking_date)) · \(timeLabel(booking.start_hour))–\(timeLabel(booking.end_hour))").font(.caption).foregroundStyle(.secondary).lineLimit(1)
@@ -150,8 +157,8 @@ struct BookingDetail: View {
         Canvas {
             Card {
                 Text(booking.room_name).font(.title2.bold()).lineLimit(2)
-                Label(BookingClock.label(booking.booking_date),systemImage:"calendar")
-                Label("\(timeLabel(booking.start_hour)) – \(timeLabel(booking.end_hour))",systemImage:"clock")
+                Label(BookingClock.label(booking.booking_date),systemImage:"calendar").foregroundStyle(brand)
+                Label("\(timeLabel(booking.start_hour)) – \(timeLabel(booking.end_hour))",systemImage:"clock").foregroundStyle(sea)
                 Text("Durata: \((booking.end_hour-booking.start_hour).formatted()) ore").font(.subheadline).foregroundStyle(.secondary)
                 if store.user?.role == "admin" {LabeledContent("Utente",value:booking.username)}
             }
@@ -174,7 +181,11 @@ struct ProfileScreen:View {
     var body:some View {
         Canvas {
             Card {Label(store.user?.username ?? "",systemImage:"person.crop.circle.fill").font(.title2.bold());Text(store.user?.role == "admin" ? "Amministratore" : "Utente").foregroundStyle(.secondary)}
-            Card {NavigationLink {PasswordView()} label:{DetailLink(label:"Sicurezza",value:"Cambia password")}}
+            Card {
+                NavigationLink {PasswordView()} label:{DetailLink(label:"Sicurezza",value:"Cambia password")}
+                Link(destination:URL(string:"https://affitto-stanze.onrender.com/privacy.html")!) {DetailLink(label:"Dati personali",value:"Privacy")}
+                Link(destination:URL(string:"https://affitto-stanze.onrender.com/support.html")!) {DetailLink(label:"Hai bisogno di aiuto?",value:"Assistenza")}
+            }
             Spacer(minLength:0)
             Button("Esci dall’account",role:.destructive) {Task {await store.logout()}}.buttonStyle(.bordered).disabled(store.loading).frame(maxWidth:.infinity)
         }.navigationTitle("Profilo")
