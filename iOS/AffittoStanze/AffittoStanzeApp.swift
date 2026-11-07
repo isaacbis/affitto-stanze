@@ -5,7 +5,7 @@ struct AffittoStanzeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var notifications = NotificationManager.shared
     @StateObject private var store = Store()
-    @StateObject private var advertising = AdvertisingManager()
+    @StateObject private var advertising = AdvertisingManager(services: GoogleAdvertisingServices())
     var body: some Scene { WindowGroup { ContentView().environmentObject(store).environmentObject(advertising).environmentObject(notifications) } }
 }
 

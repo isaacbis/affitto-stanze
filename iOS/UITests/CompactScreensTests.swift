@@ -9,6 +9,29 @@ final class CompactScreensTests:XCTestCase {
     func capture(_ name:String,_ app:XCUIApplication) {
         let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)
     }
+    func testTrackingDenialKeepsBookingsUsable() {
+        // Real system ATT prompt; the booking API and notifications remain isolated.
+        // Reset the system choice so this test is repeatable on the same simulator.
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-preview","--ui-user","--ui-ad-consent"]
+        app.resetAuthorizationStatus(for:.userTracking)
+        app.launch()
+        let alert = XCUIApplication(bundleIdentifier:"com.apple.springboard").alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout:15), "Use a fresh simulator for the ATT prompt")
+        capture("Richiesta ATT prima della pubblicità",XCUIApplication(bundleIdentifier:"com.apple.springboard"))
+        let deny = alert.buttons.matching(NSPredicate(format:"label CONTAINS[c] %@ OR label CONTAINS[c] %@ OR label CONTAINS[c] %@", "Ask App Not to Track", "non tracciare", "Non tracciarmi")).firstMatch
+        XCTAssertTrue(deny.exists)
+        deny.tap()
+        XCTAssertTrue(app.tabBars.buttons["Prenota"].waitForExistence(timeout:10))
+        XCTAssertFalse(app.staticTexts["advertising.preview"].exists)
+        app.tabBars.buttons["Prenota"].tap()
+        app.buttons["booking.room"].tap();app.buttons["Sala 1"].tap()
+        app.buttons["Continua"].tap();app.buttons["Continua"].tap();app.buttons["Continua"].tap()
+        XCTAssertTrue(app.buttons["Conferma prenotazione"].isHittable)
+        app.buttons["Conferma prenotazione"].tap()
+        XCTAssertTrue(app.alerts["Prenotazione inserita"].waitForExistence(timeout:5))
+        capture("Prenotazione dopo rifiuto ATT",app)
+    }
     func testNotificationOpensAuthorizedBookingAndHandlesCancellation() {
         for type in ["created","deleted","other-user"] {
             let app=XCUIApplication();app.launchArguments=["--ui-preview","--ui-notification=\(type)"];app.launch()

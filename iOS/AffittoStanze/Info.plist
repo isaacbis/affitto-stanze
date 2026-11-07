@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Con il tuo permesso, Google AdMob può usare l’identificativo pubblicitario e collegare dati di utilizzo ad app e siti di altre aziende per misurare la pubblicità. Puoi rifiutare e continuare a usare tutte le funzioni di prenotazione.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-5793073160443124~1710840281</string>
 	<key>GADDelayAppMeasurementInit</key>

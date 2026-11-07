@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var store: Store
+    @EnvironmentObject var advertising:AdvertisingManager
     @State private var restoring = true
     @EnvironmentObject var notifications:NotificationManager
     @Environment(\.scenePhase) private var scenePhase
@@ -11,10 +12,19 @@ struct ContentView: View {
             Group { if restoring { ProgressView("Caricamento…") } else if store.user == nil { LoginView() } else { AppRoot() } }
                 .frame(maxWidth:.infinity,maxHeight:.infinity)
         }
-            .tint(brand).task { notifications.attach(store);await store.restore(); restoring = false;await notifications.synchronize() }
-            .onChange(of:store.user?.id) {_,_ in Task {await notifications.synchronize()}}
-            .onChange(of:scenePhase) {_,phase in if phase == .active {Task {await notifications.synchronize()}}}
+            .tint(brand).task { notifications.attach(store);await store.restore(); restoring = false;await synchronizePermissions() }
+            .onChange(of:store.user?.id) {_,_ in if !restoring {Task {await synchronizePermissions()}}}
+            .onChange(of:scenePhase) {_,phase in
+                if phase == .active {Task {await synchronizePermissions()}}
+                else {advertising.suspendAdvertising()}
+            }
             .alert("Attenzione", isPresented: Binding(get:{store.error != nil},set:{if !$0 {store.error=nil}})) { Button("OK") {store.error=nil} } message: {Text(store.error ?? "")}
+    }
+    private func synchronizePermissions() async {
+        await advertising.synchronize()
+        // Keep the notifications prompt separate from ATT and any UMP form.
+        guard scenePhase == .active, !advertising.requestingConsent, !advertising.changingPrivacy else {return}
+        await notifications.synchronize()
     }
 }
 struct AppRoot:View {

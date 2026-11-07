@@ -1,0 +1,18 @@
+Affitto Stanze — version 1.0.0, build 8
+Resubmission addressing 7 November 2026 review, submission 968bcd0e-4af1-40da-a82c-60fdf4bd2839.
+
+BUSINESS MODEL
+The app manages free reservations of physical rooms. Users and administrators do not pay for accounts, bookings, digital functions or subscriptions, in or outside the app. Monetization is through a Google AdMob banner only. There are no paid unlocks, enterprise plans, ad-removal purchases or rewarded ads. Accounts are created by an authorized administrator; there is no public self-registration. Administrator functions are assigned by role, not by payment.
+
+TRACKING PERMISSION
+Build 8 adds Apple's native App Tracking Transparency request. On launch, when iOS reports the app as active and the ATT status is notDetermined, the system dialog appears before our code requests Google UMP consent information, initializes Google Mobile Ads or loads a banner. The Italian purpose text describes Google's advertising measurement and possible use of the advertising identifier across other companies' apps and sites.
+
+Choose “Ask App Not to Track” / “Non tracciarmi”: no advertising SDK startup or banners, with all reservation and administration functions still accessible. Denied, restricted and undetermined statuses all block advertising. Existing iOS tracking decisions and system-wide tracking restrictions are respected; the OS does not necessarily show a new dialog on every launch or reinstall.
+
+After ATT authorization, UMP separately updates the regional consent information and presents required forms. UMP must permit ad requests before ads start. Update/form errors leave ads disabled. Non-personalized requests remain enabled; they are not used to bypass ATT denial. The current banner is removed when the app becomes inactive and eligibility is checked again on return. Optional booking notifications request their own system permission separately.
+
+REGIONAL BEHAVIOR
+The ATT requirement is the same worldwide. Additional UMP forms vary according to the region and published AdMob message. Where UMP requires privacy options, the hand icon beside the banner area opens “Scelte privacy pubblicitarie”. To review the EEA flow, use an EEA test device and authorize ATT before inspecting the regional form; for the non-EEA flow, use a device in that region. The release has no geography override or debug booking mode.
+
+ACCESS FOR REVIEW
+Use the active user and administrator credentials supplied in the confidential App Review account fields. User: room availability, bookings and cancellation. Administrator: users, rooms, reservations, private notes, usage reports and PDF export. Credentials are not included in this file.
