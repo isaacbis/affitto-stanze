@@ -39,15 +39,24 @@ struct AdvertisingChecks {
         func make(_ service: FakeAdvertisingServices) -> AdvertisingManager {
             AdvertisingManager(services:service,configuration:configuration)
         }
-        // An existing GDPR grant cannot bypass denied, restricted or unresolved ATT.
-        for status in [TrackingAuthorization.denied, .restricted, .notDetermined] {
+        // Denied/restricted ATT permits ads only after a fresh successful UMP flow.
+        for status in [TrackingAuthorization.denied, .restricted] {
             let service = FakeAdvertisingServices()
-            service.authorization = status;service.trackingReply = status
+            service.authorization = status
             let manager = make(service)
             await manager.synchronize()
-            precondition(service.calls == (status == .notDetermined ? ["ATT"] : []))
-            precondition(!manager.ready && !manager.mayLoadBanner && !manager.requestingConsent)
+            precondition(service.calls == ["UMP update","UMP form","SDK start"])
+            precondition(manager.ready && manager.mayLoadBanner && !manager.requestingConsent)
+            service.canRequestAds = false
+            precondition(!manager.mayLoadBanner, "ATT refusal must never bypass UMP")
         }
+        let unresolved = FakeAdvertisingServices();unresolved.trackingReply = .notDetermined
+        let unresolvedManager = make(unresolved);await unresolvedManager.synchronize()
+        precondition(unresolved.calls == ["ATT"] && !unresolvedManager.ready)
+        let refuse = FakeAdvertisingServices();refuse.trackingReply = .denied
+        let refuseManager = make(refuse);await refuseManager.synchronize()
+        precondition(refuse.calls == ["ATT","UMP update","UMP form","SDK start"])
+        precondition(refuseManager.mayLoadBanner)
         // First launch: the system choice must precede consent networking, forms and SDK init.
         let service = FakeAdvertisingServices(), manager = make(service)
         await manager.synchronize()
@@ -61,7 +70,7 @@ struct AdvertisingChecks {
         precondition(service.calls.count == 4)
         service.isActive = true;service.authorization = .denied
         await manager.synchronize()
-        precondition(!manager.mayLoadBanner && service.calls.count == 4)
+        precondition(manager.mayLoadBanner && service.calls.count == 4, "ATT revocation keeps non-IDFA ads eligible")
         service.authorization = .authorized
         await manager.synchronize()
         precondition(manager.mayLoadBanner && service.calls.count == 4)
@@ -76,7 +85,7 @@ struct AdvertisingChecks {
         precondition(manager.privacyError != nil && !manager.ready)
         // Failed updates/forms must not start ads, even when a cached canRequestAds is true.
         for failUpdate in [true,false] {
-            let s = FakeAdvertisingServices();s.authorization = .authorized
+            let s = FakeAdvertisingServices();s.authorization = .denied
             s.failUpdate = failUpdate;s.failForm = !failUpdate
             let m = make(s);await m.synchronize()
             precondition(!m.ready && !s.calls.contains("SDK start"))
@@ -84,7 +93,7 @@ struct AdvertisingChecks {
             await m.synchronize()
             precondition(m.ready && s.calls.filter{$0 == "SDK start"}.count == 1)
         }
-        let noConsent = FakeAdvertisingServices();noConsent.canRequestAds = false
+        let noConsent = FakeAdvertisingServices();noConsent.canRequestAds = false;noConsent.trackingReply = .denied
         let deniedGDPR = make(noConsent);await deniedGDPR.synchronize()
         precondition(!deniedGDPR.ready && !noConsent.calls.contains("SDK start"))
         let inactive = FakeAdvertisingServices();inactive.isActive = false
@@ -94,7 +103,7 @@ struct AdvertisingChecks {
         for stage in ["update", "form", "start"] {
             let s = FakeAdvertisingServices();s.authorization = .authorized
             let m = make(s)
-            let revoke = {s.authorization = TrackingAuthorization.denied}
+            let revoke = {s.canRequestAds = false}
             if stage == "update" {s.onUpdate = revoke}
             if stage == "form" {s.onForm = revoke}
             if stage == "start" {s.onStart = revoke}
@@ -116,6 +125,6 @@ struct AdvertisingChecks {
         let second = Task {await concurrentManager.synchronize()}
         await first.value;await second.value
         precondition(concurrent.calls == ["ATT","UMP update","UMP form","SDK start"])
-        print("Advertising checks passed: ATT states/order, UMP failures/retry, revocation, lifecycle, privacy options, duplicate startup, disabled ads")
+        print("Advertising checks passed: ATT refusal/restriction and order, UMP failures/retry, consent revocation, lifecycle, privacy options, duplicate startup, disabled ads")
     }
 }

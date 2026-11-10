@@ -13,7 +13,7 @@ final class CompactScreensTests:XCTestCase {
         // Real system ATT prompt; the booking API and notifications remain isolated.
         // Reset the system choice so this test is repeatable on the same simulator.
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-preview","--ui-user","--ui-ad-consent"]
+        app.launchArguments = ["--ui-preview","--ui-user","--ui-ad-consent","--ui-ad-consent-non-eea"]
         app.resetAuthorizationStatus(for:.userTracking)
         app.launch()
         let alert = XCUIApplication(bundleIdentifier:"com.apple.springboard").alerts.firstMatch
@@ -24,6 +24,8 @@ final class CompactScreensTests:XCTestCase {
         deny.tap()
         XCTAssertTrue(app.tabBars.buttons["Prenota"].waitForExistence(timeout:10))
         XCTAssertFalse(app.staticTexts["advertising.preview"].exists)
+        XCTAssertTrue(app.descendants(matching:.any)["advertising.test.loaded"].waitForExistence(timeout:60), "Official Google test banner should load after ATT denial")
+        capture("Banner di prova dopo rifiuto ATT",app)
         app.tabBars.buttons["Prenota"].tap()
         app.buttons["booking.room"].tap();app.buttons["Sala 1"].tap()
         app.buttons["Continua"].tap();app.buttons["Continua"].tap();app.buttons["Continua"].tap()

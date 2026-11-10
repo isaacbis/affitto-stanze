@@ -2,6 +2,7 @@ import SwiftUI
 import AppTrackingTransparency
 import GoogleMobileAds
 import UserMessagingPlatform
+import OSLog
 
 // Consent coordinator: also compiled in isolation by test/check-advertising.py.
 enum TrackingAuthorization { case notDetermined, restricted, denied, authorized }
@@ -19,7 +20,8 @@ protocol AdvertisingServices: AnyObject {
     func startSDK() async
 }
 
-/// ATT and UMP are independent gates. No booking/account data enters this class.
+/// ATT controls IDFA access; UMP independently controls eligibility to request ads.
+/// No booking/account data enters this class.
 @MainActor
 final class AdvertisingManager: ObservableObject {
     @Published private(set) var ready = false
@@ -63,8 +65,9 @@ final class AdvertisingManager: ObservableObject {
         return productionUnit
         #endif
     }
-    private var authorizedAndActive: Bool {services.isActive && services.authorization == .authorized}
-    var mayLoadBanner: Bool {enabled && ready && authorizedAndActive && consentUpdated && services.canRequestAds && !changingPrivacy}
+    // Wait for the ATT decision, but denial/restriction still permits ads without IDFA.
+    private var advertisingAllowedAndActive: Bool {services.isActive && services.authorization != .notDetermined}
+    var mayLoadBanner: Bool {enabled && ready && advertisingAllowedAndActive && consentUpdated && services.canRequestAds && !changingPrivacy}
 
     func suspendAdvertising() {
         ready = false
@@ -80,13 +83,14 @@ final class AdvertisingManager: ObservableObject {
         if services.authorization == .notDetermined {
             await services.requestTrackingAuthorization()
         }
-        // A denial/restriction never falls back to cached GDPR consent or non-personalized ads.
-        guard authorizedAndActive else {suspendAdvertising();return}
+        // ATT refusal is not GDPR consent: always refresh UMP before requesting ads.
+        // The Google SDK omits IDFA when ATT is denied/restricted.
+        guard advertisingAllowedAndActive else {suspendAdvertising();return}
         if !consentUpdated {
             do {
                 try await services.updateConsent()
                 privacyOptionsRequired = services.privacyOptionsRequired
-                guard authorizedAndActive else {suspendAdvertising();return}
+                guard advertisingAllowedAndActive else {suspendAdvertising();return}
                 try await services.presentConsentIfRequired()
                 consentUpdated = true
             } catch {
@@ -114,13 +118,13 @@ final class AdvertisingManager: ObservableObject {
 
     private func updatePermission() async {
         privacyOptionsRequired = services.privacyOptionsRequired
-        guard authorizedAndActive, consentUpdated, services.canRequestAds else {suspendAdvertising();return}
+        guard advertisingAllowedAndActive, consentUpdated, services.canRequestAds else {suspendAdvertising();return}
         if !sdkStarted {
             sdkStarted = true
             await services.startSDK()
         }
         // Permission or application state may change while SDK initialization is suspended.
-        ready = authorizedAndActive && consentUpdated && services.canRequestAds
+        ready = advertisingAllowedAndActive && consentUpdated && services.canRequestAds
         revision = UUID()
     }
 }
@@ -144,7 +148,16 @@ final class GoogleAdvertisingServices: AdvertisingServices {
         _ = await ATTrackingManager.requestTrackingAuthorization()
     }
     func updateConsent() async throws {
-        try await ConsentInformation.shared.requestConsentInfoUpdate(with:RequestParameters())
+        let parameters = RequestParameters()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-ad-consent-non-eea") {
+            let settings = DebugSettings()
+            settings.geography = .notEEA
+            parameters.debugSettings = settings
+            ConsentInformation.shared.reset()
+        }
+        #endif
+        try await ConsentInformation.shared.requestConsentInfoUpdate(with:parameters)
     }
     func presentConsentIfRequired() async throws {
         try await ConsentForm.loadAndPresentIfRequired(from:nil)
@@ -204,7 +217,8 @@ private struct GoogleBanner: UIViewControllerRepresentable {
     static func dismantleUIViewController(_ controller:BannerController,coordinator:()) {controller.removeBanner()}
 }
 
-private final class BannerController:UIViewController {
+private final class BannerController:UIViewController, BannerViewDelegate {
+    private let logger = Logger(subsystem:"com.isaacmorganti.affittostanze",category:"Advertising")
     private var banner:BannerView?
     private let unitID:String
     private let ads:AdvertisingManager
@@ -215,6 +229,8 @@ private final class BannerController:UIViewController {
         guard banner == nil, ads.mayLoadBanner else {return}
         let banner = BannerView(adSize:AdSizeBanner)
         self.banner = banner
+        banner.delegate = self
+        banner.accessibilityIdentifier = "advertising.banner"
         banner.adUnitID = unitID
         banner.rootViewController = self
         banner.translatesAutoresizingMaskIntoConstraints = false
@@ -225,6 +241,18 @@ private final class BannerController:UIViewController {
         extras.additionalParameters = ["npa":"1"]
         request.register(extras)
         banner.load(request)
+    }
+    func bannerViewDidReceiveAd(_ bannerView:BannerView) {
+        logger.info("Banner received")
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-ad-consent") {
+            view.accessibilityIdentifier = "advertising.test.loaded"
+        }
+        #endif
+    }
+    func bannerView(_ bannerView:BannerView,didFailToReceiveAdWithError error:Error) {
+        let failure = error as NSError
+        logger.notice("Banner unavailable: \(failure.domain,privacy:.public) code \(failure.code)")
     }
     func removeBanner() {banner?.delegate = nil;banner?.removeFromSuperview();banner = nil}
 }
