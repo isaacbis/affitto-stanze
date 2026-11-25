@@ -40,8 +40,9 @@ function initFirebase() {
   return getFirestore();
 }
 
-const db = initFirebase();
-const notifications = createNotifications({db, env:process.env});
+const reviewDemo = process.env.AFFITTO_REVIEW_DEMO === '1';
+const db = reviewDemo ? require('./lib/review-store').memoryFirestore() : initFirebase();
+const notifications = createNotifications({db, env: reviewDemo ? {} : process.env});
 const loginThrottle = createLoginThrottle({ db });
 
 class FirestoreSessionStore extends session.Store {
@@ -1851,7 +1852,11 @@ function startCleanupIntervals() {
 ========================= */
 async function startServer() {
   try {
-    await ensureDefaultAdmin();
+    if (reviewDemo) {
+      await require('./lib/seed-review').seedReview(db, getRomeTodayYmd());
+    } else {
+      await ensureDefaultAdmin();
+    }
     await runStartupCleanup();
 
     app.listen(PORT, () => {
